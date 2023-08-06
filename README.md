@@ -20,7 +20,7 @@ you can automatically subsidize gas for transactions that match certain criteria
 
 ## Prerequisites
 
-- Python 3 (to run the `roll.py` script)
+- Python >= 3.10 (to run the `roll.py` script)
 
 The following dependencies will be checked by `roll.py`:
 
@@ -33,6 +33,16 @@ always for your permission before installing anything outside the current direct
 
 - Node.js 16.x
 - Yarn (`npm install -g yarn` — the old one, not yarn v3 aka yarn berry)
+
+## Contributing
+
+```bash
+# Install dependencies
+source scripts/install.sh
+
+# Run checks
+make check
+```
 
 ## Plans
 

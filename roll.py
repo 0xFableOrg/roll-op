@@ -127,7 +127,7 @@ def install_correct_node():
         # We have NVM, try using required version or installing it.
         try:
             lib.run(f"use node {NODE_VNAME}", f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
-        except Exception as err:
+        except Exception:
             if lib.ask_yes_no(f"Node {NODE_VNAME} ({NODE_VERSION}) is required. NVM is installed. "
                               f"Install with NVM?"):
                 nvm_install_node()
@@ -172,9 +172,11 @@ def setup_optimism_repo():
 
     print("Starting to build the optimism repository. This may take a while...\n")
     # TODO screen position moves, so this only clears one screen worth of output
-    if args.use_ansi_esc: lib.term_save_cursor()
+    if args.use_ansi_esc:
+        lib.term_save_cursor()
     run_with_node("build optimism", "make build", cwd="optimism", forward_output=True)
-    if args.use_ansi_esc: lib.term_clear_from_saved()
+    if args.use_ansi_esc:
+        lib.term_clear_from_saved()
     # TODO tee the outputs to a log file
     print("Successfully built the optimism repository.")
 
