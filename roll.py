@@ -4,6 +4,7 @@ import argparse
 import os
 import shutil
 import libroll as lib
+import op_geth
 
 ####################################################################################################
 # VARIABLES
@@ -44,6 +45,10 @@ subparsers.add_parser(
     "setup",
     help="installs prerequisites and builds the optimism repository")
 
+subparsers.add_parser(
+    "init-op-geth",
+    help="initializes the op-geth deployment directory")
+
 parser.add_argument(
     "--no-ansi-esc",
     help="disable ANSI escape codes for terminal manipulation",
@@ -51,9 +56,9 @@ parser.add_argument(
     dest="use_ansi_esc",
     action="store_false")
 
-
 ####################################################################################################
 # UTILITY
+
 
 def run_with_node(descr: str, command: str | list[str], **kwargs) -> str:
     """
@@ -105,6 +110,7 @@ def setup():
     install_correct_node()
     install_yarn()
     setup_optimism_repo()
+    setup_op_geth_repo()
 
 
 # --------------------------------------------------------------------------------------------------
@@ -180,6 +186,35 @@ def setup_optimism_repo():
     # TODO tee the outputs to a log file
     print("Successfully built the optimism repository.")
 
+# --------------------------------------------------------------------------------------------------
+
+
+def setup_op_geth_repo():
+    """
+    Clone the op-geth repository and build it.
+    """
+    github_url = "git@github.com:ethereum-optimism/op-geth.git"
+    git_tag = "v1.101106.0"
+
+    if os.path.isfile("op-geth"):
+        raise Exception("Error: 'op-geth' exists as a file and not a directory.")
+    elif not os.path.exists("op-geth"):
+        descr = "clone the op-geth repository"
+        lib.run(descr, f"git clone {github_url}")
+        print(f"Succeeded: {descr}")
+
+    lib.run("checkout stable version", f"git checkout --detach {git_tag}", cwd="op-geth")
+
+    print("Starting to build the op-geth repository. This may take a while...\n")
+    # TODO screen position moves, so this only clears one screen worth of output
+    if args.use_ansi_esc:
+        lib.term_save_cursor()
+    run_with_node("build op-geth", "make geth", cwd="op-geth", forward_output=True)
+    if args.use_ansi_esc:
+        lib.term_clear_from_saved()
+    # TODO tee the outputs to a log file
+    print("Successfully built the op-geth repository.")
+
 
 ####################################################################################################
 
@@ -193,7 +228,8 @@ if __name__ == "__main__":
         check_prerequisites()
         if args.command == "setup":
             setup()
-
+        elif args.command == "init-op-geth":
+            op_geth.init_op_geth()
         print("Done.")
     except Exception as e:
         print(f"Aborted with error: {e}")
