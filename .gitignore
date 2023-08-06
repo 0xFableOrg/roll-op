@@ -1,3 +1,5 @@
 /optimism
 /__pycache__
 /.idea
+/venv
+/.ruff_cache
