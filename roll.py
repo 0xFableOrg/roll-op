@@ -170,7 +170,9 @@ def install_yarn():
 
 def setup_optimism_repo():
     github_url = "git@github.com:ethereum-optimism/optimism.git"
-    git_tag = "op-node/v1.1.1"
+    # This is the earliest commit with functional devnet scripts
+    # on top of "op-node/v1.1.1" tag release.
+    git_tag = "7168db67c5b421975fef2a090aa6e6ee4e3ff298"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
