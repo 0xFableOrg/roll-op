@@ -3,6 +3,7 @@
 import argparse
 import os
 import shutil
+
 import libroll as lib
 import term
 
@@ -56,14 +57,14 @@ parser.add_argument(
 ####################################################################################################
 # UTILITY
 
-def run_with_node(descr: str, command: str | list[str], **kwargs) -> str:
+def cmd_with_node(command: str) -> str:
     """
-    Just like :py:func:`run`, but prepends the command with an ``nvm use`` statement if necessary.
+    If required, prepends the command with an ``nvm use`` statement.
     """
     if must_nvm_use:
-        return lib.run(descr, f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}", **kwargs)
+        return f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}"
     else:
-        return lib.run(descr, command, **kwargs)
+        return command
 
 
 ####################################################################################################
@@ -73,6 +74,8 @@ def check_prerequisites():
     Check basic prerequisites for running this script, and print warnings for potential source of
     troubles.
     """
+
+    os.makedirs("logs", exist_ok=True)
 
     if shutil.which("make") is None:
         raise Exception(
@@ -151,7 +154,7 @@ def install_yarn():
         return
 
     if lib.ask_yes_no("Yarn is required. Install?"):
-        run_with_node("install yarn", "npm install -g yarn")
+        lib.run("install yarn", cmd_with_node("npm install -g yarn"))
     else:
         raise Exception("Yarn is required.")
 
@@ -165,20 +168,22 @@ def setup_optimism_repo():
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
     elif not os.path.exists("optimism"):
+        print("Cloning the optimism repository. This may take a while...")
         descr = "clone the optimism repository"
         lib.run(descr, f"git clone {github_url}")
         print(f"Succeeded: {descr}")
 
     lib.run("checkout stable version", f"git checkout --detach {git_tag}", cwd="optimism")
 
-    print("Starting to build the optimism repository. This may take a while...\n")
-    # TODO screen position moves, so this only clears one screen worth of output
-    if args.use_ansi_esc:
-        lib.term_save_cursor()
-    run_with_node("build optimism", "make build", cwd="optimism", forward_output=True)
-    if args.use_ansi_esc:
-        lib.term_clear_from_saved()
-    # TODO tee the outputs to a log file
+    print("Starting to build the optimism repository. Logging to logs/build_optimism.log\n" +
+          "This may take a while...")
+
+    lib.run_roll_log(
+        descr="build optimism",
+        command=cmd_with_node("make build"),
+        cwd="optimism",
+        log_file="logs/build_optimism.log")
+
     print("Successfully built the optimism repository.")
 
 
