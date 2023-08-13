@@ -57,6 +57,66 @@ def ask_yes_no(question: str) -> bool:
 
 ####################################################################################################
 
+def read_json_file(file_path: str) -> dict:
+    """
+    Reads a JSON file and returns the parsed contents.
+    """
+    import json
+    with open(file_path, "r") as file:
+        return json.load(file)
+
+
+####################################################################################################
+
+def write_json_file(file_path: str, data: dict):
+    """
+    Writes a JSON file with the given data.
+    """
+    import json
+    with open(file_path, "w+") as file:
+        json.dump(data, file, indent=4)
+
+
+####################################################################################################
+
+def replace_in_file(file_path: str, replacements: dict):
+    """
+    Replaces all occurrences of the keys in `replacements` with the corresponding values inside the
+    given file.
+    """
+    with open(file_path, "r") as file :
+        filedata = file.read()
+
+    for key, value in replacements.items():
+        filedata.replace(key, value)
+
+    with open(file_path, "w") as file:
+        file.write(filedata)
+
+
+####################################################################################################
+
+class Tee:
+    """
+    A class that implements `write(text)` and `flush()` making it suitable to assignment to
+    `sys.stdout`. It forwards all the writes to a list of files (one of which can be the original
+    `sys.stdout`).
+    """
+
+    def __init__(self, *files):
+        self.files = files
+
+    def write(self, text):
+        for file in self.files:
+            file.write(text)
+
+    def flush(self):
+        for file in self.files:
+            file.flush()
+
+
+####################################################################################################
+
 def term_save_cursor():
     """
     Uses an ANSI escape code to save the current cursor position.
