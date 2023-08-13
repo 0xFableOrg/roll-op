@@ -51,59 +51,59 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     if kwargs.get("shell") is not False and type(command) is list:
         command = " ".join(command)
 
+    wait = kwargs.pop("wait", True)
+    check = kwargs.pop("check", True if wait else False)
+    stream = kwargs.pop("stream", None)
+    forward_default = "stream" if stream is not None else "capture" if wait else "self"
+    forward = kwargs.pop("forward", forward_default)
+
+    if forward == "self":
+        stdout = None
+        stderr = None
+    elif forward in ("capture", "stream"):
+        stdout = subprocess.PIPE
+        stderr = subprocess.STDOUT
+    elif forward == "discard":
+        stdout = subprocess.DEVNULL
+        stderr = subprocess.DEVNULL
+    elif forward == "fd":
+        stdout = kwargs.pop("stdout", None)
+        stderr = kwargs.pop("stderr", None)
+    else:
+        raise AssertionError(f"Invalid run_mode: {forward}")
+
+    if not isinstance(check, bool):
+        raise AssertionError("`check` option must be a boolean")
+    if not isinstance(wait, bool):
+        raise AssertionError("`wait` option must be a boolean")
+
+    if stream is not None and forward != "stream":
+        raise AssertionError(
+            "`forward` option must be 'stream' or omitted when using the `stream` option.")
+    if stream is None and forward == "stream":
+        raise AssertionError(
+            "Must specify `stream` option when using the `forward='stream'` option.")
+
+    missing = object()
+    if kwargs.get("stdout", missing) is not missing:
+        raise AssertionError("Cannot only specify `stdout` option when using `forward='fd'`")
+    if kwargs.get("stderr", missing) is not missing:
+        raise AssertionError("Cannot only specify `stderr` option when using `forward='fd'`")
+
+    if forward == "capture" and not wait:
+        raise AssertionError("Cannot use `forward='capture'` with `wait=False`")
+    if check and not wait:
+        raise AssertionError("Cannot use `check=True` with `wait=False`")
+
+    keywords = {
+        "stdout": stdout,
+        "stderr": stderr,
+        "text": True,
+        "shell": True,
+        **kwargs,
+    }
+
     try:
-        wait = kwargs.pop("wait", True)
-        check = kwargs.pop("check", True if wait else False)
-        stream = kwargs.pop("stream", None)
-        forward_default = "stream" if stream is not None else "capture" if wait else "self"
-        forward = kwargs.pop("forward", forward_default)
-
-        if forward == "self":
-            stdout = None
-            stderr = None
-        elif forward in ("capture", "stream"):
-            stdout = subprocess.PIPE
-            stderr = subprocess.STDOUT
-        elif forward == "discard":
-            stdout = subprocess.DEVNULL
-            stderr = subprocess.DEVNULL
-        elif forward == "fd":
-            stdout = kwargs.pop("stdout", None)
-            stderr = kwargs.pop("stderr", None)
-        else:
-            raise AssertionError(f"Invalid run_mode: {forward}")
-
-        if not isinstance(check, bool):
-            raise AssertionError("`check` option must be a boolean")
-        if not isinstance(wait, bool):
-            raise AssertionError("`wait` option must be a boolean")
-
-        if stream is not None and forward != "stream":
-            raise AssertionError(
-                "`forward` option must be 'stream' or omitted when using the `stream` option.")
-        if stream is None and forward == "stream":
-            raise AssertionError(
-                "Must specify `stream` option when using the `forward='stream'` option.")
-
-        missing = object()
-        if kwargs.get("stdout", missing) is not missing:
-            raise AssertionError("Cannot only specify `stdout` option when using `forward='fd'`")
-        if kwargs.get("stderr", missing) is not missing:
-            raise AssertionError("Cannot only specify `stderr` option when using `forward='fd'`")
-
-        if forward == "capture" and not wait:
-            raise AssertionError("Cannot use `forward='capture'` with `wait=False`")
-        if check and not wait:
-            raise AssertionError("Cannot use `check=True` with `wait=False`")
-
-        keywords = {
-            "stdout": stdout,
-            "stderr": stderr,
-            "text": True,
-            "shell": True,
-            **kwargs,
-        }
-
         process = subprocess.Popen(command, **keywords)
 
         thread = None
@@ -127,14 +127,17 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
         output = "".join(line for line in process.stdout) if forward == "capture" else None
 
         if check and returncode != 0:
-            raise subprocess.CalledProcessError(returncode, command)
+            raise extend_exception(
+                subprocess.CalledProcessError(returncode, command),
+                prefix=f"Failed to {descr}: ",
+                suffix=f"\nProcess output:\n{output}")
         elif forward == "capture":
             return output
         else:
             return None
 
-    except subprocess.CalledProcessError as err:
-        raise Exception(f"Failed to {descr}: {err}") from err
+    except OSError as e:
+        raise extend_exception(e, prefix=f"Failed to {descr}: ")
 
 
 ####################################################################################################
