@@ -201,6 +201,8 @@ if __name__ == "__main__":
             setup()
 
         print("Done.")
+    except KeyboardInterrupt:
+        print("Interrupted by user.")
     except Exception as e:
         print(f"Aborted with error: {e}")
 
