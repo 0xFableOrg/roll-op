@@ -53,6 +53,13 @@ parser.add_argument(
     dest="use_ansi_esc",
     action="store_false")
 
+parser.add_argument(
+    "--stack-trace",
+    help="display exception stack trace in case of failure",
+    default=False,
+    dest="show_stack_trace",
+    action="store_true")
+
 
 ####################################################################################################
 # UTILITY
@@ -204,6 +211,9 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Interrupted by user.")
     except Exception as e:
-        print(f"Aborted with error: {e}")
+        if args.show_stack_trace:
+            raise e
+        else:
+            print(f"Aborted with error: {e}")
 
 ####################################################################################################
