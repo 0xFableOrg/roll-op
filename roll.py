@@ -4,6 +4,7 @@ import argparse
 import os
 import shutil
 import libroll as lib
+import term
 
 ####################################################################################################
 # VARIABLES
@@ -91,7 +92,7 @@ def check_prerequisites():
             f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher."
             + "Go is backwards compatible, so your old project will continue to build.")
 
-    if args.use_ansi_esc and not lib.is_well_known_term():
+    if args.use_ansi_esc and not term.is_well_known_term():
         print(
             "\nWARNING: Your terminal is weird."
             + "This may cause it to not handle ANSI escape codes well."

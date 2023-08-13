@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 
@@ -117,54 +116,3 @@ class Tee:
 
 ####################################################################################################
 
-def term_save_cursor():
-    """
-    Uses an ANSI escape code to save the current cursor position.
-    """
-    sys.stdout.write("\033[s")
-    sys.stdout.flush()
-
-
-####################################################################################################
-
-def term_restore_cursor():
-    """
-    Uses an ANSI escape code to restore the previously saved cursor position.
-    """
-    sys.stdout.write("\033[u")
-    sys.stdout.flush()
-
-
-####################################################################################################
-
-def term_clear_to_end():
-    """
-    Uses an ANSI escape code to clear from the cursor to the end of the screen.
-    """
-    sys.stdout.write("\033[J")
-    sys.stdout.flush()
-
-
-####################################################################################################
-
-def term_clear_from_saved():
-    """
-    Uses ANSI escape codes to clear from the previously saved cursor position to the end of the
-    screen.
-    """
-    term_restore_cursor()
-    term_clear_to_end()
-
-
-####################################################################################################
-
-def is_well_known_term():
-    """
-    Returns true if the current terminal is in a list of well-known terminal types that should
-    handle ANSI escapes.
-    """
-    term = os.getenv('TERM')
-    return term in ['xterm', 'linux', 'vt100', 'vt220', 'xterm-color', 'xterm-256color']
-
-
-####################################################################################################
