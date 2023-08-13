@@ -1,6 +1,11 @@
+import os
 import subprocess
 import sys
 from threading import Thread
+
+####################################################################################################
+
+debug_mode = os.getenv("DEBUG") is not None
 
 
 ####################################################################################################
@@ -235,6 +240,29 @@ def replace_in_file(file_path: str, replacements: dict):
 
     with open(file_path, "w") as file:
         file.write(filedata)
+
+
+####################################################################################################
+
+def debug(string: str):
+    """
+    Prints the given string to stdout if `debug_mode` is `True`.
+    """
+    global debug_mode
+    if debug_mode:
+        print(f"[DEBUG] {string}")
+
+
+####################################################################################################
+
+def extend_exception(e: Exception, prefix: str, suffix: str = ""):
+    """
+    If supported, extends the given exception with the given prefix and suffix added to the message.
+    The stack trace is preserved.
+    """
+    if len(e.args) >= 1:
+        e.args = (f"{prefix}{e.args[0]}{suffix}",) + e.args[1:]
+    return e
 
 
 ####################################################################################################
