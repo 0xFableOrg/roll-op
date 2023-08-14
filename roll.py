@@ -29,36 +29,10 @@ GO_VERSION = "1.19"
 NVM_VERSION = "0.39.4"
 
 ####################################################################################################
-# ARGUMENT PARSING
+# GLOBALS
 
 # Store the parsed arguments here.
 global args
-
-parser = argparse.ArgumentParser(
-    description="Helps you spin up an op-stack rollup.")
-
-subparsers = parser.add_subparsers(
-    title="commands",
-    dest="command",
-    metavar="<command>")
-
-subparsers.add_parser(
-    "setup",
-    help="installs prerequisites and builds the optimism repository")
-
-parser.add_argument(
-    "--no-ansi-esc",
-    help="disable ANSI escape codes for terminal manipulation",
-    default=True,
-    dest="use_ansi_esc",
-    action="store_false")
-
-parser.add_argument(
-    "--stack-trace",
-    help="display exception stack trace in case of failure",
-    default=False,
-    dest="show_stack_trace",
-    action="store_true")
 
 
 ####################################################################################################
@@ -195,6 +169,39 @@ def setup_optimism_repo():
 
     print("Successfully built the optimism repository.")
 
+
+####################################################################################################
+# ARGUMENT PARSING
+
+parser = argparse.ArgumentParser(
+    description="Helps you spin up an op-stack rollup.")
+
+subparsers = parser.add_subparsers(
+    title="commands",
+    dest="command",
+    metavar="<command>")
+
+subparsers.add_parser(
+    "setup",
+    help="installs prerequisites and builds the optimism repository")
+
+subparsers.add_parser(
+    "l1",
+    help="spins up a local L1 node with the rollup contracts deployed on it")
+
+parser.add_argument(
+    "--no-ansi-esc",
+    help="disable ANSI escape codes for terminal manipulation",
+    default=True,
+    dest="use_ansi_esc",
+    action="store_false")
+
+parser.add_argument(
+    "--stack-trace",
+    help="display exception stack trace in case of failure",
+    default=False,
+    dest="show_stack_trace",
+    action="store_true")
 
 ####################################################################################################
 
