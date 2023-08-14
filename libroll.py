@@ -31,9 +31,9 @@ def run(descr: str, command: str | list[str], **kwargs) -> str:
         }
         # Seems to return str but I'm getting warnings about it being typed as bytes.
         output: str|bytes = subprocess.run(command, **keywords).stdout
-        if type(output) is str:
+        if isinstance(output, str):
             return output
-        elif type(output) is bytes:
+        elif isinstance(output, bytes):
             return output.decode("utf-8")
     except subprocess.CalledProcessError as err:
         raise Exception(f"Failed to {descr}: {err}") from err
