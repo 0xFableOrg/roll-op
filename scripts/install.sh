@@ -8,9 +8,10 @@ check_python_version() {
     python_version=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
     if python3 -c "import sys; sys.exit(not (sys.version_info >= (3, 10)))"; then
         echo "Python version is $python_version"
+        return 0
     else
         echo "Python version is $python_version, but 3.10 or greater is required"
-        exit 1
+        return 1
     fi
 }
 
@@ -48,6 +49,8 @@ install_dev_dependencies() {
 }
 
 check_python_version
-activate_venv
-install_dev_dependencies
 
+if [ $? -eq 0 ]; then
+    activate_venv
+    install_dev_dependencies
+fi
