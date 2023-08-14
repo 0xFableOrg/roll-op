@@ -70,7 +70,7 @@ def check_prerequisites():
 
     if shutil.which("go") is None:
         raise Exception(
-            f"go is not installed. Please install Go **version {GO_VERSION}** or higher.")
+            f"go is not installed. Please install Go version {GO_VERSION} or higher.")
     elif lib.run("get go version", "go version") < GO_VERSION:
         raise Exception(
             f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher."
@@ -80,7 +80,7 @@ def check_prerequisites():
         print(
             "\nWARNING: Your terminal is weird."
             + "This may cause it to not handle ANSI escape codes well."
-            + "You can disable them with TODO\n")
+            + "You can disable them with --no-ansi-esc\n")
 
 
 ####################################################################################################
@@ -154,7 +154,7 @@ def setup_optimism_repo():
         print("Cloning the optimism repository. This may take a while...")
         descr = "clone the optimism repository"
         lib.run(descr, f"git clone {github_url}")
-        print(f"Succeeded: {descr}")
+        print("Successfully cloned the optimism repository.")
 
     lib.run("checkout stable version", f"git checkout --detach {git_tag}", cwd="optimism")
 
