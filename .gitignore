@@ -3,3 +3,5 @@
 /.idea
 /venv
 /.ruff_cache
+/bin
+/logs

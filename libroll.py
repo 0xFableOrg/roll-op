@@ -270,6 +270,15 @@ def extend_exception(e: Exception, prefix: str, suffix: str = ""):
 
 ####################################################################################################
 
+def chmodx(file_path: str):
+    """
+    Makes the given file executable.
+    """
+    os.chmod(file_path, os.stat(file_path).st_mode | 0o111)
+
+
+####################################################################################################
+
 class Tee:
     """
     A class that implements `write(text)` and `flush()` making it suitable to assignment to
