@@ -271,4 +271,71 @@ def install_foundry():
     version = get_foundry_version()
     print(f"Successfully installed Foundry {version}")
 
+
+####################################################################################################
+
+MIN_GETH_VERSION = "1.12.0"
+"""Minimum supported geth version."""
+
+INSTALL_GETH_VERSION = "1.12.0"
+"""Version of geth to install if not found."""
+
+GETH_URL_LINUX = \
+    "https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.12.0-e501b3b0.tar.gz"
+"""Link to geth binary for Linux."""
+
+GETH_URL_MACOS = \
+    "https://gethstore.blob.core.windows.net/builds/geth-darwin-amd64-1.12.0-e501b3b0.tar.gz"
+"""Link to geth binary for MacOS."""
+
+
+def check_or_install_geth():
+    """
+    Verify that geth is installed and has the correct version, or install it if not.
+    """
+
+    geth_path = shutil.which("geth")
+    if geth_path is not None:
+        # This includes ./bin/jq, as basic_setup() adds ./bin to the path.
+        version_blob = lib.run(f"get geth version", f"geth version")
+        match = re.search(r"^Version: (\d+\.\d+\.\d+)", version_blob, flags=re.MULTILINE)
+        if match is not None:
+            version = match.group(1)
+            abspath = os.path.abspath(geth_path)
+            if version >= MIN_GETH_VERSION:
+                print(f"Using {abspath} (version: {version})")
+                return
+            else:
+                lib.debug(f"Found {abspath} (version: {version})")
+
+    if lib.ask_yes_no(
+            f"Geth {MIN_GETH_VERSION} is required. Install in ./bin?\n"
+            + "This will overwrite any version of geth that might be in that directory."):
+        install_geth()
+    else:
+        raise Exception(f"Geth missing or wrong version (expected: > {MIN_GETH_VERSION}).")
+
+
+####################################################################################################
+
+def install_geth():
+    """
+    Installs geth in ./bin (uses the GETH_URL_LINUX and GETH_URL_MACOS constants).
+    """
+    descr = "install geth"
+    os.makedirs("bin", exist_ok=True)
+    if sys.platform not in ("linux", "darwin"):
+        raise Exception(f"Unsupported OS for automatic geth installation: {sys.platform}.\n"
+                        + "Please install geth manually and have it in $PATH or in ./bin/")
+
+    try:
+        if sys.platform == "linux":
+            lib.run(descr, f"curl -L {GETH_URL_LINUX} | tar xz -C bin --strip-components=1")
+        elif sys.platform == "darwin":
+            lib.run(descr, f"curl -L {GETH_URL_MACOS} | tar xz -C bin --strip-components=1")
+    except Exception as err:
+        raise lib.extend_exception(err, prefix="Failed to install geth: ")
+
+    print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
+
 ####################################################################################################
