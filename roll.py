@@ -177,7 +177,7 @@ def install_correct_node():
                 raise Exception(f"Node {NODE_VNAME} ({NODE_VERSION}) is required.")
     else:
         # Install NVM + Node.
-        nvm_url = f"https://raw.githubusercontent.com/nvm-sh/nvm/{NVM_VERSION}/install.sh"
+        nvm_url = f"https://raw.githubusercontent.com/nvm-sh/nvm/v{NVM_VERSION}/install.sh"
         if lib.ask_yes_no(f"Node {NODE_VNAME} ({NODE_VERSION}) is required. Install NVM + Node?"):
             lib.run("install nvm", f"curl -o- {nvm_url} | bash")
             nvm_install_node()
