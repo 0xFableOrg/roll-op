@@ -24,7 +24,7 @@ you can automatically subsidize gas for transactions that match certain criteria
 
 The following dependencies will be checked by `roll.py`:
 
-- `make`
+- Some common command line utilities: `make, `curl`, `tar`
 - Git
 - Go 1.19
 
@@ -33,6 +33,7 @@ always for your permission before installing anything outside the current direct
 
 - Node.js 16.x
 - Yarn (`npm install -g yarn` — the old one, not yarn v3 aka yarn berry)
+- The `jq` command line utility
 
 ## Contributing
 

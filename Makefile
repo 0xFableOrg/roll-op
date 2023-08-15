@@ -1,4 +1,3 @@
-
 linter: ## Run linter
 	@ruff check .
 .PHONY: linter
