@@ -189,8 +189,12 @@ def install_correct_node():
 # --------------------------------------------------------------------------------------------------
 
 def install_yarn():
-    if shutil.which("yarn") is not None:
+    try:
+        # can't use `shutil.which`, we need to use proper Node version!
+        lib.run("get yarn version", cmd_with_node("yarn --version"))
         return
+    except Exception:
+        pass
 
     if lib.ask_yes_no("Yarn is required. Install?"):
         lib.run("install Yarn", cmd_with_node("npm install -g yarn"))
