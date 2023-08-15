@@ -3,6 +3,7 @@
 import argparse
 import os
 import shutil
+import sys
 
 import libroll as lib
 import term
@@ -31,8 +32,17 @@ NVM_VERSION = "0.39.4"
 ####################################################################################################
 # GLOBALS
 
-# Store the parsed arguments here.
 global args
+"""Parsed program arguments."""
+
+jq_path = "jq"
+"""Path to the jq utility."""
+
+JQ_URL_LINUX = "https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64"
+"""Link to the jq binary for Linux."""
+
+JQ_URL_MACOS = "https://github.com/jqlang/jq/releases/download/jq-1.6/jq-osx-amd64"
+"""Link to the jq binary for macOS."""
 
 
 ####################################################################################################
@@ -53,10 +63,15 @@ def cmd_with_node(command: str) -> str:
 def check_prerequisites():
     """
     Check basic prerequisites for running this script, and print warnings for potential source of
-    troubles.
+    troubles. Can also install some of the prerequisites, and does some basic setup (creating
+    directories, modifying PATH).
     """
 
     os.makedirs("logs", exist_ok=True)
+    os.makedirs("bin", exist_ok=True)
+
+    # Append "bin" to the path
+    os.environ['PATH'] = f"{os.environ['PATH']}:{os.path.abspath('bin')}"
 
     if shutil.which("make") is None:
         raise Exception(
@@ -66,7 +81,17 @@ def check_prerequisites():
     if shutil.which("git") is None:
         raise Exception(
             "git is not installed. Please install it from your package manager." +
-            "e.g. `brew install gi` or `sudo apt install git`")
+            "e.g. `brew install git` or `sudo apt install git`")
+
+    if shutil.which("curl") is None:
+        raise Exception(
+            "curl is not installed. Please install it from your package manager." +
+            "e.g. `sudo apt install curl`")
+
+    if shutil.which("tar") is None:
+        raise Exception(
+            "tar is not installed. Please install it from your package manager." +
+            "e.g. `sudo apt install tar`")
 
     if shutil.which("go") is None:
         raise Exception(
@@ -76,11 +101,43 @@ def check_prerequisites():
             f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher."
             + "Go is backwards compatible, so your old project will continue to build.")
 
+    if shutil.which("jq") is None:
+        global jq_path
+        jq_path = "bin/jq"
+        if not os.path.isfile("bin/jq"):
+            install_jq()
+
     if args.use_ansi_esc and not term.is_well_known_term():
         print(
             "\nWARNING: Your terminal is weird."
             + "This may cause it to not handle ANSI escape codes well."
             + "You can disable them with --no-ansi-esc\n")
+
+
+####################################################################################################
+
+def install_jq():
+    """
+    Installs jq in ./bin (uses the JQ_URL_LINUX and JQ_URL_MACOS constants).
+    """
+    descr = "install jq"
+    os.makedirs("bin", exist_ok=True)
+    if sys.platform not in ("linux", "darwin"):
+        raise Exception(f"Unsupported OS for automatic jq installation: {sys.platform}.\n"
+                        + "Please install jq manually and have it in $PATH or in ./bin/")
+
+    print("Installing jq in bin/jq")
+
+    try:
+        if sys.platform == "linux":
+            lib.run(descr, f"curl -L {JQ_URL_LINUX} -o bin/jq")
+        elif sys.platform == "darwin":
+            lib.run(descr, f"curl -L {JQ_URL_MACOS} -o bin/jq")
+        lib.chmodx("bin/jq")
+    except Exception as err:
+        raise lib.extend_exception(err, prefix="Failed to install jq: ")
+
+    print(f"Successfully installed jq as ./bin/jq")
 
 
 ####################################################################################################
