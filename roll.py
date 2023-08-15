@@ -53,7 +53,7 @@ def cmd_with_node(command: str) -> str:
     If required, prepends the command with an ``nvm use`` statement.
     """
     if must_nvm_use:
-        return f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}"
+        return f". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}"
     else:
         return command
 
@@ -163,12 +163,12 @@ def install_correct_node():
     must_nvm_use = True
 
     def nvm_install_node():
-        lib.run(f"install node {NODE_VNAME}", f"source ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
+        lib.run(f"install Node {NODE_VNAME}", f". ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
 
     if os.path.isfile(os.path.expanduser("~/.nvm/nvm.sh")):
         # We have NVM, try using required version or installing it.
         try:
-            lib.run(f"use node {NODE_VNAME}", f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
+            lib.run(f"use node {NODE_VNAME}", f". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
         except Exception:
             if lib.ask_yes_no(f"Node {NODE_VNAME} ({NODE_VERSION}) is required. NVM is installed. "
                               f"Install with NVM?"):
