@@ -76,7 +76,7 @@ def check_prerequisites():
     if shutil.which("make") is None:
         raise Exception(
             "Make is not installed. Please install it from your package manager." +
-            "e.g. `brew install make` or `sudo apt install build-essentials`")
+            "e.g. `brew install make` or `sudo apt install build-essential`")
 
     if shutil.which("git") is None:
         raise Exception(
