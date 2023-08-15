@@ -101,6 +101,18 @@ if __name__ == "__main__":
         if lib.args.command == "setup":
             setup()
 
+        if lib.args.command == "l1":
+            deps.check_or_install_foundry()
+            deps.check_or_install_geth()
+            import l1
+            import paths
+            l1.deploy_l1_devnet(paths.OPPaths("optimism"))
+
+        if lib.args.command == "clean":
+            import l1
+            import paths
+            l1.clean(paths.OPPaths("optimism"))
+
         print("Done.")
     except KeyboardInterrupt:
         print("Interrupted by user.")
