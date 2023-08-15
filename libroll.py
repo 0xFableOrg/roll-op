@@ -280,8 +280,8 @@ class ExtendedException(Exception):
 
 def extend_exception(e: Exception, prefix: str, suffix: str = ""):
     """
-    Extends the given exception with the given prefix and suffix added to the message, by wrapping it
-    into a instance of :py:class:`ExtendedException`. These exceptions are not meant to be caught
+    Extends the given exception with the given prefix and suffix added to the message, by wrapping
+    it into a instance of :py:class:`ExtendedException`. These exceptions are not meant to be caught
     but to bubble up to the top level, where they will be printed.
     """
     return ExtendedException(e, prefix, suffix)
