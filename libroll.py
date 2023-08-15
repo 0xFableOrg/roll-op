@@ -4,6 +4,10 @@ import sys
 from threading import Thread
 
 ####################################################################################################
+# GLOBALS
+
+args = object()
+"""Container for parsed program arguments (cf. roll.py)"""
 
 debug_mode = os.getenv("DEBUG") is not None
 
