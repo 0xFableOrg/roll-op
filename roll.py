@@ -206,7 +206,7 @@ def install_yarn():
 # --------------------------------------------------------------------------------------------------
 
 def setup_optimism_repo():
-    github_url = "git@github.com:ethereum-optimism/optimism.git"
+    github_url = "https://github.com/ethereum-optimism/optimism.git"
     # This is the earliest commit with functional devnet scripts
     # on top of "op-node/v1.1.1" tag release.
     git_tag = "7168db67c5b421975fef2a090aa6e6ee4e3ff298"
