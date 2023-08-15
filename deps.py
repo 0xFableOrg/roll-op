@@ -131,13 +131,10 @@ def cmd_with_node(command: str) -> str:
 
 ####################################################################################################
 
-NODE_VNAME = "v16"
-"""Short name of the node version to use, for use in logs."""
-
 NODE_VERSION = "v16.16.0"
 """Full node of the node version required by the optimism repository."""
 
-NVM_VERSION = "0.39.4"
+NVM_VERSION = "v0.39.4"
 """A recent NVM version to install if needed."""
 
 
@@ -158,27 +155,27 @@ def check_or_install_node():
     must_nvm_use = True
 
     def nvm_install_node():
-        lib.run(f"install Node {NODE_VNAME}", f". ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
+        lib.run(f"install Node {NODE_VERSION}", f". ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
         print(f"Successfully installed Node {NODE_VERSION}")
 
     if os.path.isfile(os.path.expanduser("~/.nvm/nvm.sh")):
         # We have NVM, try using required version or installing it.
         try:
-            lib.run(f"use node {NODE_VNAME}", f". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
+            lib.run(f"use node {NODE_VERSION}", f". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
         except Exception:
-            if lib.ask_yes_no(f"Node {NODE_VNAME} ({NODE_VERSION}) is required. NVM is installed. "
+            if lib.ask_yes_no(f"Node {NODE_VERSION} is required. NVM is installed. "
                               f"Install with NVM?"):
                 nvm_install_node()
             else:
-                raise Exception(f"Node {NODE_VNAME} ({NODE_VERSION}) is required.")
+                raise Exception(f"Node {NODE_VERSION} is required.")
     else:
         # Install NVM + Node.
-        nvm_url = f"https://raw.githubusercontent.com/nvm-sh/nvm/v{NVM_VERSION}/install.sh"
-        if lib.ask_yes_no(f"Node {NODE_VNAME} ({NODE_VERSION}) is required. Install NVM + Node?"):
+        nvm_url = f"https://raw.githubusercontent.com/nvm-sh/nvm/{NVM_VERSION}/install.sh"
+        if lib.ask_yes_no(f"Node {NODE_VERSION} is required. Install NVM + Node?"):
             lib.run("install nvm", f"curl -o- {nvm_url} | bash")
             nvm_install_node()
         else:
-            raise Exception(f"Node {NODE_VNAME} ({NODE_VERSION}) is required.")
+            raise Exception(f"Node {NODE_VERSION} is required.")
 
 
 ####################################################################################################
