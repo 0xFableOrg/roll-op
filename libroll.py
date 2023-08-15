@@ -130,11 +130,9 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
             raise extend_exception(
                 subprocess.CalledProcessError(returncode, command),
                 prefix=f"Failed to {descr}: ",
-                suffix=f"\nProcess output:\n{output}")
-        elif forward == "capture":
-            return output
-        else:
-            return None
+                suffix=f"\nProcess output:\n> {output}" if output is not None else "")
+
+        return output
 
     except OSError as e:
         raise extend_exception(e, prefix=f"Failed to {descr}: ")
