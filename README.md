@@ -33,6 +33,7 @@ always for your permission before installing anything outside the current direct
 
 - Node.js 16.x
 - Yarn (`npm install -g yarn` — the old one, not yarn v3 aka yarn berry)
+- Geth > 1.12.0 (but only if you want to run a devnet L1 node)
 - The `jq` command line utility
 - Foundry
 
