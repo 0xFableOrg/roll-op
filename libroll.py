@@ -256,14 +256,35 @@ def debug(string: str):
 
 ####################################################################################################
 
+class ExtendedException(Exception):
+    """
+    A wrapper exception class that extends its inner exception with a prefix and a suffix to the
+    message.
+    """
+
+    def __init__(self, e: Exception, prefix: str, suffix: str = ""):
+        self.prefix = prefix
+        self.suffix = suffix
+        self.e = e
+
+    def __getattr__(self, item: str):
+        # forward all unknonw attributes & functions to the inner exception
+        return getattr(self.e, item)
+
+    def __str__(self):
+        return f"(wrapping {type(self.e).__name__}):\n" + \
+            f"> {self.prefix}{self.e.__str__()}{self.suffix}"
+
+
+####################################################################################################
+
 def extend_exception(e: Exception, prefix: str, suffix: str = ""):
     """
-    If supported, extends the given exception with the given prefix and suffix added to the message.
-    The stack trace is preserved.
+    Extends the given exception with the given prefix and suffix added to the message, by wrapping it
+    into a instance of :py:class:`ExtendedException`. These exceptions are not meant to be caught
+    but to bubble up to the top level, where they will be printed.
     """
-    if len(e.args) >= 1:
-        e.args = (f"{prefix}{e.args[0]}{suffix}",) + e.args[1:]
-    return e
+    return ExtendedException(e, prefix, suffix)
 
 
 ####################################################################################################
