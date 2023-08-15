@@ -3,6 +3,7 @@ This module exposes functions to check the presence, and sometimes install op-st
 """
 
 import os
+import re
 import shutil
 import sys
 
@@ -19,8 +20,7 @@ def basic_setup():
     os.makedirs("logs", exist_ok=True)
     os.makedirs("bin", exist_ok=True)
 
-    # Append "bin" to the path
-    os.environ["PATH"] = f"{os.environ['PATH']}:{os.path.abspath('bin')}"
+    lib.append_to_path("bin")
 
     if lib.args.use_ansi_esc and not term.is_well_known_term():
         print(
@@ -199,5 +199,76 @@ def check_or_install_yarn():
     else:
         raise Exception("Yarn is required.")
 
+
+####################################################################################################
+
+def get_foundry_version():
+    """
+    Returns the Foundry version (actually the date of release, which is updated a lot more often).
+    It's possible to have multiple releases on the same day, but these are commit-tagged, so we
+    can't compare them.
+    """
+    version_blob = lib.run("get forge version", "forge --version")
+    match = re.search(r"^forge \d+\.\d+\.\d+ \([0-9a-fA-F]+ (\d{4}-\d\d-\d\d)", version_blob)
+    return None if match is None else match.group(1)
+
+
+####################################################################################################
+
+# This is a pretty arbitrary cutoff, this was my old version that worked.
+MIN_FORGE_VERSION = "2023-05-23"
+"""Minimum supported forge version."""
+
+
+def check_or_install_foundry():
+    """
+    Verify that foundry is installed and has the correct version, or install it if not.
+    """
+
+    def check_forge_version():
+        version = get_foundry_version()
+        if version is None:
+            return False
+        print(version)
+        return version >= MIN_FORGE_VERSION
+
+    # Doing this here, even if Foundry might already be in path, covers the edge case where we
+    # installed Foundry in a previous run of the tool, but the user didn't restart their shell.
+    lib.append_to_path(os.path.expanduser("~/.foundry/bin"))
+
+    if shutil.which("forge") is not None:
+        if check_forge_version():
+            return
+        if shutil.which("foundryup") is not None:
+            if lib.ask_yes_no("Forge (Foundry) is outdated, run foundryup to update?"):
+                lib.run("update foundry", "foundryup")
+                if check_forge_version():
+                    return
+                if lib.ask_yes_no("Forge is still outdated, update foundryup?"):
+                    install_foundry()
+                    return
+        else:
+            if lib.ask_yes_no("Forge (Foundry) is outdated, install foundryup and update?"):
+                install_foundry()
+                return
+        raise Exception(f"Forge (Foundry) is outdated (expected: > {MIN_FORGE_VERSION}).")
+    else:
+        if lib.ask_yes_no(f"Forge (Foundry) is required. Install globally?"):
+            install_foundry()
+        else:
+            raise Exception("Forge is required.")
+
+
+####################################################################################################
+
+def install_foundry():
+    """
+    Installs foundry globally.
+    """
+    print("Installing Foundry")
+    lib.run("install foundryup", "curl -L https://foundry.paradigm.xyz | bash")
+    lib.run("install foundry", "foundryup")
+    version = get_foundry_version()
+    print(f"Successfully installed Foundry {version}")
 
 ####################################################################################################

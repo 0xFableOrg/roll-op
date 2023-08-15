@@ -34,6 +34,7 @@ always for your permission before installing anything outside the current direct
 - Node.js 16.x
 - Yarn (`npm install -g yarn` — the old one, not yarn v3 aka yarn berry)
 - The `jq` command line utility
+- Foundry
 
 ## Contributing
 

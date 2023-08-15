@@ -15,6 +15,7 @@ def setup():
     deps.check_or_install_jq()
     deps.check_or_install_node()
     deps.check_or_install_yarn()
+    deps.check_or_install_foundry()
     setup_optimism_repo()
 
 
