@@ -164,6 +164,7 @@ def install_correct_node():
 
     def nvm_install_node():
         lib.run(f"install Node {NODE_VNAME}", f". ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
+        print(f"Successfully installed Node {NODE_VERSION}")
 
     if os.path.isfile(os.path.expanduser("~/.nvm/nvm.sh")):
         # We have NVM, try using required version or installing it.
@@ -192,7 +193,8 @@ def install_yarn():
         return
 
     if lib.ask_yes_no("Yarn is required. Install?"):
-        lib.run("install yarn", cmd_with_node("npm install -g yarn"))
+        lib.run("install Yarn", cmd_with_node("npm install -g yarn"))
+        print("Successfully installed Yarn.")
     else:
         raise Exception("Yarn is required.")
 
