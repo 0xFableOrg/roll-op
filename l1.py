@@ -334,7 +334,7 @@ def deploy_l1_contracts(paths):
     lib.run_roll_log(
         "deploy contracts",
         f"forge script {deploy_script} --private-key {private_key} "
-        + "--rpc-url http://127.0.0.1:8545 --broadcast",
+        "--rpc-url http://127.0.0.1:8545 --broadcast",
         cwd=paths.contracts_dir,
         log_file=log_file)
 
@@ -343,7 +343,7 @@ def deploy_l1_contracts(paths):
     lib.run_roll_log(
         "create L1 deployment artifacts",
         f"forge script {deploy_script} --private-key {private_key} --sig 'sync()' "
-        + "--rpc-url http://127.0.0.1:8545 --broadcast",
+        "--rpc-url http://127.0.0.1:8545 --broadcast",
         cwd=paths.contracts_dir,
         log_file=log_file)
 

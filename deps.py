@@ -24,9 +24,9 @@ def basic_setup():
 
     if lib.args.use_ansi_esc and not term.is_well_known_term():
         print(
-            "\nWARNING: Your terminal is weird."
-            + "This may cause it to not handle ANSI escape codes well."
-            + "You can disable them with --no-ansi-esc\n")
+            "\nWARNING: Your terminal is weird.\n"
+            "This may cause it to not handle ANSI escape codes well.\n"
+            "You can disable them with --no-ansi-esc\n")
 
 
 ####################################################################################################
@@ -38,22 +38,22 @@ def check_basic_prerequisites():
 
     if shutil.which("make") is None:
         raise Exception(
-            "Make is not installed. Please install it from your package manager." +
+            "Make is not installed. Please install it from your package manager.\n"
             "e.g. `brew install make` or `sudo apt install build-essential`")
 
     if shutil.which("git") is None:
         raise Exception(
-            "git is not installed. Please install it from your package manager." +
+            "git is not installed. Please install it from your package manager.\n"
             "e.g. `brew install git` or `sudo apt install git`")
 
     if shutil.which("curl") is None:
         raise Exception(
-            "curl is not installed. Please install it from your package manager." +
+            "curl is not installed. Please install it from your package manager.\n"
             "e.g. `sudo apt install curl`")
 
     if shutil.which("tar") is None:
         raise Exception(
-            "tar is not installed. Please install it from your package manager." +
+            "tar is not installed. Please install it from your package manager.\n"
             "e.g. `sudo apt install tar`")
 
 
@@ -69,8 +69,8 @@ def check_go():
             f"go is not installed. Please install Go version {GO_VERSION} or higher.")
     elif lib.run("get go version", "go version") < GO_VERSION:
         raise Exception(
-            f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher."
-            + "Go is backwards compatible, so your old project will continue to build.")
+            f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher.\n"
+            "Go is backwards compatible, so your old project will continue to build.")
 
 
 ####################################################################################################
@@ -96,7 +96,7 @@ def check_or_install_jq():
     if sys.platform not in ("linux", "darwin"):
         raise Exception(
             f"Unsupported OS for automatic jq installation: {sys.platform}.\n"
-            + "Please install jq manually, make sure it is executable and in $PATH or in ./bin/")
+            "Please install jq manually, make sure it is executable and in $PATH or in ./bin/")
 
     print("Installing jq in bin/jq")
 
@@ -310,7 +310,7 @@ def check_or_install_geth():
 
     if lib.ask_yes_no(
             f"Geth {MIN_GETH_VERSION} is required. Install in ./bin?\n"
-            + "This will overwrite any version of geth that might be in that directory."):
+            "This will overwrite any version of geth that might be in that directory."):
         install_geth()
     else:
         raise Exception(f"Geth missing or wrong version (expected: > {MIN_GETH_VERSION}).")
@@ -325,8 +325,9 @@ def install_geth():
     descr = "install geth"
     os.makedirs("bin", exist_ok=True)
     if sys.platform not in ("linux", "darwin"):
-        raise Exception(f"Unsupported OS for automatic geth installation: {sys.platform}.\n"
-                        + "Please install geth manually and have it in $PATH or in ./bin/")
+        raise Exception(
+            f"Unsupported OS for automatic geth installation: {sys.platform}.\n"
+            "Please install geth manually and have it in $PATH or in ./bin/")
 
     try:
         if sys.platform == "linux":

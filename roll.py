@@ -37,7 +37,7 @@ def setup_optimism_repo():
 
     lib.run("checkout stable version", f"git checkout --detach {git_tag}", cwd="optimism")
 
-    print("Starting to build the optimism repository. Logging to logs/build_optimism.log\n" +
+    print("Starting to build the optimism repository. Logging to logs/build_optimism.log\n"
           "This may take a while...")
 
     lib.run_roll_log(

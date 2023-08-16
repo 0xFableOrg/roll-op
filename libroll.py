@@ -276,7 +276,7 @@ class ExtendedException(Exception):
         return getattr(self.e, item)
 
     def __str__(self):
-        return f"(wrapping {type(self.e).__name__}):\n" + \
+        return f"(wrapping {type(self.e).__name__}):\n" \
             f"> {self.prefix}{self.e.__str__()}{self.suffix}"
 
 
