@@ -1,5 +1,5 @@
 import typer
-import confgen
+import roll_op.confgen as confgen
 import os
 
 app = typer.Typer(name="roll-op")
