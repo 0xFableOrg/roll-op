@@ -226,7 +226,7 @@ def write_json_file(file_path: str, data: dict):
     Writes a JSON file with the given data.
     """
     import json
-    with open(file_path, "w+") as file:
+    with open(file_path, "w") as file:
         json.dump(data, file, indent=4)
 
 
