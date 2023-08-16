@@ -60,7 +60,7 @@ def run_with_node(descr: str, command: str | list[str], **kwargs) -> str:
     Just like :py:func:`run`, but prepends the command with an ``nvm use`` statement if necessary.
     """
     if must_nvm_use:
-        return lib.run(descr, f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}", **kwargs)
+        return lib.run(descr, f"bash -c 'source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}'", **kwargs)
     else:
         return lib.run(descr, command, **kwargs)
 
@@ -121,12 +121,12 @@ def install_correct_node():
     must_nvm_use = True
 
     def nvm_install_node():
-        lib.run(f"install node {NODE_VNAME}", f"source ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
+        lib.run(f"install node {NODE_VNAME}", f"bash -c 'source ~/.nvm/nvm.sh; nvm install {NODE_VERSION}'")
 
     if os.path.isfile(os.path.expanduser("~/.nvm/nvm.sh")):
         # We have NVM, try using required version or installing it.
         try:
-            lib.run(f"use node {NODE_VNAME}", f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
+            lib.run(f"use node {NODE_VNAME}", f"bash -c 'source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}'")
         except Exception:
             if lib.ask_yes_no(f"Node {NODE_VNAME} ({NODE_VERSION}) is required. NVM is installed. "
                               f"Install with NVM?"):
