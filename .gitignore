@@ -5,3 +5,4 @@
 /.ruff_cache
 /bin
 /logs
+/db

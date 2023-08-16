@@ -36,24 +36,24 @@ class OPPaths:
 
         # === Generated Files — L1 Devnet ===
 
-        self.l1_devnet_config_path = pjoin(self.contracts_dir, "deploy-config", "devnetL1.json")
+        self.devnet_l1_config_path = pjoin(self.contracts_dir, "deploy-config", "devnetL1.json")
         """Configuration file for devnet L1 within the deploy config dir."""
 
-        self.l1_devnet_dir = pjoin(self.monorepo_dir, ".devnet")
-        """Output directory for generated configuration files for the L1 devnet."""
+        self.devnet_l1_gen_dir = pjoin(self.monorepo_dir, ".devnet")
+        """Output directory for generated configuration files for the devnet L1."""
 
-        self.l1_genesis_path = pjoin(self.l1_devnet_dir, "genesis-l1.json")
-        """L1 devnet genesis file path."""
+        self.l1_genesis_path = pjoin(self.devnet_l1_gen_dir, "genesis-l1.json")
+        """Devnet L1 genesis file path."""
 
-        self.l1_devnet_deployment_dir = pjoin(self.contracts_dir, "deployments", "devnetL1")
-        """Directory to store L1 devnet deployment artifacts (addresses, etc.)."""
+        self.devnet_l1_deployment_dir = pjoin(self.contracts_dir, "deployments", "devnetL1")
+        """Directory to store devnet L1 deployment artifacts (addresses, etc.)."""
 
         # === Generated Files — L1 ===
 
-        self.addresses_json_path = pjoin(self.l1_devnet_dir, "addresses.json")
+        self.addresses_json_path = pjoin(self.devnet_l1_gen_dir, "addresses.json")
         """File mapping L1 contracts to their deployed addresses."""
 
-        self.sdk_addresses_json_path = pjoin(self.l1_devnet_dir, "sdk-addresses.json")
+        self.sdk_addresses_json_path = pjoin(self.devnet_l1_gen_dir, "sdk-addresses.json")
         """L1 contract addresses for use in the Optimism SDK."""
 
 ####################################################################################################
