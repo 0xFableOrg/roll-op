@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import shutil
 import libroll as lib
+
+####################################################################################################
+# VARIABLES
+
+# Whether we must instruct to use the proper Node version via NVM or not.
+must_nvm_use = False
 
 ####################################################################################################
 # CONSTANTS
@@ -34,6 +41,18 @@ parser.add_argument(
     default=True,
     dest="use_ansi_esc",
     action="store_false")
+
+####################################################################################################
+# UTILITY
+
+def run_with_node(descr: str, command: str | list[str], **kwargs) -> str:
+    """
+    Just like :py:func:`run`, but prepends the command with an ``nvm use`` statement if necessary.
+    """
+    if must_nvm_use:
+        return lib.run(descr, f"source ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}", **kwargs)
+    else:
+        return lib.run(descr, command, **kwargs)
 
 ####################################################################################################
 
@@ -72,9 +91,29 @@ def check_prerequisites():
 # SETUP
 
 def setup():
+    setup_4337_contracts()
     setup_stackup_bundler()
 
 # --------------------------------------------------------------------------------------------------
+
+def setup_4337_contracts():
+    github_url = "https://github.com/eth-infinitism/account-abstraction.git"
+
+    if os.path.isfile("account-abstraction"):
+        raise Exception("Error: 'account-abstraction' exists as a file and not a directory.")
+    elif not os.path.exists("account-abstraction"):
+        descr = "clone the account-abstraction repository"
+        lib.run(descr, f"git clone {github_url}")
+        print(f"Succeeded: {descr}")
+
+    # If contracts have not been previously deployed
+    if not os.path.exists("account-abstraction/deployments/dev"):
+        run_with_node("install account abstraction dependencies", "yarn install", cwd="account-abstraction", forward_output=True)
+        # TODO: we need to configure the network to point to local network
+        run_with_node("deploy contracts", "yarn deploy --network dev", cwd="account-abstraction", forward_output=True)
+        print(f"Account abstraction contracts successfully deployed.")
+    else:
+        print(f"Account abstraction contracts already deployed.")
 
 def setup_stackup_bundler():
     github_url = "github.com/stackup-wallet/stackup-bundler"
