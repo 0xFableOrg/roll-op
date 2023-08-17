@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""
+This is the entry point for roll-op system, responsible for parsing command line arguments and
+invoking the appropriate commands.
+"""
+
 import argparse
 import os
 

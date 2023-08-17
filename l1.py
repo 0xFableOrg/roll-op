@@ -1,3 +1,8 @@
+"""
+This module defines functions related to spinning a devnet L1 node, and deploying L1 contracts
+on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
+"""
+
 import http.client
 import os
 import shutil

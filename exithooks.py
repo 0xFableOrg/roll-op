@@ -1,3 +1,9 @@
+"""
+This module enable registering exit hooks that are called both on successful exits and exits
+due to signals. See :py:class:`ExitHooksManager` for details. Use this through the singleton
+value :py:data:`EXIT_HOOKS_MGR` (its singleton nature is not enforced).
+"""
+
 import atexit
 import signal
 from typing import Callable
