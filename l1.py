@@ -34,8 +34,8 @@ def deploy_l1_devnet(paths: OPPaths):
 
     patch(paths)
     generate_devnet_l1_genesis(paths)
+    generate_network_config(paths)
     start_devnet_l1_node(paths)
-    generate_devnet_l1_config(paths)
     deploy_l1_contracts(paths)
     print("Devnet L1 deployment is complete! L1 node is running.")
     PROCESS_MGR.wait_all()
@@ -50,8 +50,8 @@ def patch(paths: OPPaths):
 
     # The original optimism repo edits the devnet configuration in place. Instead, we copy the
     # original over once, then use that as a template to be modified going forward.
-    if not os.path.exists(paths.devnet_config_template_path):
-        shutil.copy(paths.devnet_l1_config_path, paths.devnet_config_template_path)
+    if not os.path.exists(paths.network_config_template_path):
+        shutil.copy(paths.network_config_path, paths.network_config_template_path)
 
     # /usr/bin/bash does not always exist on MacOS (and potentially other Unixes)
     # This was fixed upstream, but isn't fixed in the commit we're using
@@ -79,6 +79,24 @@ def generate_devnet_l1_genesis(paths: OPPaths):
             lib.write_json_file(paths.l1_genesis_path, GENESIS_TMPL)
         except Exception as err:
             raise lib.extend_exception(err, prefix="Failed to generate L1 genesis: ")
+
+
+####################################################################################################
+
+def generate_network_config(paths: OPPaths):
+    """
+    Generate the network configuration file. This records information about the L1 and the L2.
+    Notaly, it is not read when spinning the L1 node.
+    """
+    print("Generating network config.")
+
+    try:
+        # copy the template, and modify it with timestamp and starting block tag
+        deploy_config = lib.read_json_file(paths.network_config_template_path)
+        deploy_config["l1GenesisBlockTimestamp"] = GENESIS_TMPL["timestamp"]
+        deploy_config["l1StartingBlockTag"] = "earliest"
+    except Exception as err:
+        raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
 
 ####################################################################################################
@@ -292,24 +310,6 @@ def wait_for_rpc_server(address: str, port: int, retries: int = 5, wait_secs=3):
                 return
         except Exception:
             time.sleep(wait_secs)
-
-
-####################################################################################################
-
-def generate_devnet_l1_config(paths: OPPaths):
-    """
-    Generate the devnet L1 config file.
-    """
-    print("Generating network config.")
-
-    try:
-        # copy the template, and modify it with timestamp and starting block tag
-        deploy_config = lib.read_json_file(paths.devnet_config_template_path)
-        deploy_config["l1GenesisBlockTimestamp"] = GENESIS_TMPL["timestamp"]
-        deploy_config["l1StartingBlockTag"] = "earliest"
-        lib.write_json_file(paths.devnet_l1_config_path, deploy_config)
-    except Exception as err:
-        raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
 
 ####################################################################################################
