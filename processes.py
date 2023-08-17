@@ -1,3 +1,9 @@
+"""
+This module enable starting, killing and waiting for background processes. See
+:py:class:`BackgroundProcessManager` for details. Use this through the singleton
+value :py:data:`PROCESS_MGR` (its singleton nature is not enforced).
+"""
+
 import time
 from multiprocessing import Process
 from subprocess import Popen

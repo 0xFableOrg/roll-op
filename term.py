@@ -1,3 +1,7 @@
+"""
+This module contains functions and classes to manipulate the terminal via ANSI escape codes.
+"""
+
 import os
 import sys
 
