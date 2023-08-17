@@ -91,7 +91,13 @@ def generate_network_config(paths: OPPaths):
     print("Generating network config.")
 
     try:
-        # copy the template, and modify it with timestamp and starting block tag
+        # Copy the template, and modify it with timestamp and starting block tag.
+
+        # Note that we pick the timestamp at the time this file is generated. This doesn't matter
+        # much: if we start the L1 node later, it will simply have two consecutive blocks with a
+        # large timestamp difference, but no other consequences. The same logic applies if we shut
+        # down the node and restart it later.
+
         deploy_config = lib.read_json_file(paths.network_config_template_path)
         deploy_config["l1GenesisBlockTimestamp"] = GENESIS_TMPL["timestamp"]
         deploy_config["l1StartingBlockTag"] = "earliest"
