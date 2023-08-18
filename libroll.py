@@ -52,7 +52,7 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     throw an exception if the process doesn't complete successfully (non-zero return code). This is
     analogous to the same option is :py:func:`subprocess.run`.
     """
-    if kwargs.get("shell") is not False and type(command) is list:
+    if kwargs.get("shell") is not False and isinstance(command, list):
         command = " ".join(command)
 
     wait = kwargs.pop("wait", True)
