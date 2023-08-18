@@ -97,7 +97,7 @@ def setup():
 # --------------------------------------------------------------------------------------------------
 
 def setup_4337_contracts():
-    github_url = "https://github.com/eth-infinitism/account-abstraction.git"
+    github_url = "https://github.com/0xFableOrg/account-abstraction.git"
 
     if os.path.isfile("account-abstraction"):
         raise Exception("Error: 'account-abstraction' exists as a file and not a directory.")
@@ -107,10 +107,13 @@ def setup_4337_contracts():
         print(f"Succeeded: {descr}")
 
     # If contracts have not been previously deployed
-    if not os.path.exists("account-abstraction/deployments/dev"):
+    if not os.path.exists("account-abstraction/deployments/opstack"):
         run_with_node("install account abstraction dependencies", "yarn install", cwd="account-abstraction", forward_output=True)
-        # TODO: we need to configure the network to point to local network
-        run_with_node("deploy contracts", "yarn deploy --network dev", cwd="account-abstraction", forward_output=True)
+        # we need to configure the network to point to local network
+        # we also need to set private key for deployment
+        priv_key = input(f"Enter private key that you would like to deploy contracts with: ")
+        lib.run("set private key", f"echo PRIVATE_KEY={priv_key} > account-abstraction/.env")
+        run_with_node("deploy contracts", "yarn deploy --network opstack", cwd="account-abstraction", forward_output=True)
         print(f"Account abstraction contracts successfully deployed.")
     else:
         print(f"Account abstraction contracts already deployed.")
@@ -119,8 +122,14 @@ def setup_stackup_bundler():
     github_url = "github.com/stackup-wallet/stackup-bundler"
     version = "latest"
 
+    # make sure that GOPATH is set in PATH
+    lib.run("set go path", f"export PATH=$(go env GOPATH)/bin:$PATH")
+
     lib.run("installing stackup bundler", f"go install {github_url}@{version}")
     print("Installation successful")
+
+    # start bundler
+    lib.run("start bundler", f"stackup-bundler start --mode private")
 
 ####################################################################################################
 
