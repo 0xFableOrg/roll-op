@@ -128,7 +128,13 @@ def setup_stackup_bundler():
     lib.run("installing stackup bundler", f"go install {github_url}@{version}")
     print("Installation successful")
 
+    # set environment variables for bundler
+    lib.run("set full node RPC", f"echo ERC4337_BUNDLER_ETH_CLIENT_URL=http://localhost:8545 >> .env")
+    priv_key = input(f"Enter private key for bundler: ")
+    lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={priv_key} >> .env")
+
     # start bundler
+    # TODO: this needs to be a persistent process
     lib.run("start bundler", f"stackup-bundler start --mode private")
 
 ####################################################################################################
