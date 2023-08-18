@@ -122,9 +122,12 @@ must_nvm_use = False
 def cmd_with_node(command: str) -> str:
     """
     If required, prepends the command with an ``nvm use`` statement.
+
+    WARNING: The command will be double-quoted and passed to bash, so it must not itself include
+    double quotes (single quotes are fine).
     """
     if must_nvm_use:
-        return f". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}"
+        return f"bash -c \". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}; {command}\""
     else:
         return command
 
@@ -155,13 +158,15 @@ def check_or_install_node():
     must_nvm_use = True
 
     def nvm_install_node():
-        lib.run(f"install Node {NODE_VERSION}", f". ~/.nvm/nvm.sh; nvm install {NODE_VERSION}")
+        lib.run(f"install Node {NODE_VERSION}",
+                f"bash -c '. ~/.nvm/nvm.sh; nvm install {NODE_VERSION}'")
         print(f"Successfully installed Node {NODE_VERSION}")
 
     if os.path.isfile(os.path.expanduser("~/.nvm/nvm.sh")):
         # We have NVM, try using required version or installing it.
         try:
-            lib.run(f"use node {NODE_VERSION}", f". ~/.nvm/nvm.sh; nvm use {NODE_VERSION}")
+            lib.run(f"use node {NODE_VERSION}",
+                    f"bash -c '. ~/.nvm/nvm.sh; nvm use {NODE_VERSION}'")
         except Exception:
             if lib.ask_yes_no(f"Node {NODE_VERSION} is required. NVM is installed. "
                               f"Install with NVM?"):
