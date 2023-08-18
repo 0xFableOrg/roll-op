@@ -109,7 +109,7 @@ def check_or_install_jq():
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to install jq: ")
 
-    print(f"Successfully installed jq as ./bin/jq")
+    print("Successfully installed jq as ./bin/jq")
 
 
 ####################################################################################################
@@ -253,7 +253,7 @@ def check_or_install_foundry():
                 return
         raise Exception(f"Forge (Foundry) is outdated (expected: > {MIN_FORGE_VERSION}).")
     else:
-        if lib.ask_yes_no(f"Forge (Foundry) is required. Install globally?"):
+        if lib.ask_yes_no("Forge (Foundry) is required. Install globally?"):
             install_foundry()
         else:
             raise Exception("Forge is required.")
@@ -297,7 +297,7 @@ def check_or_install_geth():
     geth_path = shutil.which("geth")
     if geth_path is not None:
         # This includes ./bin/jq, as basic_setup() adds ./bin to the path.
-        version_blob = lib.run(f"get geth version", f"geth version")
+        version_blob = lib.run("get geth version", "geth version")
         match = re.search(r"^Version: (\d+\.\d+\.\d+)", version_blob, flags=re.MULTILINE)
         if match is not None:
             version = match.group(1)
