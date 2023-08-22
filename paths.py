@@ -39,10 +39,10 @@ class OPPaths:
         self.network_config_path = pjoin(self.contracts_dir, "deploy-config", "devnetL1.json")
         """Configuration file for the network — holds information about L1 and L2 deployments."""
 
-        self.devnet_l1_gen_dir = pjoin(self.monorepo_dir, ".devnet")
+        self.devnet_gen_dir = pjoin(self.monorepo_dir, ".devnet")
         """Output directory for generated configuration files for the devnet L1."""
 
-        self.l1_genesis_path = pjoin(self.devnet_l1_gen_dir, "genesis-l1.json")
+        self.l1_genesis_path = pjoin(self.devnet_gen_dir, "genesis-l1.json")
         """Devnet L1 genesis file path."""
 
         self.devnet_l1_deployment_dir = pjoin(self.contracts_dir, "deployments", "devnetL1")
@@ -50,10 +50,16 @@ class OPPaths:
 
         # === Generated Files — L1 ===
 
-        self.addresses_json_path = pjoin(self.devnet_l1_gen_dir, "addresses.json")
+        self.addresses_json_path = pjoin(self.devnet_gen_dir, "addresses.json")
         """File mapping L1 contracts to their deployed addresses."""
 
-        self.sdk_addresses_json_path = pjoin(self.devnet_l1_gen_dir, "sdk-addresses.json")
+        self.sdk_addresses_json_path = pjoin(self.devnet_gen_dir, "sdk-addresses.json")
         """L1 contract addresses for use in the Optimism SDK."""
+
+        self.l2_genesis_path = pjoin(self.devnet_gen_dir, "genesis-l2.json")
+        """Devnet L2 genesis file path."""
+
+        self.rollup_config_path = pjoin(self.devnet_gen_dir, "rollup.json")
+        """Devnet L2 rollup config file path."""
 
 ####################################################################################################
