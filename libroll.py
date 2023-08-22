@@ -1,6 +1,9 @@
+import http.client
 import os
+import socket
 import subprocess
 import sys
+import time
 from threading import Thread
 
 ####################################################################################################
@@ -14,7 +17,8 @@ debug_mode = os.getenv("DEBUG") is not None
 
 ####################################################################################################
 
-def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Popen | None:
+def run(descr: str, command: str | list[str],
+        **kwargs) -> str | subprocess.Popen | None:
     """
     Runs a command using the :py:module:`subprocess` module. Keyword arguments are forwarded to
     the :py:class:`subprocess.Popen` constructor directly and can be used to override the defaults
@@ -90,9 +94,11 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
 
     missing = object()
     if kwargs.get("stdout", missing) is not missing:
-        raise AssertionError("Cannot only specify `stdout` option when using `forward='fd'`")
+        raise AssertionError(
+            "Cannot only specify `stdout` option when using `forward='fd'`")
     if kwargs.get("stderr", missing) is not missing:
-        raise AssertionError("Cannot only specify `stderr` option when using `forward='fd'`")
+        raise AssertionError(
+            "Cannot only specify `stderr` option when using `forward='fd'`")
 
     if forward == "capture" and not wait:
         raise AssertionError("Cannot use `forward='capture'` with `wait=False`")
@@ -128,7 +134,8 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
         if thread is not None:
             thread.join()
 
-        output = "".join(line for line in process.stdout) if forward == "capture" else None
+        output = "".join(
+            line for line in process.stdout) if forward == "capture" else None
 
         if check and returncode != 0:
             raise extend_exception(
@@ -165,7 +172,8 @@ def run_roll_log(descr: str, command: str | list[str], log_file: str, **kwargs):
     prefix = kwargs.pop("prefix", "| ")
     use_ansi_esc = kwargs.pop("use_ansi_esc", True)
 
-    if kwargs.get("forward", None) is not None or kwargs.get("stream", None) is not None:
+    if kwargs.get("forward", None) is not None or kwargs.get("stream",
+                                                             None) is not None:
         raise AssertionError("Cannot specify `forward` or `stream`")
 
     stream = sys.stdout
@@ -277,7 +285,7 @@ class ExtendedException(Exception):
 
     def __str__(self):
         return f"(wrapping {type(self.e).__name__}):\n" \
-            f"> {self.prefix}{self.e.__str__()}{self.suffix}"
+               f"> {self.prefix}{self.e.__str__()}{self.suffix}"
 
 
 ####################################################################################################
@@ -329,5 +337,56 @@ class Tee:
         for file in self.files:
             file.flush()
 
+
+####################################################################################################
+
+
+def wait(address: str, port: int, retries: int = 10, wait_secs: int = 1):
+    """
+    Waits for `address:port` to be reachable. Will try up to `retries` times, waiting `wait_secs`
+    in between each attempt.
+    """
+    for i in range(0, retries):
+        debug(f"Trying {address}:{port}")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            # Note: this has no internal timeout, fails immediately if unreachable.
+            s.connect((address, int(port)))
+            s.shutdown(socket.SHUT_RDWR)
+            debug(f"Connected to {address}:{port}")
+            return True
+        except Exception:
+            if i < retries - 1:
+                print(f"Waiting for {address}:{port}")
+                time.sleep(wait_secs)
+
+    raise Exception(f"Timed out waiting for {address}:{port}.")
+
+
+####################################################################################################
+
+def wait_for_rpc_server(address: str, port: int, retries: int = 5, wait_secs=3):
+    """
+    Waits for a JSON-RPC server to be available at `url` (ascertained by asking for the chain ID).
+    Retries until the server responds with a successful status code, waiting `wait_secs` in between
+    tries, with at most `retries` attempts.
+    """
+    url = f"{address}:{port}"
+    print(f"Waiting for RPC server at {url}...")
+
+    conn = http.client.HTTPConnection(url)
+    headers = {"Content-type": "application/json"}
+    body = '{"id":1, "jsonrpc":"2.0", "method": "eth_chainId", "params":[]}'
+
+    for i in range(0, retries):
+        try:
+            conn.request("POST", "/", body, headers)
+            response = conn.getresponse()
+            conn.close()
+            if response.status < 300:
+                debug(f"RPC server at {url} ready")
+                return
+        except Exception:
+            time.sleep(wait_secs)
 
 ####################################################################################################

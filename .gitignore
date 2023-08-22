@@ -6,3 +6,5 @@
 /bin
 /logs
 /db
+/op-geth
+.DS_Store

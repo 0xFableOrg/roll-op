@@ -17,6 +17,7 @@ def setup():
     deps.check_or_install_yarn()
     deps.check_or_install_foundry()
     setup_optimism_repo()
+    setup_op_geth_repo()
 
 
 ####################################################################################################
@@ -35,10 +36,12 @@ def setup_optimism_repo():
         lib.run(descr, f"git clone {github_url}")
         print("Successfully cloned the optimism repository.")
 
-    lib.run("checkout stable version", f"git checkout --detach {git_tag}", cwd="optimism")
+    lib.run("checkout stable version", f"git checkout --detach {git_tag}",
+            cwd="optimism")
 
-    print("Starting to build the optimism repository. Logging to logs/build_optimism.log\n"
-          "This may take a while...")
+    print(
+        "Starting to build the optimism repository. Logging to logs/build_optimism.log\n"
+        "This may take a while...")
 
     lib.run_roll_log(
         descr="build optimism",
@@ -48,4 +51,32 @@ def setup_optimism_repo():
 
     print("Successfully built the optimism repository.")
 
+
 ####################################################################################################
+
+def setup_op_geth_repo():
+    """
+    Clone the op-geth repository and build it.
+    """
+    github_url = "https://github.com/ethereum-optimism/op-geth.git"
+    git_tag = "v1.101106.0"
+
+    if os.path.isfile("op-geth"):
+        raise Exception("Error: 'op-geth' exists as a file and not a directory.")
+    elif not os.path.exists("op-geth"):
+        descr = "clone the op-geth repository"
+        lib.run(descr, f"git clone {github_url}")
+        print(f"Succeeded: {descr}")
+
+    lib.run("checkout stable version", f"git checkout --detach {git_tag}",
+            cwd="op-geth")
+
+    print("Starting to build the op-geth repository. This may take a while...\n")
+
+    lib.run_roll_log(
+        descr="build op-geth",
+        command=deps.cmd_with_node("make geth"),
+        cwd="op-geth",
+        log_file="logs/build_op_geth.log")
+
+    print("Successfully built the op-geth repository.")

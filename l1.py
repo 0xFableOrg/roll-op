@@ -3,13 +3,10 @@ This module defines functions related to spinning a devnet L1 node, and deployin
 on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 """
 
-import http.client
 import os
 import shutil
-import socket
 import subprocess
 import sys
-import time
 from os.path import join as pjoin
 
 import libroll as lib
@@ -35,7 +32,7 @@ def deploy_l1_devnet(paths: OPPaths):
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
     generating the genesis file and config files, and deploying the L1 contracts.
     """
-    os.makedirs(paths.devnet_l1_gen_dir, exist_ok=True)
+    os.makedirs(paths.devnet_gen_dir, exist_ok=True)
 
     patch(paths)
     generate_devnet_l1_genesis(paths)
@@ -106,6 +103,7 @@ def generate_network_config(paths: OPPaths):
         deploy_config = lib.read_json_file(paths.network_config_template_path)
         deploy_config["l1GenesisBlockTimestamp"] = GENESIS_TMPL["timestamp"]
         deploy_config["l1StartingBlockTag"] = "earliest"
+        lib.write_json_file(paths.network_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
@@ -170,7 +168,7 @@ def start_devnet_l1_node(paths: OPPaths):
     # Necessary on MacOS that easily allows two processes to bind to the same port.
     running = True
     try:
-        wait("127.0.0.1", cfg.rpc_port, retries=1)
+        lib.wait("127.0.0.1", cfg.rpc_port, retries=1)
     except Exception:
         running = False
     if running:
@@ -269,61 +267,11 @@ def start_devnet_l1_node(paths: OPPaths):
             "--metrics.port=6060"
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
-    wait_for_rpc_server("127.0.0.1", cfg.rpc_port)
+    lib.wait_for_rpc_server("127.0.0.1", cfg.rpc_port)
 
 
 ####################################################################################################
 
-def wait(address: str, port: int, retries: int = 10, wait_secs: int = 1):
-    """
-    Waits for `address:port` to be reachable. Will try up to `retries` times, waiting `wait_secs`
-    in between each attempt.
-    """
-    for i in range(0, retries):
-        lib.debug(f"Trying {address}:{port}")
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            # Note: this has no internal timeout, fails immediately if unreachable.
-            s.connect((address, int(port)))
-            s.shutdown(socket.SHUT_RDWR)
-            lib.debug(f"Connected to {address}:{port}")
-            return True
-        except Exception:
-            if i < retries - 1:
-                print(f"Waiting for {address}:{port}")
-                time.sleep(wait_secs)
-
-    raise Exception(f"Timed out waiting for {address}:{port}.")
-
-
-####################################################################################################
-
-def wait_for_rpc_server(address: str, port: int, retries: int = 5, wait_secs=3):
-    """
-    Waits for a JSON-RPC server to be available at `url` (ascertained by asking for the chain ID).
-    Retries until the server responds with a successful status code, waiting `wait_secs` in between
-    tries, with at most `retries` attempts.
-    """
-    url = f"{address}:{port}"
-    print(f"Waiting for RPC server at {url}...")
-
-    conn = http.client.HTTPConnection(url)
-    headers = {"Content-type": "application/json"}
-    body = '{"id":1, "jsonrpc":"2.0", "method": "eth_chainId", "params":[]}'
-
-    for i in range(0, retries):
-        try:
-            conn.request("POST", "/", body, headers)
-            response = conn.getresponse()
-            conn.close()
-            if response.status < 300:
-                lib.debug(f"RPC server at {url} ready")
-                return
-        except Exception:
-            time.sleep(wait_secs)
-
-
-####################################################################################################
 
 def deploy_l1_contracts(paths):
     """
@@ -398,9 +346,12 @@ def clean(paths: OPPaths):
     Cleans up build outputs, such that trying to deploy the devnet L1 node will proceed as though it
     was the first invocation.
     """
-    if os.path.exists(paths.devnet_l1_gen_dir):
-        print(f"Cleaning up {paths.devnet_l1_gen_dir}")
-        shutil.rmtree(paths.devnet_l1_gen_dir, ignore_errors=True)
+    if os.path.exists(paths.devnet_gen_dir):
+        print(f"Cleaning up {DEVNET_L1_DATA_DIR}")
+        shutil.rmtree(paths.devnet_gen_dir, ignore_errors=True)
+
+    if os.path.exists(DEVNET_L1_DATA_DIR):
+        print(f"Cleaning up {DEVNET_L1_DATA_DIR}")
         shutil.rmtree(DEVNET_L1_DATA_DIR, ignore_errors=True)
 
 ####################################################################################################
