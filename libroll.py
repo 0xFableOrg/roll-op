@@ -241,7 +241,7 @@ def replace_in_file(file_path: str, replacements: dict):
         filedata = file.read()
 
     for key, value in replacements.items():
-        filedata.replace(key, value)
+        filedata = filedata.replace(key, value)
 
     with open(file_path, "w") as file:
         file.write(filedata)
