@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 
+import subprocess
 import argparse
 import os
-import shutil
 import libroll as lib
-import term 
 import deps
-
-####################################################################################################
-# VARIABLES
-
-# Whether we must instruct to use the proper Node version via NVM or not.
-must_nvm_use = False
+from processes import PROCESS_MGR
 
 ####################################################################################################
 # CONSTANTS
@@ -34,8 +28,8 @@ subparsers = parser.add_subparsers(
     metavar="<command>")
 
 subparsers.add_parser(
-    "setup",
-    help="setup an ERC4337 bundler")
+    "start",
+    help="start an ERC4337 bundler")
 
 parser.add_argument(
     "--no-ansi-esc",
@@ -47,7 +41,7 @@ parser.add_argument(
 ####################################################################################################
 # SETUP
 
-def setup():
+def start():
     setup_4337_contracts()
     setup_stackup_bundler()
 
@@ -79,20 +73,25 @@ def setup_stackup_bundler():
     github_url = "github.com/stackup-wallet/stackup-bundler"
     version = "latest"
 
-    # make sure that GOPATH is set in PATH
-    lib.run("set go path", f"export PATH=$(go env GOPATH)/bin:$PATH")
-
     lib.run("installing stackup bundler", f"go install {github_url}@{version}")
     print("Installation successful")
 
     # set environment variables for bundler
-    lib.run("set full node RPC", f"echo ERC4337_BUNDLER_ETH_CLIENT_URL=http://localhost:8545 >> .env")
+    lib.run("set full node RPC", f"echo ERC4337_BUNDLER_ETH_CLIENT_URL=http://localhost:8545 > .env")
     priv_key = input(f"Enter private key for bundler: ")
     lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={priv_key} >> .env")
 
-    # start bundler
-    # TODO: this needs to be a persistent process
-    lib.run("start bundler", f"stackup-bundler start --mode private")
+    # make sure that GOPATH is set in PATH
+    current_path = os.environ.get("PATH", "")
+    gopath = subprocess.check_output(["go", "env", "GOPATH"]).decode().strip()
+    # append the bin directory of GOPATH to PATH
+    new_path = f"{gopath}/bin:{current_path}"
+    os.environ["PATH"] = new_path
+
+    # start bundler as a persistent process
+    PROCESS_MGR.start("start bundler", f"stackup-bundler start --mode private")
+    print("Bundler is running!")
+    PROCESS_MGR.wait_all()
 
 ####################################################################################################
 
@@ -105,8 +104,8 @@ if __name__ == "__main__":
 
         deps.check_basic_prerequisites()
         deps.check_go()
-        if args.command == "setup":
-            setup()
+        if args.command == "start":
+            start()
 
         print("Done.")
     except Exception as e:
