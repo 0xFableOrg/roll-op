@@ -222,6 +222,7 @@ def start_devnet_l1_node(paths: OPPaths):
             f"--networkid={cfg.chain_id}",
             "--syncmode=full",  # doesn't matter, it's only us
             "--gcmode=archive",
+            "--rpc.allow-unprotected-txs", # allow legacy transactions for deterministic deployment
 
             # No peers: the blockchain is only this node
             "--nodiscover",
