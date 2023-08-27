@@ -16,8 +16,7 @@ from processes import PROCESS_MGR
 
 sys.path.append("optimism/bedrock-devnet/devnet")
 # noinspection PyUnresolvedReferences
-from genesis import GENESIS_TMPL
-
+from genesis import GENESIS_TMPL  # noqa: E402
 
 ####################################################################################################
 
@@ -171,7 +170,8 @@ def start_devnet_l1_node(paths: OPPaths):
     except Exception:
         running = False
     if running:
-        raise Exception("Couldn't start L1 node: server already running at localhost:8545")
+        raise Exception(
+            "Couldn't start L1 node: server already running at localhost:8545")
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
