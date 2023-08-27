@@ -31,6 +31,10 @@ subparsers.add_parser(
     "start",
     help="start an ERC4337 bundler")
 
+subparsers.add_parser(
+    "clean",
+    help="cleanup bundler processes")
+
 parser.add_argument(
     "--no-ansi-esc",
     help="disable ANSI escape codes for terminal manipulation",
@@ -59,15 +63,27 @@ def setup_4337_contracts():
 
     # If contracts have not been previously deployed
     if not os.path.exists("account-abstraction/deployments/opstack"):
-        lib.run("install account abstraction dependencies", command=deps.cmd_with_node("yarn install"), cwd="account-abstraction")
+        log_file = "logs/build_4337_contracts.log"
+        lib.run_roll_log(
+            "install account abstraction dependencies", 
+            command=deps.cmd_with_node("yarn install"), 
+            cwd="account-abstraction",
+            log_file=log_file
+        )
         # we need to configure the network to point to local network
         # we also need to set private key for deployment
-        priv_key = input(f"Enter private key that you would like to deploy contracts with: ")
+        priv_key = input("Enter private key that you would like to deploy contracts with: ")
         lib.run("set private key", f"echo PRIVATE_KEY={priv_key} > account-abstraction/.env")
-        lib.run("deploy contracts", command=deps.cmd_with_node("yarn deploy --network opstack"), cwd="account-abstraction")
-        print(f"Account abstraction contracts successfully deployed.")
+        log_file = "logs/deploy_4337_contracts.log"
+        lib.run_roll_log(
+            "deploy contracts", 
+            command=deps.cmd_with_node("yarn deploy --network opstack"), 
+            cwd="account-abstraction",
+            log_file=log_file
+        )
+        print("Account abstraction contracts successfully deployed.")
     else:
-        print(f"Account abstraction contracts already deployed.")
+        print("Account abstraction contracts already deployed.")
 
 def setup_stackup_bundler():
     github_url = "github.com/stackup-wallet/stackup-bundler"
@@ -77,8 +93,8 @@ def setup_stackup_bundler():
     print("Installation successful")
 
     # set environment variables for bundler
-    lib.run("set full node RPC", f"echo ERC4337_BUNDLER_ETH_CLIENT_URL=http://localhost:8545 > .env")
-    priv_key = input(f"Enter private key for bundler: ")
+    lib.run("set full node RPC", "echo ERC4337_BUNDLER_ETH_CLIENT_URL=http://localhost:8545 > .env")
+    priv_key = input("Enter private key for bundler: ")
     lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={priv_key} >> .env")
 
     # make sure that GOPATH is set in PATH
@@ -89,9 +105,26 @@ def setup_stackup_bundler():
     os.environ["PATH"] = new_path
 
     # start bundler as a persistent process
-    PROCESS_MGR.start("start bundler", f"stackup-bundler start --mode private")
+    print("Starting bundler...")
+    log_file_path = "logs/stackup_bundler.log"
+    log_file = open(log_file_path, "w")
+    PROCESS_MGR.start(
+        "start bundler", 
+        "stackup-bundler start --mode private",
+        forward="fd", 
+        stdout=log_file, 
+        stderr=subprocess.STDOUT
+    )
     print("Bundler is running!")
     PROCESS_MGR.wait_all()
+
+####################################################################################################
+# CLEANUP
+
+def clean():
+    lib.run("cleanup account abstraction directory", "rm -rf account-abstraction")
+    lib.run("cleanup environment variable", "rm .env")
+    print("Cleanup successful!")
 
 ####################################################################################################
 
@@ -106,6 +139,8 @@ if __name__ == "__main__":
         deps.check_go()
         if args.command == "start":
             start()
+        elif args.command == "clean":
+            clean()
 
         print("Done.")
     except Exception as e:
