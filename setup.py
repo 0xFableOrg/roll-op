@@ -71,7 +71,8 @@ def setup_op_geth_repo():
     lib.run("checkout stable version", f"git checkout --detach {git_tag}",
             cwd="op-geth")
 
-    print("Starting to build the op-geth repository. This may take a while...\n")
+    print("Starting to build the op-geth repository. Logging to logs/build_op_geth.log\n"
+          "This may take a while...")
 
     lib.run_roll_log(
         descr="build op-geth",

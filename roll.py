@@ -31,7 +31,7 @@ subparsers.add_parser(
     help="spins up a local L1 node with the rollup contracts deployed on it")
 
 subparsers.add_parser(
-    "l2",
+    "l2-execution",
     help="spins up a local op-geth node")
 
 subparsers.add_parser(
@@ -74,18 +74,18 @@ if __name__ == "__main__":
             import paths
             l1.deploy_l1_devnet(paths.OPPaths("optimism"))
 
-        if lib.args.command == "l2":
+        if lib.args.command == "l2-execution":
             deps.check_or_install_op_geth()
-            import l2
+            import l2_execution
             import paths
-            l2.deploy_l2_devnet(paths.OPPaths("optimism"))
+            l2_execution.deploy_l2_execution(paths.OPPaths("optimism"))
 
         if lib.args.command == "clean":
             import l1
-            import l2
+            import l2_execution
             import paths
             l1.clean(paths.OPPaths("optimism"))
-            l2.clean(paths.OPPaths("optimism"))
+            l2_execution.clean(paths.OPPaths("optimism"))
 
         print("Done.")
     except KeyboardInterrupt:

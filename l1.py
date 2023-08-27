@@ -347,7 +347,7 @@ def clean(paths: OPPaths):
     was the first invocation.
     """
     if os.path.exists(paths.devnet_gen_dir):
-        print(f"Cleaning up {DEVNET_L1_DATA_DIR}")
+        lib.debug(f"Cleaning up {paths.devnet_gen_dir}")
         shutil.rmtree(paths.devnet_gen_dir, ignore_errors=True)
 
     if os.path.exists(DEVNET_L1_DATA_DIR):
