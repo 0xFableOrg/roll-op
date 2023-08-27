@@ -57,9 +57,9 @@ class OPPaths:
         """L1 contract addresses for use in the Optimism SDK."""
 
         self.l2_genesis_path = pjoin(self.devnet_gen_dir, "genesis-l2.json")
-        """Devnet L2 genesis file path."""
+        """L2 genesis file path."""
 
         self.rollup_config_path = pjoin(self.devnet_gen_dir, "rollup.json")
-        """Devnet L2 rollup config file path."""
+        """L2 rollup config file path."""
 
 ####################################################################################################

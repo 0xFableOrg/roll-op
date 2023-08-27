@@ -17,8 +17,7 @@ debug_mode = os.getenv("DEBUG") is not None
 
 ####################################################################################################
 
-def run(descr: str, command: str | list[str],
-        **kwargs) -> str | subprocess.Popen | None:
+def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Popen | None:
     """
     Runs a command using the :py:module:`subprocess` module. Keyword arguments are forwarded to
     the :py:class:`subprocess.Popen` constructor directly and can be used to override the defaults
@@ -94,11 +93,9 @@ def run(descr: str, command: str | list[str],
 
     missing = object()
     if kwargs.get("stdout", missing) is not missing:
-        raise AssertionError(
-            "Cannot only specify `stdout` option when using `forward='fd'`")
+        raise AssertionError("Cannot only specify `stdout` option when using `forward='fd'`")
     if kwargs.get("stderr", missing) is not missing:
-        raise AssertionError(
-            "Cannot only specify `stderr` option when using `forward='fd'`")
+        raise AssertionError("Cannot only specify `stderr` option when using `forward='fd'`")
 
     if forward == "capture" and not wait:
         raise AssertionError("Cannot use `forward='capture'` with `wait=False`")
@@ -134,8 +131,7 @@ def run(descr: str, command: str | list[str],
         if thread is not None:
             thread.join()
 
-        output = "".join(
-            line for line in process.stdout) if forward == "capture" else None
+        output = "".join(line for line in process.stdout) if forward == "capture" else None
 
         if check and returncode != 0:
             raise extend_exception(
@@ -172,8 +168,7 @@ def run_roll_log(descr: str, command: str | list[str], log_file: str, **kwargs):
     prefix = kwargs.pop("prefix", "| ")
     use_ansi_esc = kwargs.pop("use_ansi_esc", True)
 
-    if kwargs.get("forward", None) is not None or kwargs.get("stream",
-                                                             None) is not None:
+    if kwargs.get("forward", None) is not None or kwargs.get("stream", None) is not None:
         raise AssertionError("Cannot specify `forward` or `stream`")
 
     stream = sys.stdout
@@ -285,7 +280,7 @@ class ExtendedException(Exception):
 
     def __str__(self):
         return f"(wrapping {type(self.e).__name__}):\n" \
-               f"> {self.prefix}{self.e.__str__()}{self.suffix}"
+            f"> {self.prefix}{self.e.__str__()}{self.suffix}"
 
 
 ####################################################################################################

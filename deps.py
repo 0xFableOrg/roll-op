@@ -359,8 +359,7 @@ def check_or_install_op_geth():
         return
 
     if lib.ask_yes_no(
-            "op-geth is required. Install in ./bin?\n"
-            "This will overwrite any version of op-geth that might be in that directory."):
+            "op-geth is required. Install in ./bin?"):
         install_op_geth()
     else:
         raise Exception("op-geth missing.")

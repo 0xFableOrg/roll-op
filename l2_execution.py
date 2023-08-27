@@ -1,5 +1,5 @@
 """
-This module defines functions related to spinning a devnet op-geth node.
+This module defines functions related to spinning an op-geth node.
 """
 
 import os
@@ -14,26 +14,26 @@ from processes import PROCESS_MGR
 
 ####################################################################################################
 
-DEVNET_L2_DATA_DIR = "db/devnetL2"
-"""Directory to store the devnet op-geth blockchain data."""
+L2_EXECUTION_DATA_DIR = "db/L2-execution"
+"""Directory to store the op-geth blockchain data."""
 
 
 ####################################################################################################
 
-def deploy_l2_devnet(paths: OPPaths):
+def deploy_l2_execution(paths: OPPaths):
     """
-    Spin the devnet op-geth node, doing whatever tasks are necessary, including installing op-geth,
+    Spin the l2 execution node, doing whatever tasks are necessary, including installing op-geth,
     generating the genesis file and config files.
     """
-    generate_devnet_l2_genesis(paths)
-    start_devnet_l2_node(paths)
-    print("Devnet L2 deployment is complete! L2 node is running.")
+    generate_l2_execution_genesis(paths)
+    start_l2_execution_node(paths)
+    print("L2 execution deployment is complete! L2 execution node is running.")
     PROCESS_MGR.wait_all()
 
 
 ####################################################################################################
 
-def generate_devnet_l2_genesis(paths: OPPaths):
+def generate_l2_execution_genesis(paths: OPPaths):
     """
     Generate the L2 genesis file and rollup configs.
     """
@@ -58,37 +58,19 @@ def generate_devnet_l2_genesis(paths: OPPaths):
 ####################################################################################################
 
 
-class DevnetL2Config:
+class L2ExecutionConfig:
     def __init__(self, geth_data_dir: str, paths: OPPaths):
         self.data_dir = geth_data_dir
-        """Geth data directory for devnet op-geth node."""
-
-        self.keystore_dir = f"{self.data_dir}/keystore"
-        """Keystore directory for devnet op-geth node (each file stores an encrypted signer key)."""
+        """Geth data directory for op-geth node."""
 
         self.chaindata_dir = f"{self.data_dir}/geth/chaindata"
         """Directory storing chain data."""
-
-        self.password_path = f"{self.data_dir}/password"
-        """Path to file storing the password for the signer key."""
-
-        self.password = "l2_devnet_password"
-        """Password to use to secure the signer key."""
-
-        self.tmp_signer_key_path = f"{self.data_dir}/block-signer-key"
-        """Path to file storing the signer key during the initial import."""
-
-        self.signer_address = "0xca062b0fd91172d89bcd4bb084ac4e21972cc467"
-        """Address of the block signer."""
-
-        self.signer_private_key = "3e4bde571b86929bf08e2aaad9a6a1882664cd5e65b96fff7d03e1c4e6dfa15c"
-        """Private key of the block signer."""
 
         genesis = lib.read_json_file(paths.l2_genesis_path)
         self.chain_id = genesis["config"]["chainId"]
 
         self.jwt_secret_path = paths.ops_bedrock_dir + "/test-jwt-secret.txt"
-        """Path for Jason Web Token secret, used for devnet op-geth rpc auth."""
+        """Path for Jason Web Token secret, used for op-geth rpc auth."""
 
         # For the following values, allow environment override for now, to follow the original.
         # In due time, remove that as we provide our own way to customize.
@@ -105,12 +87,12 @@ class DevnetL2Config:
 
 ####################################################################################################
 
-def start_devnet_l2_node(paths: OPPaths):
+def start_l2_execution_node(paths: OPPaths):
     """
-    Spin the devnet op-geth node, then wait for it to be ready.
+    Spin the op-geth node, then wait for it to be ready.
     """
 
-    cfg = DevnetL2Config(DEVNET_L2_DATA_DIR, paths)
+    cfg = L2ExecutionConfig(L2_EXECUTION_DATA_DIR, paths)
 
     # Make sure the port isn't occupied yet.
     # Necessary on MacOS that easily allows two processes to bind to the same port.
@@ -120,25 +102,11 @@ def start_devnet_l2_node(paths: OPPaths):
     except Exception:
         running = False
     if running:
-        raise Exception("Couldn't start op-geth node: server already running at localhost:9545")
+        raise Exception(
+            "Couldn't start op-geth node: server already running at localhost:9545")
 
     # Create geth db if it doesn't exist.
-    os.makedirs(DEVNET_L2_DATA_DIR, exist_ok=True)
-
-    if not os.path.exists(cfg.keystore_dir):
-        # Initial account setup
-        print(f"Directory '{cfg.keystore_dir}' missing, running account import.")
-        with open(cfg.password_path, "w") as f:
-            f.write(cfg.password)
-        with open(cfg.tmp_signer_key_path, "w") as f:
-            f.write(cfg.signer_private_key.replace("0x", ""))
-        lib.run(
-            "importing signing keys",
-            ["op-geth", "account", "import",
-             f"--datadir={cfg.data_dir}",
-             f"--password={cfg.password_path}",
-             cfg.tmp_signer_key_path])
-        os.remove(f"{cfg.data_dir}/block-signer-key")
+    os.makedirs(L2_EXECUTION_DATA_DIR, exist_ok=True)
 
     if not os.path.exists(cfg.chaindata_dir):
         log_file = "logs/init_l2_genesis.log"
@@ -172,7 +140,9 @@ def start_devnet_l2_node(paths: OPPaths):
 
             # No peers: the blockchain is only this node
             "--nodiscover",
-            "--maxpeers=1",
+            "--maxpeers=0",
+
+            "--rpc.allow-unprotected-txs",
 
             # HTTP JSON-RPC server config
             "--http",
@@ -189,12 +159,8 @@ def start_devnet_l2_node(paths: OPPaths):
             "--ws.origins=*",
             "--ws.api=debug,eth,txpool,net,engine",
 
-            # Configuration for clique signing, clique itself is enabled via the genesis file
-            f"--unlock={cfg.signer_address}",
-            "--mine",
-            f"--miner.etherbase={cfg.signer_address}",
-            f"--password={cfg.data_dir}/password",
-            "--allow-insecure-unlock",
+            # Network config, avoid conflicts with L1 geth nodes
+            "--port=30313",
 
             # Authenticated RPC config
             "--authrpc.addr=0.0.0.0",
@@ -207,9 +173,8 @@ def start_devnet_l2_node(paths: OPPaths):
             "--metrics.addr=0.0.0.0",
             "--metrics.port=9060",
 
-            # Configuration for the discovery server, avoid conflicts with L1 node
-            "--discovery.port=30313",
-            "--port=30313"
+            # Configuration for the rollup engine
+            "--rollup.disabletxpoolgossip=true",
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
     lib.wait_for_rpc_server("127.0.0.1", cfg.rpc_port)
@@ -220,15 +185,15 @@ def start_devnet_l2_node(paths: OPPaths):
 
 def clean(paths: OPPaths):
     """
-    Cleans up build outputs, such that trying to deploy the devnet op-geth node will proceed as though it
+    Cleans up build outputs, such that trying to deploy the op-geth node will proceed as though it
     was the first invocation.
     """
     if os.path.exists(paths.devnet_gen_dir):
-        print(f"Cleaning up {paths.devnet_gen_dir}")
+        lib.debug(f"Cleaning up {paths.devnet_gen_dir}")
         shutil.rmtree(paths.devnet_gen_dir, ignore_errors=True)
 
-    if os.path.exists(DEVNET_L2_DATA_DIR):
-        print(f"Cleaning up {DEVNET_L2_DATA_DIR}")
-        shutil.rmtree(DEVNET_L2_DATA_DIR, ignore_errors=True)
+    if os.path.exists(L2_EXECUTION_DATA_DIR):
+        print(f"Cleaning up {L2_EXECUTION_DATA_DIR}")
+        shutil.rmtree(L2_EXECUTION_DATA_DIR, ignore_errors=True)
 
 ####################################################################################################
