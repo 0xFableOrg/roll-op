@@ -43,6 +43,9 @@ always for your permission before installing anything outside the current direct
 # Install dependencies
 source scripts/install.sh
 
+# Run format before committing
+make format
+
 # Run checks
 make check
 ```
