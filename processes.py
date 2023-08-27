@@ -175,7 +175,9 @@ class BackgroundProcessManager:
                 else:
                     print(f"Process {process.name} didn't complete within {timeout} seconds")
         finally:
-            self.processes.remove(process)
+            # The process may have been already been terminated and removed
+            if process in self.processes:
+                self.processes.remove(process)
 
     ################################################################################################
 
@@ -191,7 +193,6 @@ class BackgroundProcessManager:
 
         Clears the list of background processes before returning.
         """
-        print("Terminating background processes...")
         try:
             # Try terminating all processes
             alive_count = 0
@@ -204,6 +205,8 @@ class BackgroundProcessManager:
             # There was no process to terminate
             if alive_count == 0:
                 return
+            
+            print("Terminating background processes...")
 
             # Give them a second to terminate, then try to kill processes that are left
             time.sleep(1)
