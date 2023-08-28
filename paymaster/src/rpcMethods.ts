@@ -17,42 +17,33 @@ interface UserOperation {
     signature: BytesLike
 }
 
-function getUserOpHash (op: UserOperation, entryPoint: string, chainId: number | bigint): string {
-    const userOpHash = ethers.solidityPackedKeccak256(
-        [
-            'address', 'uint256', 'bytes32', 'bytes32', 'uint256', 
-            'uint256', 'uint256', 'uint256', 'uint256', 'bytes32'
-        ],
-        [
-            op.sender, 
-            op.nonce, 
-            ethers.solidityPackedKeccak256(['bytes'], [op.initCode]), 
-            ethers.solidityPackedKeccak256(['bytes'], [op.callData]),
-            op.callGasLimit, 
-            op.verificationGasLimit, 
-            op.preVerificationGas, 
-            op.maxFeePerGas, 
-            op.maxPriorityFeePerGas,
-            ethers.solidityPackedKeccak256(['bytes'], [op.paymasterAndData])
-        ]
-    );
-
-    return ethers.solidityPackedKeccak256(
-        ['bytes32', 'address', 'uint256'],
-        [userOpHash, entryPoint, chainId]
-    );
-}
-
 export async function sponsorTransaction(userOp: UserOperation) {
-    const entrypointAddress = process.env.ENTRYPOINT_ADDRESS as string;
+    const paymasterAddress = process.env.PAYMASTER_ADDRESS as string;
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
     const signer = new ethers.Wallet(process.env.PRIVATE_KEY as string);
 
-    const chainId = await provider!.getNetwork().then(net => net.chainId)
-    const message = ethers.getBytes(getUserOpHash(userOp, entrypointAddress, chainId))
+    const paymaster = new ethers.Contract(
+        paymasterAddress,
+        ['function getHash(UserOperation calldata userOp, uint48 validUntil, uint48 validAfter) public view returns (bytes32)']
+    );
+
+    const coder = new ethers.AbiCoder();
+    const validAfter = (await provider.getBlock('latest'))?.timestamp;
+    // sanity check for validAfter
+    if (validAfter === undefined) throw new Error('Could not get latest block timestamp');
+    const validUntil = validAfter + 300; // 5 minutes
+    const hash = await paymaster.getHash(userOp, validUntil, validAfter);
+    const signature = await signer.signMessage(ethers.getBytes(hash));
 
     return {
         ...userOp,
-        signature: await signer.signMessage(message)
+        paymasterAndData: ethers.concat([
+            paymasterAddress, 
+            coder.encode(
+                ['uint48', 'uint48'], 
+                [validUntil, validAfter]
+            ), 
+            signature
+        ])
     }
 }
