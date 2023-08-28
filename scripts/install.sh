@@ -38,13 +38,13 @@ install_dev_dependencies() {
         echo "pip3 version is $pip3_version, but 21.2.4 or greater is required"
         pip3 install --upgrade pip
     fi
-    # Check if ruff is installed, otherwise install it
-    if ! command -v ruff &> /dev/null
-    then
-        echo "ruff could not be found, installing it now"
-        pip3 install ruff
+    # Check if ruff 0.0.286 is installed, otherwise install this version
+    ruff_version=$(pip3 freeze | grep ruff | awk -F'==' '{print $2}')
+    if [ "$ruff_version" = "0.0.286" ]; then
+        echo "ruff version is $ruff_version"
     else
-        echo "ruff is installed"
+        echo "ruff version is $ruff_version, but 0.0.286 is required"
+        pip3 install ruff==0.0.286
     fi
 }
 
