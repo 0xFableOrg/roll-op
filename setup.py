@@ -3,6 +3,7 @@ Exposes function to set up the project, in particular clone the Optimism monorep
 """
 
 import os
+import shutil
 
 import deps
 import libroll as lib
@@ -48,6 +49,15 @@ def setup_optimism_repo():
         command=deps.cmd_with_node("make build"),
         cwd="optimism",
         log_file="logs/build_optimism.log")
+
+    shutil.copyfile("optimism/op-proposer/bin/op-proposer", "bin/op-proposer")
+    lib.chmodx("bin/op-proposer")
+
+    shutil.copyfile("optimism/op-batcher/bin/op-batcher", "bin/op-batcher")
+    lib.chmodx("bin/op-batcher")
+
+    shutil.copyfile("optimism/op-node/bin/op-node", "bin/op-node")
+    lib.chmodx("bin/op-node")
 
     print("Successfully built the optimism repository.")
 
