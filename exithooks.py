@@ -16,6 +16,10 @@ class ExitHooksManager:
     Enables registering exit hooks that are called on exit (both successful exit and exit due to
     signals). Does support all signals that normally cause termination of the program (SIGTERM,
     SIGINT and SIGQUIT) but not SIGKILL that cannot be caught by design.
+
+    This will install signal handlers that kill the process (just like the default handlers) in
+    addition to running the hooks. Do not use this if you want to handle the signals yourself
+    without exiting.
     """
 
     def __init__(self):
@@ -32,8 +36,13 @@ class ExitHooksManager:
             hook(0)
 
     def _signal_handler(self, signum, frame):
-        for hook in self.hooks:
-            hook(signum)
+        try:
+            for hook in self.hooks:
+                hook(signum)
+        finally:
+            if signum == signal.SIGINT:
+                print("Interrupted by SIGINT (most likely Ctrl-C).")
+            exit(signum)
 
     def register(self, hook: Callable[[int], None]):
         """
