@@ -120,7 +120,7 @@ def start_l2_execution_node(paths: OPPaths):
              f"--datadir={cfg.data_dir}",
              paths.l2_genesis_path])
 
-    log_file_path = "logs/l2_node.log"
+    log_file_path = "logs/l2_engine.log"
     print(f"Starting op-geth node. Logging to {log_file_path}")
     sys.stdout.flush()
 
