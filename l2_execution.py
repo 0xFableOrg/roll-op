@@ -69,7 +69,7 @@ class L2ExecutionConfig:
         genesis = lib.read_json_file(paths.l2_genesis_path)
         self.chain_id = genesis["config"]["chainId"]
 
-        self.jwt_secret_path = paths.ops_bedrock_dir + "/test-jwt-secret.txt"
+        self.jwt_secret_path = paths.jwt_test_secret_path
         """Path for Jason Web Token secret, used for op-geth rpc auth."""
 
         # For the following values, allow environment override for now, to follow the original.
