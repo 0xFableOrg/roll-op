@@ -35,6 +35,10 @@ subparsers.add_parser(
     help="spins up a local op-geth node")
 
 subparsers.add_parser(
+    "devnet",
+    help="spins up a local devnet, comprising an L1 node and all L2 components")
+
+subparsers.add_parser(
     "clean",
     help="cleans up build outputs")
 
@@ -72,13 +76,33 @@ if __name__ == "__main__":
             deps.check_or_install_geth()
             import l1
             import paths
-            l1.deploy_l1_devnet(paths.OPPaths("optimism"))
+            l1.deploy_devnet_l1(paths.OPPaths("optimism"))
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-execution":
             deps.check_or_install_op_geth()
             import l2_execution
             import paths
-            l2_execution.deploy_l2_execution(paths.OPPaths("optimism"))
+            l2_execution.deploy_l2(paths.OPPaths("optimism"))
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "devnet":
+            # TODO refactor
+            deps.check_or_install_foundry()
+            deps.check_or_install_geth()
+            import l1
+            import paths
+            l1.deploy_devnet_l1(paths.OPPaths("optimism"))
+
+            deps.check_or_install_op_geth()
+            import l2_execution
+            import paths
+            l2_execution.deploy_l2(paths.OPPaths("optimism"))
+
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
 
         if lib.args.command == "clean":
             import l1
