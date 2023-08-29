@@ -8,9 +8,9 @@ import subprocess
 import sys
 
 import libroll as lib
+from config import L2Config
 from paths import OPPaths
 from processes import PROCESS_MGR
-
 
 ####################################################################################################
 
@@ -195,5 +195,207 @@ def clean(paths: OPPaths):
     if os.path.exists(L2_EXECUTION_DATA_DIR):
         print(f"Cleaning up {L2_EXECUTION_DATA_DIR}")
         shutil.rmtree(L2_EXECUTION_DATA_DIR, ignore_errors=True)
+
+####################################################################################################
+# New Stuff
+####################################################################################################
+
+def deploy_l2(paths: OPPaths):
+    """
+    Deploys all components of the L2 system: the
+    Spin the devnet op-geth node, doing whatever tasks are necessary, including installing op-geth,
+    generating the genesis file and config files.
+    """
+    generate_l2_execution_genesis(paths)
+
+    config = L2Config()
+    config.use_devnet_config(paths)
+    rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
+    config.load_rollup_config(rollup_config_dict)
+
+    deployments = lib.read_json_file(paths.addresses_json_path)
+
+    if deployments.get("L2OutputOracleProxy") is None:
+        raise Exception(
+            "L2OutputOracleProxy address not found in addresses.json. "
+            "Try redeploying the L1 contracts.")
+
+    start_l2_execution_node(paths)
+    start_l2_node(config, paths, sequencer=True)
+    start_l2_proposer(config, deployments)
+    start_l2_batcher(config)
+
+    print("Devnet L2 deployment is complete! L2 node is running.")
+
+
+####################################################################################################
+
+def start_l2_proposer(config: L2Config, deployment: dict):
+    """
+    Starts the OP proposer, which proposes L2 output roots.
+    """
+
+    log_file_path = "logs/l2_proposer.log"
+    print(f"Starting L2 proposer. Logging to {log_file_path}")
+    log_file = open(log_file_path, "w")
+    sys.stdout.flush()
+
+    PROCESS_MGR.start(
+        "starting L2 proposer",
+        [
+            "op-proposer",
+
+            # Proposer-Specific Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-proposer/flags/flags.go
+
+            f"--l1-eth-rpc='{config.l1_rpc}'",
+            f"--rollup-rpc='{config.l2_node_rpc}'",
+            f"--poll-interval={config.proposer_poll_interval}s",
+            f"--l2oo-address={deployment['L2OutputOracleProxy']}",
+            *(["--allow-non-finalized"] if config.allow_non_finalized else []),
+
+            # RPC Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
+
+            f"--rpc.addr={config.proposer_rpc_listen_addr}",
+            f"--rpc.port={config.proposer_rpc_listen_port}",
+
+            # Tx Manager Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/txmgr/cli.go
+
+            f"--num-confirmations={config.proposer_num_confirmations}",
+            *([f"--private-key={config.proposer_key}"] if config.proposer_key else [
+                f"--mnemonic='{config.proposer_mnemonic}'",
+                f"--hd-path=\"{config.proposer_hd_path}\""]),
+
+            # Metrics Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
+
+            *([] if not config.proposer_metrics else [
+                "--metrics.enabled",
+                f"--metrics.port={config.proposer_metrics_listen_port}",
+                f"--metrics.addr={config.proposer_metrics_listen_addr}"])
+        ],
+        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+
+
+####################################################################################################
+
+def start_l2_batcher(config: L2Config):
+    """
+    Starts the OP batcher, which submits transaction batches.
+    """
+
+    log_file_path = "logs/l2_batcher.log"
+    print(f"Starting L2 batcher. Logging to {log_file_path}")
+    log_file = open(log_file_path, "w")
+    sys.stdout.flush()
+
+    PROCESS_MGR.start(
+        "starting L2 batcher",
+        [
+            "op-batcher",
+
+            # Batcher-Specific Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-batcher/flags/flags.go
+
+            f"--l1-eth-rpc='{config.l1_rpc}'",
+            f"--l2-eth-rpc='{config.l2_engine_rpc}'",
+            f"--rollup-rpc='{config.l2_node_rpc}'",
+            f"--poll-interval={config.batcher_poll_interval}s",
+            f"--sub-safety-margin={config.sub_safety_margin}",
+            f"--max-channel-duration={config.max_channel_duration}",
+
+            # Tx Manager Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/txmgr/cli.go
+
+            f"--num-confirmations={config.batcher_num_confirmations}",
+            *([f"--private-key={config.batcher_key}"] if config.batcher_key else [
+                f"--mnemonic='{config.batcher_mnemonic}'",
+                f"--hd-path=\"{config.batcher_hd_path}\""]),
+
+            # Metrics Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
+
+            *([] if not config.proposer_metrics else [
+                "--metrics.enabled",
+                f"--metrics.port={config.batcher_metrics_listen_port}",
+                f"--metrics.addr={config.batcher_metrics_listen_addr}"]),
+
+            # RPC Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-batcher/rpc/config.go
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
+
+            *([] if not config.batcher_enable_admin else ["--rpc.enable-admin"]),
+            f"--rpc.addr={config.batcher_rpc_listen_addr}",
+            f"--rpc.port={config.batcher_rpc_listen_port}"
+        ],
+        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+
+
+####################################################################################################
+
+def start_l2_node(config: L2Config, paths: OPPaths, sequencer: bool = True):
+    """
+    Starts the OP node, which derives the L2 chain from the L1 chain & optionally creates new L2
+    blocks, then waits for it to be reasy.
+    """
+
+    log_file_path = "logs/l2_node.log"
+    print(f"Starting L2 node. Logging to {log_file_path}")
+    log_file = open(log_file_path, "w")
+    sys.stdout.flush()
+
+    PROCESS_MGR.start(
+        "starting L2 node",
+        [
+            "op-node",
+
+            # Node-Specific Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/flags.go
+
+            f"--l1={config.l1_rpc_for_node}",
+            f"--l2={config.l2_engine_authrpc}",
+            f"--l2.jwt-secret={config.jwt_secret_path}",
+            f"--verifier.l1-confs={config.verifier_l1_confs}",
+            f"--rollup.config={paths.rollup_config_path}",
+
+            # Sequencer Options
+
+            *([] if not sequencer else [
+                "--sequencer.enabled",
+                f"--sequencer.l1-confs={config.sequencer_l1_confs}",
+            ]),
+
+            # RPC Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
+
+            f"--rpc.addr={config.node_rpc_listen_addr}",
+            f"--rpc.port={config.node_rpc_listen_port}",
+
+            # P2P Flags
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/p2p_flags.go
+
+            *(["--p2p.disable"] if not config.p2p_enabled else [
+                f"--p2p.listen.ip={config.p2p_listen_addr}",
+                f"--p2p.listen.tcp={config.p2p_tcp_listen_port}",
+                f"--p2p.listen.udp={config.p2p_udp_listen_port}",
+                f"--p2p.priv.path={config.p2p_peer_key_path}",
+                *([] if config.p2p_sequencer_key is None else [
+                    f"--p2p.sequencer.key={config.p2p_sequencer_key}"
+                ])
+            ]),
+
+            # Metrics Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
+
+            *([] if not config.proposer_metrics else [
+                "--metrics.enabled",
+                f"--metrics.port={config.node_metrics_listen_port}",
+                f"--metrics.addr={config.node_metrics_listen_addr}"]),
+        ],
+        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+
+    lib.wait_for_rpc_server("127.0.0.1", config.node_rpc_listen_port)
 
 ####################################################################################################

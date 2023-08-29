@@ -7,4 +7,6 @@
 /logs
 /db
 /op-geth
+/opnode_discovery_db
+/opnode_peerstore_db
 .DS_Store
