@@ -27,7 +27,7 @@ DEVNET_L1_DATA_DIR = "db/devnetL1"
 
 ####################################################################################################
 
-def deploy_l1_devnet(paths: OPPaths):
+def deploy_devnet_l1(paths: OPPaths):
     """
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
     generating the genesis file and config files, and deploying the L1 contracts.
@@ -40,7 +40,6 @@ def deploy_l1_devnet(paths: OPPaths):
     start_devnet_l1_node(paths)
     deploy_l1_contracts(paths)
     print("Devnet L1 deployment is complete! L1 node is running.")
-    PROCESS_MGR.wait_all()
 
 
 ####################################################################################################
