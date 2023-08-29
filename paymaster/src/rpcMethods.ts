@@ -1,9 +1,10 @@
 import { BigNumberish, ethers } from 'ethers';
+import { paymasterAbi } from './abis';
 import { BytesLike } from '@ethersproject/bytes';
 import dotenv from 'dotenv';
 dotenv.config();
 
-interface UserOperation {
+export interface UserOperation {
     sender: string
     nonce: BigNumberish
     initCode: BytesLike
@@ -17,14 +18,15 @@ interface UserOperation {
     signature: BytesLike
 }
 
-export async function sponsorTransaction(userOp: UserOperation) {
+export async function sponsorTransaction(userOp: UserOperation): Promise<UserOperation> {
     const paymasterAddress = process.env.PAYMASTER_ADDRESS as string;
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
     const signer = new ethers.Wallet(process.env.PRIVATE_KEY as string);
 
     const paymaster = new ethers.Contract(
         paymasterAddress,
-        ['function getHash(UserOperation calldata userOp, uint48 validUntil, uint48 validAfter) public view returns (bytes32)']
+        paymasterAbi,
+        provider
     );
 
     const coder = new ethers.AbiCoder();
