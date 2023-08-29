@@ -27,6 +27,7 @@ class BackgroundProcessManager:
     def __init__(self):
         self.processes = []
         """List of background processes that might still be running."""
+
         EXIT_HOOKS_MGR.register(self._exit_hook)
 
     ################################################################################################
@@ -221,11 +222,11 @@ class BackgroundProcessManager:
             if alive_count == 0:
                 return
 
-            # There killed processes a second to terminate, then log if they are still alive
+            # Give killed processes a second to terminate, then log if they are still alive
             time.sleep(1)
             for process in self.processes:
                 if self.is_alive(process):
-                    print(f"Failed to prompty kill {process.name}")
+                    print(f"Failed to promptly kill {process.name}")
         finally:
             self.processes.clear()
 

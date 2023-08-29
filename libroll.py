@@ -188,12 +188,13 @@ def forward_output(input_stream, output_stream):
     Prefixes the given `prefix` string if given.
     """
     while True:
+        sys.stdout.flush()
         line = input_stream.readline()
         if line == "":  # EOF
+            sys.stdout.flush()
             break
         output_stream.write(line)
         output_stream.flush()
-
 
 ####################################################################################################
 
@@ -342,7 +343,6 @@ def wait(address: str, port: int, retries: int = 10, wait_secs: int = 1):
     in between each attempt.
     """
     for i in range(0, retries):
-        debug(f"Trying {address}:{port}")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             # Note: this has no internal timeout, fails immediately if unreachable.
@@ -369,19 +369,24 @@ def wait_for_rpc_server(address: str, port: int, retries: int = 5, wait_secs=3):
     url = f"{address}:{port}"
     print(f"Waiting for RPC server at {url}...")
 
-    conn = http.client.HTTPConnection(url)
     headers = {"Content-type": "application/json"}
     body = '{"id":1, "jsonrpc":"2.0", "method": "eth_chainId", "params":[]}'
 
     for i in range(0, retries):
         try:
+            conn = http.client.HTTPConnection(url)
             conn.request("POST", "/", body, headers)
             response = conn.getresponse()
             conn.close()
             if response.status < 300:
                 debug(f"RPC server at {url} ready")
                 return
+            else:
+                debug(f"RPC server not ready, status: {response.status}")
         except Exception:
+            debug("RPC server not ready, connection attempt failed, retrying...")
             time.sleep(wait_secs)
+
+    raise Exception(f"Timed out waiting for {url}")
 
 ####################################################################################################
