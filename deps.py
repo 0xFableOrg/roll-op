@@ -234,7 +234,6 @@ def check_or_install_foundry():
         version = get_foundry_version()
         if version is None:
             return False
-        print(version)
         return version >= MIN_FORGE_VERSION
 
     # Doing this here, even if Foundry might already be in path, covers the edge case where we

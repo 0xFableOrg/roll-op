@@ -207,12 +207,11 @@ def start_devnet_l1_node(paths: OPPaths):
     log_file_path = "logs/l1_node.log"
     print(f"Starting L1 node. Logging to {log_file_path}")
     sys.stdout.flush()
+    log_file = open(log_file_path, "w")
 
     # NOTE: The devnet L1 node must be an archive node, otherwise pruning happens within minutes of
     # starting the node. This could be an issue if the op-node is brought down or restarted later,
     # or if the sequencing window is larger than the time-to-prune.
-
-    log_file = open(log_file_path, "w")
 
     PROCESS_MGR.start(
         "starting geth",
