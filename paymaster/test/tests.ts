@@ -2,12 +2,21 @@ import { ethers } from 'ethers';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { UserOperation } from '../src/rpcMethods';
-import { simpleAccountAbi, simpleAccountFactoryAbi } from '../src/abis';
+import { simpleAccountAbi, simpleAccountFactoryAbi, paymasterAbi, entrypointAbi } from '../src/abis';
 dotenv.config();
 
 async function main() {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
-    const signer = new ethers.Wallet(process.env.PRIVATE_KEY as string);
+    const signer = new ethers.Wallet(process.env.PRIVATE_KEY as string, provider);
+
+    // Paymaster first needs to have funds in Entrypoint contract
+    const paymasterAddress = process.env.PAYMASTER_ADDRESS as string;
+    const paymaster = new ethers.Contract(
+        paymasterAddress,
+        paymasterAbi,
+        signer
+    );
+    await (await paymaster.deposit({ value: ethers.parseEther('3')})).wait();
 
     // Generate initcode
     const simpleAccountFactoryAddress = process.env.SIMPLE_ACCOUNT_FACTORY_ADDRESS as string;
@@ -34,15 +43,15 @@ async function main() {
     const callData = simpleAccount.interface.encodeFunctionData("execute", [to, value, data]);
 
     // Construct UserOp
-    const userOp: UserOperation = {
+    let userOp: UserOperation = {
         sender: simpleAccountAddress,
         nonce: 0,
         initCode: initCode,
         callData: callData,
-        callGasLimit: ethers.toBeHex(1_000_000), // hardcode it for now at a high value,
-        verificationGasLimit: ethers.toBeHex(4_000_000), // hardcode it for now at a high value,
-        preVerificationGas: ethers.toBeHex(500_000), // hardcode it for now at a high value,
-        maxFeePerGas: ethers.toBeHex(1e9),
+        callGasLimit: ethers.toBeHex(3_000_000), // hardcode it for now at a high value,
+        verificationGasLimit: ethers.toBeHex(3_000_000), // hardcode it for now at a high value,
+        preVerificationGas: ethers.toBeHex(2_000_000), // hardcode it for now at a high value,
+        maxFeePerGas: ethers.toBeHex(2e9),
         maxPriorityFeePerGas: ethers.toBeHex(1e9),
         paymasterAndData: "0x00",
         signature: "0x00"
@@ -61,7 +70,50 @@ async function main() {
           'Content-Type': 'application/json',
         },
     });
-    console.log("Response: ", response.data.result);
+    userOp = response.data.result;
+
+    // User to sign UserOp
+    const entrypointAddress = process.env.ENTRYPOINT_ADDRESS as string;
+    const entrypoint = new ethers.Contract(
+        entrypointAddress,
+        entrypointAbi,
+        provider
+    );
+    const userOpHash = await entrypoint.getUserOpHash(userOp);
+    const signature = await signer.signMessage(ethers.getBytes(userOpHash));
+    userOp = {
+        ...userOp,
+        signature: signature
+    }
+    console.log("Finalized userOp: ", userOp);
+
+    // Estimate gas requred
+    const gasEstimationRequest = {
+        jsonrpc: '2.0',
+        method: 'eth_estimateUserOperationGas',
+        params: [userOp, entrypointAddress],
+        id: 2
+    }
+    const gasEstimationResult = await axios.post("http://localhost:4337", gasEstimationRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    });
+    console.log("Gas estimation result: ", gasEstimationResult.data.result);
+
+    // Send UserOperation
+    const userOperationRequest = {
+        jsonrpc: '2.0',
+        method: 'eth_sendUserOperation',
+        params: [userOp, entrypointAddress],
+        id: 2
+    }
+    const userOperationResult = await axios.post("http://localhost:4337", userOperationRequest, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    });
+    console.log("Result: ", userOperationResult.data.result);
 }
 
 main();
