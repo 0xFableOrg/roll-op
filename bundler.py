@@ -48,6 +48,7 @@ parser.add_argument(
 def start():
     setup_4337_contracts()
     setup_stackup_bundler()
+    setup_paymaster()
 
 # --------------------------------------------------------------------------------------------------
 
@@ -116,6 +117,42 @@ def setup_stackup_bundler():
         stderr=subprocess.STDOUT
     )
     print("Bundler is running!")
+    # PROCESS_MGR.wait_all()
+
+def setup_paymaster():
+    # install paymaster dependencies
+    lib.run_roll_log(
+        "install paymaster dependencies", 
+        command=deps.cmd_with_node("npm install"), 
+        cwd="paymaster",
+        log_file="logs/install_paymaster_dependencies.log"
+    )
+
+    # set environment variables for paymaster (deterministic deployments can be hardcoded)
+    lib.run("set node RPC", "echo RPC_URL=http://localhost:8545 > paymaster/.env")
+    lib.run("set paymaster RPC", "echo PAYMASTER_RPC_URL=http://localhost:3000 >> paymaster/.env")
+    lib.run("set entrypoint", "echo ENTRYPOINT_ADDRESS=0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 >> paymaster/.env")
+    lib.run("set factory", "echo SIMPLE_ACCOUNT_FACTORY_ADDRESS=0x9406Cc6185a346906296840746125a0E44976454 >> paymaster/.env")
+    paymaster_address = subprocess.check_output(["grep", '==VerifyingPaymaster addr=', "logs/deploy_4337_contracts.log"]).decode().strip().split(' ')[-1]
+    lib.run("set paymaster", f"echo PAYMASTER_ADDRESS={paymaster_address} >> paymaster/.env")
+    priv_key = input("Enter private key for paymaster signer: ")
+    lib.run("set private key", f"echo PRIVATE_KEY={priv_key} >> paymaster/.env")
+
+    # start paymaster signer service
+    print("Starting paymaster signer service...")
+    log_file_path = "logs/paymaster_signer.log"
+    log_file = open(log_file_path, "w")
+    PROCESS_MGR.start(
+        "start paymaster", 
+        "npm run start",
+        cwd="paymaster",
+        forward="fd", 
+        stdout=log_file, 
+        stderr=subprocess.STDOUT
+    )
+    print("Paymaster service is running!")
+
+    # allow background processes to continue running
     PROCESS_MGR.wait_all()
 
 ####################################################################################################
