@@ -8,15 +8,9 @@ import subprocess
 import sys
 
 import libroll as lib
-from config import L2Config
+from config import L2_EXECUTION_DATA_DIR, L2Config
 from paths import OPPaths
 from processes import PROCESS_MGR
-
-####################################################################################################
-
-L2_EXECUTION_DATA_DIR = "db/L2-execution"
-"""Directory to store the op-geth blockchain data."""
-
 
 ####################################################################################################
 
@@ -57,48 +51,16 @@ def generate_l2_execution_genesis(paths: OPPaths):
 
 ####################################################################################################
 
-
-class L2ExecutionConfig:
-    def __init__(self, geth_data_dir: str, paths: OPPaths):
-        self.data_dir = geth_data_dir
-        """Geth data directory for op-geth node."""
-
-        self.chaindata_dir = f"{self.data_dir}/geth/chaindata"
-        """Directory storing chain data."""
-
-        genesis = lib.read_json_file(paths.l2_genesis_path)
-        self.chain_id = genesis["config"]["chainId"]
-
-        self.jwt_secret_path = paths.jwt_test_secret_path
-        """Path for Jason Web Token secret, used for op-geth rpc auth."""
-
-        # For the following values, allow environment override for now, to follow the original.
-        # In due time, remove that as we provide our own way to customize.
-
-        self.verbosity = os.environ.get("GETH_VERBOSITY", 3)
-        """Geth verbosity level (from 0 to 5, see geth --help)."""
-
-        self.rpc_port = os.environ.get("RPC_PORT", 9545)
-        """Port to use for the http-based JSON-RPC server."""
-
-        self.ws_port = os.environ.get("WS_PORT", 9546)
-        """Port to use for the WebSocket-based JSON_RPC server."""
-
-
-####################################################################################################
-
-def start_l2_execution_node(paths: OPPaths):
+def start_l2_execution_node(config: L2Config, paths: OPPaths):
     """
     Spin the op-geth node, then wait for it to be ready.
     """
-
-    cfg = L2ExecutionConfig(L2_EXECUTION_DATA_DIR, paths)
 
     # Make sure the port isn't occupied yet.
     # Necessary on MacOS that easily allows two processes to bind to the same port.
     running = True
     try:
-        lib.wait("127.0.0.1", cfg.rpc_port, retries=1)
+        lib.wait("127.0.0.1", config.rpc_port, retries=1)
     except Exception:
         running = False
     if running:
@@ -106,18 +68,18 @@ def start_l2_execution_node(paths: OPPaths):
             "Couldn't start op-geth node: server already running at localhost:9545")
 
     # Create geth db if it doesn't exist.
-    os.makedirs(L2_EXECUTION_DATA_DIR, exist_ok=True)
+    os.makedirs(config.data_dir, exist_ok=True)
 
-    if not os.path.exists(cfg.chaindata_dir):
+    if not os.path.exists(config.chaindata_dir):
         log_file = "logs/init_l2_genesis.log"
-        print(f"Directory {cfg.chaindata_dir} missing, importing genesis in op-geth node."
+        print(f"Directory {config.chaindata_dir} missing, importing genesis in op-geth node."
               f"Logging to {log_file}")
         lib.run(
             "initializing genesis",
             ["op-geth",
-             f"--verbosity={cfg.verbosity}",
+             f"--verbosity={config.verbosity}",
              "init",
-             f"--datadir={cfg.data_dir}",
+             f"--datadir={config.data_dir}",
              paths.l2_genesis_path])
 
     log_file_path = "logs/l2_engine.log"
@@ -131,10 +93,10 @@ def start_l2_execution_node(paths: OPPaths):
         [
             "op-geth",
 
-            f"--datadir={cfg.data_dir}",
-            f"--verbosity={cfg.verbosity}",
+            f"--datadir={config.data_dir}",
+            f"--verbosity={config.verbosity}",
 
-            f"--networkid={cfg.chain_id}",
+            f"--networkid={config.chain_id}",
             "--syncmode=full",  # doesn't matter, it's only us
             "--gcmode=archive",
 
@@ -149,13 +111,13 @@ def start_l2_execution_node(paths: OPPaths):
             "--http.corsdomain=*",
             "--http.vhosts=*",
             "--http.addr=0.0.0.0",
-            f"--http.port={cfg.rpc_port}",
+            f"--http.port={config.rpc_port}",
             "--http.api=web3,debug,eth,txpool,net,engine",
 
             # WebSocket JSON-RPC server config
             "--ws",
             "--ws.addr=0.0.0.0",
-            f"--ws.port={cfg.ws_port}",
+            f"--ws.port={config.ws_port}",
             "--ws.origins=*",
             "--ws.api=debug,eth,txpool,net,engine",
 
@@ -166,7 +128,7 @@ def start_l2_execution_node(paths: OPPaths):
             "--authrpc.addr=0.0.0.0",
             "--authrpc.port=9551",
             "--authrpc.vhosts=*",
-            f"--authrpc.jwtsecret={cfg.jwt_secret_path}",
+            f"--authrpc.jwtsecret={config.jwt_secret_path}",
 
             # Configuration for the metrics server (we currently don't use this)
             "--metrics",
@@ -177,7 +139,7 @@ def start_l2_execution_node(paths: OPPaths):
             "--rollup.disabletxpoolgossip=true",
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
-    lib.wait_for_rpc_server("127.0.0.1", cfg.rpc_port)
+    lib.wait_for_rpc_server("127.0.0.1", config.rpc_port)
 
 
 ####################################################################################################
@@ -220,7 +182,7 @@ def deploy_l2(paths: OPPaths):
             "L2OutputOracleProxy address not found in addresses.json. "
             "Try redeploying the L1 contracts.")
 
-    start_l2_execution_node(paths)
+    start_l2_execution_node(config, paths)
     start_l2_node(config, paths, sequencer=True)
     start_l2_proposer(config, deployments)
     start_l2_batcher(config)
