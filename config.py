@@ -1,3 +1,4 @@
+import libroll as lib
 from paths import OPPaths
 
 # Summary on default port mapping:
@@ -78,6 +79,30 @@ class L2Config:
         Path to the Jason Web Token secret file, which enable the l2 node to communicate with the
         execution engine. Must be supplied.
         """
+
+        # ==========================================================================================
+        # L2 Execution Engine Configuration
+
+        self.data_dir = L2_EXECUTION_DATA_DIR
+        """Geth data directory for op-geth node."""
+
+        self.chaindata_dir = f"{self.data_dir}/geth/chaindata"
+        """Directory storing chain data."""
+
+        self.chain_id = 42069
+        """Chain ID of the local L2."""
+
+        # For the following values, allow environment override for now, to follow the original.
+        # In due time, remove that as we provide our own way to customize.
+
+        self.verbosity = 3
+        """Geth verbosity level (from 0 to 5, see geth --help)."""
+
+        self.rpc_port = 9545
+        """Port to use for the http-based JSON-RPC server."""
+
+        self.ws_port = 9546
+        """Port to use for the WebSocket-based JSON_RPC server."""
 
         # ==========================================================================================
         # Node Configuration
@@ -419,6 +444,11 @@ class L2Config:
 
         self.jwt_secret_path = paths.jwt_test_secret_path
 
+        # === L2 Execution Engine ===
+
+        genesis = lib.read_json_file(paths.l2_genesis_path)
+        self.chain_id = genesis["config"]["chainId"]
+
         # === Node ===
 
         self.sequencer_l1_confs = 0
@@ -440,5 +470,10 @@ class L2Config:
         # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
         # NOTE(norswap): upnode uses 6
         self.sub_safety_margin = 4
+
+####################################################################################################
+
+L2_EXECUTION_DATA_DIR = "db/L2-execution"
+"""Directory to store the op-geth blockchain data."""
 
 ####################################################################################################
