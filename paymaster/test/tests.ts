@@ -17,6 +17,7 @@ async function main() {
         signer
     );
     await (await paymaster.deposit({ value: ethers.parseEther('3')})).wait();
+    await (await paymaster.addStake(3000, { value: ethers.parseEther('3')})).wait();
 
     // Generate initcode
     const simpleAccountFactoryAddress = process.env.SIMPLE_ACCOUNT_FACTORY_ADDRESS as string;
@@ -45,7 +46,7 @@ async function main() {
     // Construct UserOp
     let userOp: UserOperation = {
         sender: simpleAccountAddress,
-        nonce: 0,
+        nonce: Number(await paymaster.senderNonce(simpleAccountAddress)),
         initCode: initCode,
         callData: callData,
         callGasLimit: ethers.toBeHex(3_000_000), // hardcode it for now at a high value,
@@ -53,8 +54,12 @@ async function main() {
         preVerificationGas: ethers.toBeHex(2_000_000), // hardcode it for now at a high value,
         maxFeePerGas: ethers.toBeHex(2e9),
         maxPriorityFeePerGas: ethers.toBeHex(1e9),
-        paymasterAndData: "0x00",
-        signature: "0x00"
+        paymasterAndData: ethers.concat([
+            paymasterAddress,
+            '0x' + '00'.repeat(64),
+            '0x' + '00'.repeat(65)
+        ]),
+        signature: '0x' + '00'.repeat(65)
     }
 
     // Send UserOp to paymaster RPC server
@@ -113,7 +118,7 @@ async function main() {
           'Content-Type': 'application/json',
         },
     });
-    console.log("Result: ", userOperationResult.data.result);
+    console.log("Result (userOpHash): ", userOperationResult.data.result);
 }
 
 main();
