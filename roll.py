@@ -99,7 +99,6 @@ if __name__ == "__main__":
         if lib.args.command == "devnet":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
-            deps.check_or_install_op_geth()
 
             import l1
             import l2
@@ -125,7 +124,6 @@ if __name__ == "__main__":
 
         if lib.args.command == "l2":
             deps.check_or_install_foundry()
-            deps.check_or_install_op_geth()
 
             import l2
             l2.deploy(paths)
@@ -134,8 +132,6 @@ if __name__ == "__main__":
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-engine":
-            deps.check_or_install_op_geth()  # TODO get ride of this
-
             import l2_engine
             l2_engine.start(config, paths)
 
