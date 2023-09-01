@@ -198,6 +198,7 @@ def forward_output(input_stream, output_stream):
 
 ####################################################################################################
 
+
 def ask_yes_no(question: str) -> bool:
     """
     Prompts the user with a yes/no question and returns the results as a boolean.
