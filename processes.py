@@ -206,7 +206,7 @@ class BackgroundProcessManager:
             # There was no process to terminate
             if alive_count == 0:
                 return
-            
+
             print("Terminating background processes...")
 
             # Give them a second to terminate, then try to kill processes that are left
