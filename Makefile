@@ -6,5 +6,5 @@ check: linter ## Run check
 .PHONY: check
 
 format: ## Run format
-	@autopep8 --in-place --recursive . --exclude optimism,op-geth,venv --max-line-length 120
+	@autopep8 --in-place --recursive . --exclude optimism,op-geth,venv --max-line-length 100
 .PHONY: format
