@@ -90,4 +90,7 @@ def setup_op_geth_repo():
         cwd="op-geth",
         log_file="logs/build_op_geth.log")
 
+    shutil.copyfile("op-geth/build/bin/geth", "bin/op-geth")
+    lib.chmodx("bin/op-geth")
+
     print("Successfully built the op-geth repository.")
