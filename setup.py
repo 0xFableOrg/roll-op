@@ -74,6 +74,7 @@ def setup_op_geth_repo():
     if os.path.isfile("op-geth"):
         raise Exception("Error: 'op-geth' exists as a file and not a directory.")
     elif not os.path.exists("op-geth"):
+        print("Cloning the op-geth repository. This may take a while...")
         descr = "clone the op-geth repository"
         lib.run(descr, f"git clone {github_url}")
         print(f"Succeeded: {descr}")
