@@ -27,20 +27,40 @@ subparsers.add_parser(
     help="installs prerequisites and builds the optimism repository")
 
 subparsers.add_parser(
-    "l1",
-    help="spins up a local L1 node with the rollup contracts deployed on it")
-
-subparsers.add_parser(
-    "l2-execution",
-    help="spins up a local op-geth node")
-
-subparsers.add_parser(
     "devnet",
     help="spins up a local devnet, comprising an L1 node and all L2 components")
 
 subparsers.add_parser(
     "clean",
-    help="cleans up build outputs")
+    help="cleans up build outputs and databases")
+
+subparsers.add_parser(
+    "l1",
+    help="spins up a local L1 node with the rollup contracts deployed on it")
+
+subparsers.add_parser(
+    "l2-engine",
+    help="spins up a local l2 execution engine (op-geth) node")
+
+subparsers.add_parser(
+    "l2-sequencer",
+    help="spins up a local l2 node (op-node) in sequencer mode")
+
+subparsers.add_parser(
+    "l2-batcher",
+    help="spins up a local l2 transaction batcher")
+
+subparsers.add_parser(
+    "l2-proposer",
+    help="spins up a local l2 outpur roots proposer")
+
+subparsers.add_parser(
+    "clean-l1",
+    help="cleans up deployment outputs & databases for L1")
+
+subparsers.add_parser(
+    "clean-l2",
+    help="cleans up deployment outputs & databases for L2")
 
 parser.add_argument(
     "--no-ansi-esc",
@@ -71,46 +91,86 @@ if __name__ == "__main__":
         if lib.args.command == "setup":
             setup()
 
-        if lib.args.command == "l1":
-            deps.check_or_install_foundry()
-            deps.check_or_install_geth()
-            import l1
-            import paths
-            l1.deploy_devnet_l1(paths.OPPaths("optimism"))
-            from processes import PROCESS_MGR
-            PROCESS_MGR.wait_all()
-
-        if lib.args.command == "l2-execution":
-            deps.check_or_install_op_geth()
-            import l2_execution
-            import paths
-            l2_execution.deploy_l2(paths.OPPaths("optimism"))
-            from processes import PROCESS_MGR
-            PROCESS_MGR.wait_all()
+        from paths import OPPaths
+        paths = OPPaths("optimism")
+        from config import devnet_config
+        config = devnet_config(paths)
 
         if lib.args.command == "devnet":
-            # TODO refactor
-            deps.check_or_install_foundry()
             deps.check_or_install_geth()
-            from paths import OPPaths
-            paths = OPPaths("optimism")
+            deps.check_or_install_foundry()
+            deps.check_or_install_op_geth()
 
             import l1
+            import l2
             l1.deploy_devnet_l1(paths)
-
-            deps.check_or_install_op_geth()
-            import l2_execution
-            l2_execution.deploy_l2(paths)
+            l2.deploy(paths)
 
             from processes import PROCESS_MGR
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "clean":
             import l1
-            import l2_execution
-            import paths
-            l1.clean(paths.OPPaths("optimism"))
-            l2_execution.clean(paths.OPPaths("optimism"))
+            import l2
+            l1.clean(paths)
+            l2.clean(paths)
+
+        if lib.args.command == "l1":
+            deps.check_or_install_foundry()
+            deps.check_or_install_geth()
+            import l1
+            l1.deploy_devnet_l1(paths)
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "l2":
+            deps.check_or_install_foundry()
+            deps.check_or_install_op_geth()
+
+            import l2
+            l2.deploy(paths)
+
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "l2-engine":
+            deps.check_or_install_op_geth()  # TODO get ride of this
+
+            import l2_engine
+            l2_engine.start(config, paths)
+
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "l2-sequencer":
+            import l2_node
+            l2_node.start_l2_node(config(paths), paths, sequencer=True)
+
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "l2-batcher":
+            import l2_batcher
+            l2_batcher.start(config)
+
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "l2-proposer":
+            import l2_proposer
+            deployments = lib.read_json_file(paths.addresses_json_path)
+            l2_proposer.start(config, deployments)
+
+            from processes import PROCESS_MGR
+            PROCESS_MGR.wait_all()
+
+        if lib.args.command == "clean-l1":
+            import l1
+            l1.clean(paths)
+
+        if lib.args.command == "clean-l2":
+            import l2
+            l2.clean(paths)
 
         print("Done.")
     except KeyboardInterrupt:
