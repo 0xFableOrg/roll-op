@@ -350,37 +350,5 @@ def install_geth():
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
 
-####################################################################################################
-
-
-def check_or_install_op_geth():
-    """
-    Verify that op-geth is installed, or install it if not.
-    """
-
-    op_geth_path = shutil.which("op-geth")
-    if op_geth_path is not None:
-        abspath = os.path.abspath(op_geth_path)
-        lib.debug(f"Found {abspath}")
-        return
-
-    if lib.ask_yes_no(
-            "op-geth is required. Install in ./bin?"):
-        install_op_geth()
-    else:
-        raise Exception("op-geth missing.")
-
-
-####################################################################################################
-
-
-def install_op_geth():
-    """
-    Installs op-geth in ./bin.
-    """
-    os.makedirs("bin", exist_ok=True)
-    shutil.copyfile("op-geth/build/bin/geth", "bin/op-geth")
-    lib.chmodx("bin/op-geth")
-    print("Successfully installed op-geth as ./bin/op-geth")
 
 ####################################################################################################
