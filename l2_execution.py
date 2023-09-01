@@ -316,7 +316,11 @@ def start_l2_node(config: L2Config, paths: OPPaths, sequencer: bool = True):
             # Node-Specific Options
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/flags.go
 
+            # TODO: This should work, but somehow using the WebSocket RPC here causes the *proposer*
+            #       to fail to submit output roots because the L1 blockhash it supplies is incorrect.
+            #       This setup works in the devnet though, so we messed something up somewhere.
             f"--l1={config.l1_rpc_for_node}",
+            # f"--l1={config.l1_rpc}",
             f"--l2={config.l2_engine_authrpc}",
             f"--l2.jwt-secret={config.jwt_secret_path}",
             f"--verifier.l1-confs={config.verifier_l1_confs}",
