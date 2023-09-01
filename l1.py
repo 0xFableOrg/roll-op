@@ -170,8 +170,7 @@ def start_devnet_l1_node(paths: OPPaths):
     except Exception:
         running = False
     if running:
-        raise Exception(
-            "Couldn't start L1 node: server already running at localhost:8545")
+        raise Exception("Couldn't start L1 node: server already running at localhost:8545")
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
