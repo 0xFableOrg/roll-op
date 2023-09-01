@@ -104,6 +104,9 @@ def start_l2_execution_node(config: L2Config, paths: OPPaths):
             "--nodiscover",
             "--maxpeers=0",
 
+            # p2p network config, avoid conflicts with L1 geth nodes
+            "--port=30313",
+
             "--rpc.allow-unprotected-txs",
 
             # HTTP JSON-RPC server config
@@ -120,9 +123,6 @@ def start_l2_execution_node(config: L2Config, paths: OPPaths):
             f"--ws.port={config.ws_port}",
             "--ws.origins=*",
             "--ws.api=debug,eth,txpool,net,engine",
-
-            # Network config, avoid conflicts with L1 geth nodes
-            "--port=30313",
 
             # Authenticated RPC config
             "--authrpc.addr=0.0.0.0",

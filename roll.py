@@ -92,14 +92,15 @@ if __name__ == "__main__":
             # TODO refactor
             deps.check_or_install_foundry()
             deps.check_or_install_geth()
+            from paths import OPPaths
+            paths = OPPaths("optimism")
+
             import l1
-            import paths
-            l1.deploy_devnet_l1(paths.OPPaths("optimism"))
+            l1.deploy_devnet_l1(paths)
 
             deps.check_or_install_op_geth()
             import l2_execution
-            import paths
-            l2_execution.deploy_l2(paths.OPPaths("optimism"))
+            l2_execution.deploy_l2(paths)
 
             from processes import PROCESS_MGR
             PROCESS_MGR.wait_all()
