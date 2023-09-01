@@ -464,6 +464,7 @@ class L2Config:
 
         #  === Batcher ===
 
+        self.batcher_num_confirmations = 1
         self.batcher_poll_interval = 1
         self.max_channel_duration = 1
 
