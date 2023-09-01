@@ -406,14 +406,6 @@ class L2Config:
     # ==============================================================================================
     # Updating / Altering the Configuration
 
-    def load_rollup_config(self, rollup_config: dict):
-        """
-        Loads the rollup configuration from the given path.
-        """
-        self.batch_inbox_address = rollup_config["batch_inbox_address"]
-
-    # ----------------------------------------------------------------------------------------------
-
     def use_op_doc_config(self):
         """
         Overrides the configuration values with the values specified in the OP stack "Getting
@@ -499,6 +491,19 @@ class L2Config:
         # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
         # NOTE(norswap): upnode uses 6
         self.sub_safety_margin = 4
+
+
+####################################################################################################
+
+def devnet_config(paths: OPPaths):
+    """
+    Get a full devnet configuration, including setting the batch inbox address.
+    """
+    config = L2Config()
+    config.use_devnet_config(paths)
+    rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
+    config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
+
 
 ####################################################################################################
 

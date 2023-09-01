@@ -4,6 +4,7 @@ on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 """
 
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -345,8 +346,8 @@ def clean(paths: OPPaths):
     was the first invocation.
     """
     if os.path.exists(paths.devnet_gen_dir):
-        lib.debug(f"Cleaning up {paths.devnet_gen_dir}")
-        shutil.rmtree(paths.devnet_gen_dir, ignore_errors=True)
+        path = os.path.join(paths.devnet_gen_dir, "genesis-l1.json")
+        pathlib.Path(path).unlink(missing_ok=True)
 
     if os.path.exists(DEVNET_L1_DATA_DIR):
         print(f"Cleaning up {DEVNET_L1_DATA_DIR}")
