@@ -26,18 +26,18 @@ class OPPaths:
 
         # === Existing Files ===
 
-        self.network_config_template_path = pjoin(
+        self.deploy_config_template_path = pjoin(
             self.contracts_dir, "deploy-config", "devnetL1.json.tmpl")
-        """Template for the network configuration file."""
+        """Template for the deploy configuration file."""
         # Note: this was added compared to the original Optimism logic, which edited the
         # devnetL1.json file in place. Instead, we create this template from the original the first
         # time we run the script (when it does not exist), and then use it a source to be modified
         # ever after.
 
-        self.network_config_template_path_source = pjoin(
+        self.deploy_config_template_path_source = pjoin(
             self.contracts_dir, "deploy-config", "devnetL1.json")
         """
-        The source to create the network config template path from if it doesn't exist yet.
+        The source to create the deploy config template path from if it doesn't exist yet.
         """
 
         self.p2p_key_path = pjoin(self.ops_bedrock_dir, "p2p-node-key.txt")
@@ -57,8 +57,9 @@ class OPPaths:
         self.gen_dir = os.path.abspath(gen_dir)
         """Output directory for generated files."""
 
-        self.network_config_dir = pjoin(self.contracts_dir, "deploy-config")
-        """Directory that will contain the network configuration files, whose name will be the
+        self.deploy_config_dir = pjoin(self.contracts_dir, "deploy-config")
+        """
+        Directory that will contain the deploy configuration files, whose name will be the
         `deployment_name` provided in the config (+ .json).
         """
 
@@ -69,16 +70,12 @@ class OPPaths:
 
         # === Generated Files — L2 ===
 
-        self.deployments_dir = pjoin(self.contracts_dir, "deployments")
+        self.deployments_parent_dir = pjoin(self.contracts_dir, "deployments")
         """
         Directory where the deployment script will place the deployment artifacts (contract
         addresses etc) for the L1 rollup contracts. If a `deployment_name` is provided in the
         L2Config, it will be appended as a new path component.
         """
-
-        # self.deployment_dir = pjoin(self.contracts_dir, "deployments", "devnetL1")
-        # """Directory to move the L1 rollup contracts deployment artifacts (contract addresses etc)
-        # to, for safe keeping."""
 
         self.addresses_json_path = pjoin(self.gen_dir, "addresses.json")
         """File mapping L1 contracts to their deployed addresses."""
