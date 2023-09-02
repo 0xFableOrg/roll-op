@@ -28,6 +28,16 @@ class L2Config:
         # ==========================================================================================
         # L1 Configuration
 
+        self.deploy_devnet_l1 = True
+        """
+        Whether to deploy a local L1 devnet (True by default).
+        If false, it means deploying on an existing L1 blockchain, specified by
+        :py:attribute:`l1_rpc`.
+        """
+
+        # ==========================================================================================
+        # L1 Information
+
         self.batch_inbox_address = None
         """
         Address of the batch inbox contract on L1.
