@@ -3,6 +3,7 @@ This module defines functions related to spinning an op-geth node.
 """
 
 import os
+import pathlib
 import shutil
 
 import l2_batcher
@@ -34,9 +35,9 @@ def deploy(config: L2Config, paths: OPPaths):
     start the software components.
     """
     patch(paths)
-    os.makedirs(paths.devnet_gen_dir, exist_ok=True)
-    deploy_l1_contracts(paths)
+    os.makedirs(paths.gen_dir, exist_ok=True)
     generate_network_config(config, paths)
+    deploy_l1_contracts(config, paths)
     generate_l2_genesis(config, paths)
     config.deployments = lib.read_json_file(paths.addresses_json_path)
 
@@ -71,7 +72,7 @@ def patch(paths: OPPaths):
     # The original optimism repo edits the devnet configuration in place. Instead, we copy the
     # original over once, then use that as a template to be modified going forward.
     if not os.path.exists(paths.network_config_template_path):
-        shutil.copy(paths.network_config_path, paths.network_config_template_path)
+        shutil.copy(paths.network_config_template_path_source, paths.network_config_template_path)
 
     # /usr/bin/bash does not always exist on MacOS (and potentially other Unixes)
     # This was fixed upstream, but isn't fixed in the commit we're using
@@ -110,17 +111,21 @@ def generate_network_config(config: L2Config, paths: OPPaths):
         else:
             # TODO not sure this works
             deploy_config["l1GenesisBlockTimestamp"] = 0
+
         deploy_config["l1StartingBlockTag"] = "earliest"
         deploy_config["l1ChainID"] = config.l1_chain_id
         deploy_config["l2ChainID"] = config.l2_chain_id
-        lib.write_json_file(paths.network_config_path, deploy_config)
+
+        network_config_path = os.path.join(
+            paths.network_config_dir, f"{config.deployment_name}.json")
+        lib.write_json_file(network_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
 
 ####################################################################################################
 
-def deploy_l1_contracts(paths):
+def deploy_l1_contracts(config: L2Config, paths: OPPaths):
     """
     Deploy the L1 contracts to an L1.
     Currently assumes the L1 is a local devnet L1.
@@ -132,36 +137,36 @@ def deploy_l1_contracts(paths):
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
-    # Private key of first dev Hardhat/Anvil account
-    private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-
     log_file = "logs/deploy_l1_contracts.log"
     print(f"Deploying contracts to L1. Logging to {log_file}")
     lib.run_roll_log(
         "deploy contracts",
-        f"forge script {deploy_script} --private-key {private_key} "
-        "--rpc-url http://127.0.0.1:8545 --broadcast",
+        f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
+        f"--rpc-url {config.l1_rpc} --broadcast",
         cwd=paths.contracts_dir,
+        env={**os.environ, "DEPLOYMENT_CONTEXT": config.deployment_name},
         log_file=log_file)
 
     log_file = "logs/create_l1_artifacts.log"
     print(f"Creating L1 deployment artifacts. Logging to {log_file}")
     lib.run_roll_log(
         "create L1 deployment artifacts",
-        f"forge script {deploy_script} --private-key {private_key} --sig 'sync()' "
-        "--rpc-url http://127.0.0.1:8545 --broadcast",
+        f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
+        f"--sig 'sync()' --rpc-url {config.l1_rpc} --broadcast",
         cwd=paths.contracts_dir,
+        env={**os.environ, "DEPLOYMENT_CONTEXT": config.deployment_name},
         log_file=log_file)
 
     try:
         # Read the addresses in the L1 deployment artifacts and store them in json files
-        contracts = os.listdir(paths.devnet_l1_deployment_dir)
+        deployments_dir = os.path.join(paths.deployments_dir, config.deployment_name)
+        contracts = os.listdir(deployments_dir)
         addresses = {}
 
         for c in contracts:
             if not c.endswith(".json"):
                 continue
-            data = lib.read_json_file(os.path.join(paths.devnet_l1_deployment_dir, c))
+            data = lib.read_json_file(os.path.join(deployments_dir, c))
             addresses[c.replace(".json", "")] = data["address"]
 
         sdk_addresses = {
@@ -196,13 +201,15 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
         print("L2 genesis and rollup configs already generated.")
     else:
         print("Generating L2 genesis and rollup configs.")
+        network_config_path = os.path.join(
+            paths.network_config_dir, f"{config.deployment_name}.json")
         try:
             lib.run(
                 "generating L2 genesis and rollup configs",
                 ["go", "run", "cmd/main.go", "genesis", "l2",
-                 "--l1-rpc=http://localhost:8545",
-                 f"--deploy-config={paths.network_config_path}",
-                 f"--deployment-dir={paths.devnet_l1_deployment_dir}",
+                 f"--l1-rpc={config.l1_rpc}",
+                 f"--deploy-config={network_config_path}",
+                 f"--deployment-dir={paths.deployments_dir}",
                  f"--outfile.l2={paths.l2_genesis_path}",
                  f"--outfile.rollup={paths.rollup_config_path}"],
                 cwd=paths.op_node_dir)
@@ -219,12 +226,31 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
 
 ####################################################################################################
 
-def clean(paths: OPPaths):
+def clean(config: L2Config, paths: OPPaths):
     """
     Cleans up build outputs, such that trying to deploy the L2 blockchain will proceed as though it
     was the first invocation.
     """
+    if os.path.exists(paths.gen_dir):
+        lib.debug(f"Cleaning up {paths.gen_dir}")
+
+    for file_path in pathlib.Path(paths.gen_dir).iterdir():
+        if file_path.is_file() and file_path.name != "genesis-l1.json":
+            os.remove(file_path)
+
     l2_engine.clean(paths)
+
+    deployments_dir = os.path.join(paths.deployments_dir, config.deployment_name)
+    lib.debug(f"Cleaning up {deployments_dir}")
+    if config.deployment_name != "":
+        shutil.rmtree(paths.deployments_dir, ignore_errors=True)
+    else:
+        # Delete files, keep subdirectories
+        for filename in os.listdir(deployments_dir):
+            file_path = os.path.join(deployments_dir, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
     shutil.rmtree("opnode_discovery_db", ignore_errors=True)
     shutil.rmtree("opnode_peerstore_db", ignore_errors=True)
 

@@ -111,13 +111,6 @@ def clean(paths: OPPaths):
     Cleans up build outputs, such that trying to deploy the L2 execution engine (op-geth) will
     proceed as though it was the first invocation.
     """
-    if os.path.exists(paths.devnet_gen_dir):
-        lib.debug(f"Cleaning up {paths.devnet_gen_dir}")
-
-        for file_path in pathlib.Path(paths.devnet_gen_dir).iterdir():
-            if file_path.is_file() and file_path.name != "genesis-l1.json":
-                os.remove(file_path)
-
     if os.path.exists(L2_EXECUTION_DATA_DIR):
         print(f"Cleaning up {L2_EXECUTION_DATA_DIR}")
         shutil.rmtree(L2_EXECUTION_DATA_DIR, ignore_errors=True)

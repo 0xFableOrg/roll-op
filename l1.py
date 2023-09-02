@@ -28,7 +28,7 @@ def deploy_devnet_l1(config: L2Config, paths: OPPaths):
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
     generating the genesis file and config files, and deploying the L1 contracts.
     """
-    os.makedirs(paths.devnet_gen_dir, exist_ok=True)
+    os.makedirs(paths.gen_dir, exist_ok=True)
 
     generate_devnet_l1_genesis(config, paths)
     start_devnet_l1_node(config, paths)
@@ -227,8 +227,8 @@ def clean(paths: OPPaths):
     Cleans up build outputs, such that trying to deploy the devnet L1 node will proceed as though it
     was the first invocation.
     """
-    if os.path.exists(paths.devnet_gen_dir):
-        path = os.path.join(paths.devnet_gen_dir, "genesis-l1.json")
+    if os.path.exists(paths.gen_dir):
+        path = os.path.join(paths.gen_dir, "genesis-l1.json")
         pathlib.Path(path).unlink(missing_ok=True)
 
     if os.path.exists(DEVNET_L1_DATA_DIR):
