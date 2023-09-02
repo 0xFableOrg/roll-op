@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
         if lib.args.command == "clean":
             l1.clean(paths)
-            l2.clean(paths)
+            l2.clean(config, paths)
 
         if lib.args.command == "l1":
             deps.check_or_install_foundry()
@@ -173,7 +173,7 @@ if __name__ == "__main__":
             l1.clean(paths)
 
         if lib.args.command == "clean-l2":
-            l2.clean(paths)
+            l2.clean(config, paths)
 
         print("Done.")
     except KeyboardInterrupt:
