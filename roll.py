@@ -16,7 +16,7 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
-from config import devnet_config
+from config import devnet_config, production_config
 from paths import OPPaths
 from processes import PROCESS_MGR
 from setup import setup
@@ -39,13 +39,6 @@ subparsers.add_parser(
 devnet_parser = subparsers.add_parser(
     "devnet",
     help="spins up a local devnet, comprising an L1 node and all L2 components")
-
-# Devnet arguments
-devnet_parser.add_argument(
-    "--config-path",
-    help="path to the config file",
-    default=None,
-    dest="devnet_config_path")
 
 subparsers.add_parser(
     "clean",
@@ -106,6 +99,26 @@ parser.add_argument(
     dest="show_stack_trace",
     action="store_true")
 
+parser.add_argument(
+    "--preset",
+    help="use a preset rollup configuration",
+    default=None,
+    dest="preset")
+
+parser.add_argument(
+    "--name",
+    help="name of the rollup deployment",
+    default=None,
+    dest="name")
+
+
+# Devnet arguments
+devnet_parser.add_argument(
+    "--config",
+    help="path to the config file",
+    default=None,
+    dest="config_path")
+
 ####################################################################################################
 
 if __name__ == "__main__":
@@ -121,43 +134,38 @@ if __name__ == "__main__":
         if lib.args.command == "setup":
             setup()
 
-        paths = OPPaths()
-        config = devnet_config(paths)
+        name = lib.args.name
+        name = name if name else lib.args.preset
+        name = name if name else "rollup"
+
+        paths = OPPaths(f".{name}")
+        config = None
+        if lib.args.preset is None or lib.args.preset == "devnet":
+            config = devnet_config(paths)
+        elif lib.args.preset == "production":
+            config = production_config(paths)
+
+        config.deployment_name = name
+
+        # Parse config file
+        if lib.args.devnet_config_path:
+            try:
+                import tomli
+            except Exception:
+                raise Exception(
+                    f"Missing dependencies. Try running python roll.py setup first.")
+            if os.path.exists(lib.args.devnet_config_path):
+                with open(lib.args.devnet_config_path, mode="rb") as f:
+                    devnet_config_file = tomli.load(f)
+            else:
+                raise Exception(f"Cannot find config file at {lib.args.devnet_config_path}")
+
         config.validate()
-
-        # === Config for Hackaton ===
-
-        # paths = OPPaths(gen_dir=".linea")
-        # config = devnet_config(paths)
-
-        # config.deploy_devnet_l1 = False
-        # config.l1_rpc = os.environ["L1_RPC"]
-        # config.l1_chain_id = 59140
-        # config.contract_deployer_key = os.environ["CONTRACT_DEPLOYER_KEY"]
-        # config.deployment_name = "linea"
-
-        # config.validate()
-        # os.makedirs(paths.gen_dir, exist_ok=True)
-
-        # === End Config for Hackaton ===
+        os.makedirs(paths.gen_dir, exist_ok=True)
 
         if lib.args.command == "devnet":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
-
-            # Check and read from the devnet configuration files if provided
-            if lib.args.devnet_config_path:
-                try:
-                    import tomli
-                except:
-                    raise Exception(
-                        f"Missing dependencies. Try running python roll.py setup first.")
-                if (os.path.exists(lib.args.devnet_config_path)):
-                    with open(lib.args.devnet_config_path, mode="rb") as fp:
-                        devnet_config_file = tomli.load(fp)
-                    print(devnet_config_file)
-                else:
-                    raise Exception(f"Cannot find config file at {lib.args.devnet_config_path}")
 
             if config.deploy_devnet_l1:
                 l1.deploy_devnet_l1(config, paths)

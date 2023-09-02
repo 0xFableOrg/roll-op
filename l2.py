@@ -12,6 +12,7 @@ import l2_node
 import l2_proposer
 import libroll as lib
 from config import L2Config
+from deploy_config import DEPLOY_CONFIG
 from paths import OPPaths
 
 
@@ -36,7 +37,7 @@ def deploy(config: L2Config, paths: OPPaths):
     """
     patch(paths)
     os.makedirs(paths.gen_dir, exist_ok=True)
-    generate_network_config(config, paths)
+    generate_deploy_config(config, paths)
     deploy_l1_contracts(config, paths)
     generate_l2_genesis(config, paths)
     config.deployments = lib.read_json_file(paths.addresses_json_path)
@@ -45,6 +46,8 @@ def deploy(config: L2Config, paths: OPPaths):
         raise Exception(
             "L2OutputOracleProxy address not found in addresses.json. "
             "Try redeploying the L1 contracts.")
+
+    generate_jwt_secret(config)
 
 
 ####################################################################################################
@@ -88,11 +91,61 @@ def patch(paths: OPPaths):
 
 ####################################################################################################
 
-def generate_network_config(config: L2Config, paths: OPPaths):
+def generate_deploy_config(config: L2Config, paths: OPPaths):
     """
     Generate the network configuration file. This records information about the L1 and the L2.
     """
     print("Generating network config.")
+
+    deploy_config = DEPLOY_CONFIG.copy()
+
+    # set l1GenesisBlockTimestamp
+    if os.path.isfile(paths.l1_genesis_path):
+        # If we have a genesis file for L1 (devnet L1)
+        l1_genesis = lib.read_json_file(paths.l1_genesis_path)
+        deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
+    else:
+        # NOTE: The l1 genesis block timestamp is never used, but it needs to be set anyway.
+        # This value is only used for generating a devnet L1 genesis file, but that logic is
+        # also unused.
+        deploy_config["l1GenesisBlockTimestamp"] = "0x0"
+
+
+    deploy_config["l1ChainID"] = config.l1_chain_id
+    deploy_config["l2ChainID"] = config.l2_chain_id
+
+    deploy_config["enableGovernance"] = config.enable_governance
+    if config.enable_governance:
+        deploy_config["governanceTokenSymbol"] = config.governance_token_symbol
+        deploy_config["governanceTokenName"] = config.governance_token_name
+        deploy_config["governanceTokenOwner"] = config.admin_account
+
+    deploy_config["p2pSequencerAddress"]: config.p2p_sequencer_account
+    deploy_config["batchSenderAddress"]: config.batcher_account
+    deploy_config["l2OutputOracleProposer"]: config.proposer_account
+    deploy_config["l2OutputOracleChallenger"]: config.admin_account
+    deploy_config["proxyAdminOwner"]: config.admin_account
+    deploy_config["baseFeeVaultRecipient"]: config.admin_account
+    deploy_config["l1FeeVaultRecipient"]: config.admin_account
+    deploy_config["sequencerFeeVaultRecipient"]: config.admin_account
+    deploy_config["finalSystemOwner"]: config.admin_account
+    deploy_config["portalGuardian"]: config.admin_account
+    deploy_config["controller"]: config.admin_account
+
+    deploy_config["batchInboxAddress"]: config.batch_inbox_address
+    deploy_config["l1StartingBlockTag"] = config.l1_starting_block_tag
+
+    # NOTE: devnet account config
+    # proxyAdminOwner, finalSystemOwner, portalGuardian, baseFeeVaultRecipient,
+    #    and governanceTokenOwner is 0xBcd4042DE499D14e55001CcbB24a551F3b954096
+    # controller is 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 (0th test junk account)
+    # challenger is 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65
+    # l1FeeVaultRecipient is 0x71bE63f3384f5fb98995898A86B02Fb2426c5788
+    # sequencerFeeVaultRecipient is 0xfabb0ac9d68b0b445fb7357272ff202c5651694a
+    #
+    # These seems to be the standard hardhat dev accounts, different from the "test junk" mnemonic
+    # accounts used by Anvil by default. List here:
+    # https://github.com/ethereum-optimism/optimism/blob/develop/op-chain-ops/genesis/helpers.go#L34
 
     try:
         # Copy the template, and modify it with timestamp and starting block tag.
@@ -223,6 +276,22 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
 
     rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
     config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
+
+
+####################################################################################################
+
+def generate_jwt_secret(config: L2Config):
+    if os.path.isfile(config.jwt_secret_path) and os.path.getsize(config.jwt_secret_path) >= 64:
+        return
+
+    import secrets
+    random_bytes = secrets.token_bytes(32)
+    random_hex = random_bytes.hex()
+    try:
+        with open(config.jwt_secret_path, "w") as file:
+            file.write(random_hex)
+    except Exception as e:
+        raise lib.extend_exception(e, "Failed to write JWT secret to file")
 
 
 ####################################################################################################
