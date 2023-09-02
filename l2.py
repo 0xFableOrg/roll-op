@@ -34,7 +34,7 @@ def deploy(config: L2Config, paths: OPPaths):
     start the software components.
     """
     deploy_l1_contracts(paths)
-    generate_l2_genesis(paths)
+    generate_l2_genesis(config, paths)
     config.deployments = lib.read_json_file(paths.addresses_json_path)
 
     if config.deployments.get("L2OutputOracleProxy") is None:
@@ -128,7 +128,7 @@ def deploy_l1_contracts(paths):
 
 ####################################################################################################
 
-def generate_l2_genesis(paths: OPPaths):
+def generate_l2_genesis(config: L2Config, paths: OPPaths):
     """
     Generate the L2 genesis file and rollup configs.
     """
@@ -149,6 +149,12 @@ def generate_l2_genesis(paths: OPPaths):
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ")
+
+    genesis = lib.read_json_file(paths.l2_genesis_path)
+    config.chain_id = genesis["config"]["chainId"]
+
+    rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
+    config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
 
 
 ####################################################################################################

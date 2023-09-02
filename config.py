@@ -1,3 +1,5 @@
+import os.path
+
 import libroll as lib
 from paths import OPPaths
 
@@ -476,8 +478,13 @@ class L2Config:
 
         # === L2 Execution Engine ===
 
-        genesis = lib.read_json_file(paths.l2_genesis_path)
-        self.chain_id = genesis["config"]["chainId"]
+        # TODO - this is not devnet specific
+
+        # Set the chain ID if we already generated the genesis file, otherwise, this will be set at
+        # genesis file generation time.
+        if os.path.isfile(paths.l2_genesis_path):
+            genesis = lib.read_json_file(paths.l2_genesis_path)
+            self.chain_id = genesis["config"]["chainId"]
 
         # === Node ===
 
@@ -511,8 +518,16 @@ def devnet_config(paths: OPPaths):
     """
     config = L2Config()
     config.use_devnet_config(paths)
-    rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
-    config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
+
+    # TODO - this is not devnet specific
+
+    # Set the batch inbox address if we already generated the genesis file. Otherwise, this will be
+    # set at contract deployment time.
+    if os.path.isfile(paths.rollup_config_path):
+        rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
+        config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
+
+    return config
 
 
 ####################################################################################################

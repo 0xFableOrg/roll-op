@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
             if config.deploy_devnet_l1:
                 l1.deploy_devnet_l1(paths)
-            l2.deploy(config, paths)
+            l2.deploy_and_start(config, paths)
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "clean":
