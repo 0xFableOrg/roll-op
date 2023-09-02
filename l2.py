@@ -71,8 +71,8 @@ def patch(paths: OPPaths):
 
     # The original optimism repo edits the devnet configuration in place. Instead, we copy the
     # original over once, then use that as a template to be modified going forward.
-    if not os.path.exists(paths.network_config_template_path):
-        shutil.copy(paths.network_config_template_path_source, paths.network_config_template_path)
+    if not os.path.exists(paths.deploy_config_template_path):
+        shutil.copy(paths.deploy_config_template_path_source, paths.deploy_config_template_path)
 
     # /usr/bin/bash does not always exist on MacOS (and potentially other Unixes)
     # This was fixed upstream, but isn't fixed in the commit we're using
@@ -102,7 +102,7 @@ def generate_network_config(config: L2Config, paths: OPPaths):
         # large timestamp difference, but no other consequences. The same logic applies if we shut
         # down the node and restart it later.
 
-        deploy_config = lib.read_json_file(paths.network_config_template_path)
+        deploy_config = lib.read_json_file(paths.deploy_config_template_path)
 
         if os.path.isfile(paths.l1_genesis_path):
             # If we have a genesis file for L1 (devnet L1)
@@ -118,9 +118,8 @@ def generate_network_config(config: L2Config, paths: OPPaths):
         deploy_config["l1ChainID"] = config.l1_chain_id
         deploy_config["l2ChainID"] = config.l2_chain_id
 
-        network_config_path = os.path.join(
-            paths.network_config_dir, f"{config.deployment_name}.json")
-        lib.write_json_file(network_config_path, deploy_config)
+
+        lib.write_json_file(config.deploy_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
@@ -165,14 +164,13 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
 
     try:
         # Read the addresses in the L1 deployment artifacts and store them in json files
-        deployments_dir = os.path.join(paths.deployments_dir, config.deployment_name)
-        contracts = os.listdir(deployments_dir)
+        contracts = os.listdir(config.deployments_dir)
         addresses = {}
 
         for c in contracts:
             if not c.endswith(".json"):
                 continue
-            data = lib.read_json_file(os.path.join(deployments_dir, c))
+            data = lib.read_json_file(os.path.join(config.deployments_dir, c))
             addresses[c.replace(".json", "")] = data["address"]
 
         sdk_addresses = {
@@ -207,15 +205,13 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
         print("L2 genesis and rollup configs already generated.")
     else:
         print("Generating L2 genesis and rollup configs.")
-        network_config_path = os.path.join(
-            paths.network_config_dir, f"{config.deployment_name}.json")
         try:
             lib.run(
                 "generating L2 genesis and rollup configs",
                 ["go", "run", "cmd/main.go", "genesis", "l2",
                  f"--l1-rpc={config.l1_rpc}",
-                 f"--deploy-config={network_config_path}",
-                 f"--deployment-dir={paths.deployments_dir}",
+                 f"--deploy-config={config.deploy_config_path}",
+                 f"--deployment-dir={config.deployments_dir}",
                  f"--outfile.l2={paths.l2_genesis_path}",
                  f"--outfile.rollup={paths.rollup_config_path}"],
                 cwd=paths.op_node_dir)
@@ -246,16 +242,8 @@ def clean(config: L2Config, paths: OPPaths):
 
     l2_engine.clean(paths)
 
-    deployments_dir = os.path.join(paths.deployments_dir, config.deployment_name)
-    lib.debug(f"Cleaning up {deployments_dir}")
-    if config.deployment_name != "":
-        shutil.rmtree(paths.deployments_dir, ignore_errors=True)
-    else:
-        # Delete files, keep subdirectories
-        for filename in os.listdir(deployments_dir):
-            file_path = os.path.join(deployments_dir, filename)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+    lib.debug(f"Cleaning up {config.deployments_dir}")
+    shutil.rmtree(config.deployments_dir, ignore_errors=True)
 
     shutil.rmtree("opnode_discovery_db", ignore_errors=True)
     shutil.rmtree("opnode_peerstore_db", ignore_errors=True)

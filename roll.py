@@ -115,6 +115,7 @@ if __name__ == "__main__":
 
         # paths = OPPaths()
         # config = devnet_config(paths)
+        # config.validate()
 
         # === Config for Hackaton ===
 
@@ -127,6 +128,7 @@ if __name__ == "__main__":
         config.contract_deployer_key = os.environ["CONTRACT_DEPLOYER_KEY"]
         config.deployment_name = "linea"
 
+        config.validate()
         os.makedirs(paths.gen_dir, exist_ok=True)
 
         # === End Config for Hackaton ===
