@@ -52,13 +52,6 @@ class L2Config:
         Chain ID of the L1. If spinning an L1 devnet, it will use this chain ID.
         """
 
-        self.contract_deployer_key = (
-            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
-        """
-        Private key used to deploy contracts to L1. By default, the private key of the first (index
-        0) "test junk" menmonic account.
-        """
-
         self.deployment_name = "devnetL1"
         """
         Name for the deployment, this is used as `DEPLOYMENT_CONTEXT` during contract deployments,
@@ -69,24 +62,135 @@ class L2Config:
         # directory.
 
         # ==========================================================================================
-        # L1 Information
-
-        self.batch_inbox_address = None
-        """
-        Address of the batch inbox contract on L1.
-        
-        If the rollup config file (`rollup.json`) has already been generated, this will be set from
-        there. Otherwise it is set to None, and initialized at contract deployment time.
-        """
-
-        if os.path.isfile(paths.rollup_config_path):
-            rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
-            self.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
-
-        # ==========================================================================================
         # Devnet L1 Configuration
 
         # TODO
+
+        # ==========================================================================================
+        # Private Keys
+
+        self.contract_deployer_key = (
+            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
+        """
+        Private key used to deploy contracts to L1.
+        Use the 0th "test junk" mnemonnic key by default.
+        """
+
+        self.batcher_account = "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+        """
+        Account used to submit batches.
+        By default, use the 2nd (0-based!) "test junk" mnemonic account.
+        """
+
+        self.batcher_key = None
+        """
+        Private key used to submit batches.
+        Will be used if set, otherwise a mnemonic + HD derivation path will be used.
+        """
+
+        self.batcher_mnemonic = "test test test test test test test test test test test junk"
+        """
+        Mnemonic to use to derive the batcher key (Anvil "test junk" account mnemonic by default).
+        Ignored if :py:attribute:`batcher_key` is set.
+        """
+
+        self.batcher_hd_path = "m/44'/60'/0'/0/2"
+        """
+        HD derivation path to use to derive the batcher key.
+        Use the 2nd (0-based!) "test junk" mnemonnic key by default.
+        Ignored if :py:attribute:`proposer_key` is set.
+        """
+
+        self.proposer_account = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        """
+        Account used to propose output roots
+        By default, use the 0th "test junk" mnemonic account.
+        """
+
+        self.proposer_key = None
+        """
+        Private key used to propose output roots.
+        Will be used if set, otherwise a mnemonic + HD derivation path will be used.
+        """
+
+        self.proposer_mnemonic = "test test test test test test test test test test test junk"
+        """
+        Mnemonic to use to derive the proposer key (Anvil "test junk" account mnemonic by default).
+        Ignored if :py:attribute:`proposer_key` is set.
+        """
+
+        self.proposer_hd_path = "m/44'/60'/0'/0/1"
+        """
+        HD derivation path to use to derive the proposer key.
+        Use the 1th (0-based!) "test junk" mnemonnic key by default.
+        Ignored if :py:attribute:`proposer_key` is set.
+        """
+
+        self.p2p_sequencer_account = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"
+        """
+        If provided, account used by the sequencer to sign blocks gossiped over p2p.
+        Use the 5th (0-based!) "test junk" mnemonic account by default.
+        """
+
+        self.p2p_sequencer_key = "8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba"
+        """
+        If provided, private key used by the sequencer to sign blocks gossiped over p2p.
+        Uses the 5th (0-based!) "test junk" mnemonic key by default.
+        Do not prefix the key with 0x.
+        """
+
+        self.admin_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        """
+        Account used for various roles in the rollup system:
+        - It owns all the contracts that have an owner.
+        - It takes on all the privileged roles in the system.
+            - challenger for the (yet to be implemented) fault proof
+            - final system owner, portal guardian, and controll
+                - TODO: figure out what these do
+        - It is the recipient for all fees (basefees, l1 fees, sequencer fees).
+        
+        By default, use the 0th "test junk" account.
+        
+        Later, we should split this to granular roles.
+        """
+
+        # TODO no 0x?
+        self.admin_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        """
+        Private key corresponding to :py:attribute:`admin_account`, see its documentation for
+        more details.
+        By default, use the 0th "test junk" account key.
+        Do not prefix the key with 0x.
+        """
+
+        self.p2p_peer_key_path = "opnode_p2p_priv.txt"
+        """
+        Path to the hex-encoded 32-byte private key for the peer ID. Will be created if it does not
+        already exist.
+
+        It's important to persist to keep the same network identity after restarting, maintaining
+        the previous advertised identity.
+        
+        This is different than the sequencer key (which is only used by the sequencer).
+        """
+
+        # ==========================================================================================
+        # Governance
+
+        self.enable_governance = False
+        """
+        Whether to deploy a governance token (False by default).
+        """
+
+        self.governance_token_symbol = "STONK"
+        """
+        If :py:attribute:`enable_governance` is True, the symbol of the governance token to deploy.
+        """
+
+        self.governance_token_name = "Simple Token Op-chain Network Koin"
+        """
+        If :py:attribute:`enable_governance` is True, the name of the governance token to deploy.
+        """
 
         # ==========================================================================================
         #  Network Configuration
@@ -126,16 +230,39 @@ class L2Config:
         Address to use to connect to the op-node RPC server ("http://127.0.0.1:7545" by default).
         """
 
-        self.jwt_secret_path = None
+        self.jwt_secret_path = paths.gen_dir + "/jwt-secret.txt"
         """
         Path to the Jason Web Token secret file, which enable the l2 node to communicate with the
-        execution engine. Must be supplied.
+        execution engine. Will be generated if it does not already exist.
+        
+        Uses `{paths.gen_dir}/jwt-secret.txt` by default.
         """
 
         self.deployments = None
         """
         Dictionary containing a mapping from rollup contract names to the address at which they're
         deployed on L1. None before initialization.
+        """
+
+        self.batch_inbox_address = "0xff00000000000000000000000000000000000000"
+        """
+        Address of the batch inbox contract on L1. (0xff00000000000000000000000000000000000000 by
+        default).
+        """
+
+        self.l1_starting_block_tag = "latest"
+        """
+        Either a block tag (one of: earliest, finalized, safe, latest or pending) or a blockhash,
+        that determines the L1 block from which the L2 blockchain will start.
+        
+        Earliest is block 0. On Ethereum, safe is a block that has received 2/3 attestations but
+        isn't finalized yet, finalized is a block that has been finalized, latest is the latest
+        proposed block, with no guarantee of attestations. No idea about pending.
+        
+        On L2, these things are probably slight different: finalized is probably for blocks whose
+        batch has been posted to a finalized L1 block, safe is probably for blocks whose batch has
+        been posted to L1, and latest is probably for blocks that have been sent by the sequencer
+        but not posted yet. (NOT SURE, JUST GUESSES)
         """
 
         # ==========================================================================================
@@ -149,9 +276,6 @@ class L2Config:
 
         self.l2_chain_id = 42069
         """Chain ID of the local L2."""
-
-        # For the following values, allow environment override for now, to follow the original.
-        # In due time, remove that as we provide our own way to customize.
 
         self.l2_engine_verbosity = 3
         """Geth verbosity level (from 0 to 5, see geth --help)."""
@@ -240,22 +364,6 @@ class L2Config:
         UDP port to bind Discv5 to. Same as TCP port if left 0.
         """
 
-        self.p2p_sequencer_key = None
-        """
-        Hex-encoded private key for signing off on p2p application messages as sequencer.
-        """
-
-        self.p2p_peer_key_path = "opnode_p2p_priv.txt"
-        """
-        Path to the hex-encoded 32-byte private key for the peer ID. Will be created if it does not
-        already exist.
-
-        It's important to persist to keep the same network identity after restarting, maintaining
-        the previous advertised identity.
-        
-        This is different than the sequencer key (which is only used by the sequencer).
-        """
-
         # === Metrics ===
 
         self.node_metrics = False
@@ -308,27 +416,6 @@ class L2Config:
         self.proposer_rpc_listen_port = 5545
         """
         Port the proposer RPC server should bind to (5545 by default).
-        """
-
-        # === Private Key ===
-
-        self.proposer_key = None
-        """
-        Private key to use for the proposer (None by default).
-        Will be used if set, otherwise a mnemonic + HD derivation path will be used.
-        """
-
-        self.proposer_mnemonic = "test test test test test test test test test test test junk"
-        """
-        Mnemonic to use to derive the proposer key (Anvil "test junk" account mnemonic by default).
-        Ignored if :py:attribute:`proposer_key` is set.
-        """
-
-        self.proposer_hd_path = "m/44'/60'/0'/0/1"
-        """
-        HD derivation path to use to derive the proposer key (derives the *second* account by
-        default).
-        Ignored if :py:attribute:`proposer_key` is set.
         """
 
         # === Metrics ===
@@ -404,27 +491,6 @@ class L2Config:
         self.batcher_rpc_listen_port = 6545
         """
         Port the batcher RPC server should bind to (6545 by default).
-        """
-
-        # === Private Key ===
-
-        self.batcher_key = None
-        """
-        Private key to use for the batcher (None by default).
-        Will be used if set, otherwise a mnemonic + HD derivation path will be used.
-        """
-
-        self.batcher_mnemonic = "test test test test test test test test test test test junk"
-        """
-        Mnemonic to use to derive the batcher key (Anvil "test junk" account mnemonic by default).
-        Ignored if :py:attribute:`batcher_key` is set.
-        """
-
-        self.batcher_hd_path = "m/44'/60'/0'/0/2"
-        """
-        HD derivation path to use to derive the batcher key (derives the *third* account by
-        default).
-        Ignored if :py:attribute:`batcher_key` is set.
         """
 
         # === Metrics ===
@@ -505,12 +571,46 @@ class L2Config:
         if not isinstance(self.deployment_name, str) or self.deployment_name == "":
             raise ValueError("deployment_name must be a non-empty string")
 
-        if not os.path.isfile(self.jwt_secret_path) or os.path.getsize(self.jwt_secret_path) < 64:
-            raise ValueError(
-                f"JWT secret file does not exist or is too small: {self.jwt_secret_path}")
-
     # ==============================================================================================
     # Updating / Altering the Configuration
+
+    # ----------------------------------------------------------------------------------------------
+
+    def use_devnet_config(self, paths: OPPaths):
+        """
+        Overrides the configuration values with the defaults for a local devnet deployment (only
+        sets the values that are different from the standard defaults).
+
+        Currently, all values are similar to that used for the monorepo devnet, except that
+        we don't enable metric servers, pprof servers, and admin APIs.
+        """
+
+        # === Network ===
+
+        self.l1_starting_block_tag = "earliest"
+        self.jwt_secret_path = paths.jwt_test_secret_path
+
+        # === Node ===
+
+        self.sequencer_l1_confs = 0
+        self.p2p_peer_key_path = paths.p2p_key_path
+
+        # === Proposer ===
+
+        self.proposer_poll_interval = 1
+        self.proposer_num_confirmations = 1
+        self.allow_non_finalized = True
+
+        #  === Batcher ===
+
+        self.batcher_num_confirmations = 1
+        self.batcher_poll_interval = 1
+        self.max_channel_duration = 1
+
+        # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
+        self.sub_safety_margin = 4
+
+    # ----------------------------------------------------------------------------------------------
 
     def use_op_doc_config(self):
         """
@@ -553,76 +653,68 @@ class L2Config:
         self.max_channel_duration = 1
         self.batcher_rpc_listen_port = 8548
 
-        # TODO op-geth
-        # - L2 engine RPC: 8545
-        # - L2 engine authRPC: 8551
-
     # ----------------------------------------------------------------------------------------------
 
-    def use_devnet_config(self, paths: OPPaths):
+    def use_production_config(self):
         """
-        Overrides the configuration values with the defaults for a local devnet deployment (only
-        sets the values that are different from the standard defaults).
-
-        Currently, all values are similar to that used for the monorepo devnet, except that
-        we don't enable metric servers, pprof servers, and admin APIs.
+        Use a configuration suitable for production, inspired from the OP stack "Getting
+        Started" document (https://stack.optimism.io/docs/build/getting-started), but not identical
+        (e.g. we don't follow their port scheme). If you want an identical configuration, use
+        :py:meth:`use_op_doc_config`.
         """
 
-        self.jwt_secret_path = paths.jwt_test_secret_path
-
-        # === L2 Execution Engine ===
-
-        # TODO - this is not devnet specific
-
-        # Set the chain ID if we already generated the genesis file, otherwise, this will be set at
-        # genesis file generation time.
-        if os.path.isfile(paths.l2_genesis_path):
-            genesis = lib.read_json_file(paths.l2_genesis_path)
-            self.l2_chain_id = genesis["config"]["chainId"]
+        # TODO parameterize
+        self.allow_non_finalized = True
 
         # === Node ===
 
-        self.sequencer_l1_confs = 0
-        # NOTE(norswap): Anvil key 5 (sixth "test junk" key)
-        self.p2p_sequencer_key = "8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba"
-        self.p2p_peer_key_path = paths.p2p_key_path
+        self.sequencer_l1_confs = 3
+        self.verifier_l1_confs = 3
 
         # === Proposer ===
 
-        self.proposer_poll_interval = 1
-        self.proposer_num_confirmations = 1
-        self.allow_non_finalized = True
+        self.proposer_poll_interval = 12
 
-        #  === Batcher ===
+        # === Batcher ===
 
-        self.batcher_num_confirmations = 1
+        self.sub_safety_margin = 6
         self.batcher_poll_interval = 1
+        self.batcher_resubmission_timeout = 30
         self.max_channel_duration = 1
-
-        # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
-        self.sub_safety_margin = 4
 
 
 ####################################################################################################
 
 def devnet_config(paths: OPPaths):
     """
-    Get a full devnet configuration, including setting the batch inbox address.
+    Get a full devnet configuration.
     """
     config = L2Config(paths)
     config.use_devnet_config(paths)
     return config
 
 
-####################################################################################################
+# -------------------------------------------------------------------------------------------------
 
 def op_doc_config(paths: OPPaths):
     """
-    Get a full devnet configuration, including setting the batch inbox address.
+    Get a full devnet configuration.
     """
     config = L2Config(paths)
     config.use_op_doc_config()
     return config
+
+
+# -------------------------------------------------------------------------------------------------
+
+def production_config(paths: OPPaths):
+    """
+    Get a full production configuration.
+    """
+    config = L2Config(paths)
+    config.use_production_config()
+    return config
+
 
 ####################################################################################################
 
