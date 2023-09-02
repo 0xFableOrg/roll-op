@@ -80,6 +80,12 @@ class L2Config:
         execution engine. Must be supplied.
         """
 
+        self.deployments = None
+        """
+        Dictionary containing a mapping from rollup contract names to the address at which they're
+        deployed on L1. None before initialization.
+        """
+
         # ==========================================================================================
         # L2 Execution Engine Configuration
 
