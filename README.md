@@ -36,17 +36,34 @@ always for your permission before installing anything outside the current direct
 - Geth > 1.12.0 (but only if you want to run a devnet L1 node)
 - The `jq` command line utility
 - Foundry
+- 
+## Running
 
-## Contributing
+```bash
+./roll.py setup
+./roll.py devnet # runs a local devnet
+./roll.py clean # erase any effect of the previous command (except logs)
+# equivalent with a different name
+./roll.py --name=testing --preset=devnet --config=config.toml.example devnet
+# clean needs the same flags to work properly!
+./roll.py --name=testing --preset=devnet --config=config.toml.example clean
+# to deploy & run on an existing L1 (after setting up a config.toml)
+./roll.py --name=my-prod-rollup --preset=production --config=config.toml l2
+./roll.py --name=my-prod-rollup --preset=production --config=config.toml clean
+```
+
+## Contributing (for developers building simple-op-stack rollup)
 
 ```bash
 # Install dependencies
 source scripts/install.sh
 
+# ... do stuff
+
 # Run format before committing
 make format
 
-# Run checks
+# Run checks before committing
 make check
 ```
 

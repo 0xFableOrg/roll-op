@@ -145,7 +145,7 @@ class L2Config:
         - It owns all the contracts that have an owner.
         - It takes on all the privileged roles in the system.
             - challenger for the (yet to be implemented) fault proof
-            - final system owner, portal guardian, and controll
+            - final system owner, portal guardian, and controller
                 - TODO: figure out what these do
         - It is the recipient for all fees (basefees, l1 fees, sequencer fees).
         
@@ -154,7 +154,6 @@ class L2Config:
         Later, we should split this to granular roles.
         """
 
-        # TODO no 0x?
         self.admin_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
         """
         Private key corresponding to :py:attribute:`admin_account`, see its documentation for
@@ -163,7 +162,7 @@ class L2Config:
         Do not prefix the key with 0x.
         """
 
-        self.p2p_peer_key_path = "opnode_p2p_priv.txt"
+        self.p2p_peer_key_path = os.path.join(paths.gen_dir, "opnode_p2p_priv.txt")
         """
         Path to the hex-encoded 32-byte private key for the peer ID. Will be created if it does not
         already exist.
@@ -172,6 +171,7 @@ class L2Config:
         the previous advertised identity.
         
         This is different than the sequencer key (which is only used by the sequencer).
+        Uses `{paths.gen_dir}/opnode_p2p_priv.txt` by default.
         """
 
         # ==========================================================================================
@@ -230,7 +230,7 @@ class L2Config:
         Address to use to connect to the op-node RPC server ("http://127.0.0.1:7545" by default).
         """
 
-        self.jwt_secret_path = paths.gen_dir + "/jwt-secret.txt"
+        self.jwt_secret_path = os.path.join(paths.gen_dir, "jwt-secret.txt")
         """
         Path to the Jason Web Token secret file, which enable the l2 node to communicate with the
         execution engine. Will be generated if it does not already exist.
@@ -250,14 +250,17 @@ class L2Config:
         default).
         """
 
-        self.l1_starting_block_tag = "latest"
+        # TODO
+        self.l1_starting_block_tag = "earliest"
+        # self.l1_starting_block_tag = "latest"
         """
         Either a block tag (one of: earliest, finalized, safe, latest or pending) or a blockhash,
         that determines the L1 block from which the L2 blockchain will start.
         
         Earliest is block 0. On Ethereum, safe is a block that has received 2/3 attestations but
         isn't finalized yet, finalized is a block that has been finalized, latest is the latest
-        proposed block, with no guarantee of attestations. No idea about pending.
+        proposed block, with no guarantee of attestations. Pending is an image of a block that could
+        theoretically be proposed, but probably won't be (because the node isn't the proposer).
         
         On L2, these things are probably slight different: finalized is probably for blocks whose
         batch has been posted to a finalized L1 block, safe is probably for blocks whose batch has
