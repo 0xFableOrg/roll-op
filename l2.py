@@ -36,7 +36,7 @@ def deploy(config: L2Config, paths: OPPaths):
     patch(paths)
     os.makedirs(paths.devnet_gen_dir, exist_ok=True)
     deploy_l1_contracts(paths)
-    generate_network_config(paths)
+    generate_network_config(config, paths)
     generate_l2_genesis(config, paths)
     config.deployments = lib.read_json_file(paths.addresses_json_path)
 
@@ -87,7 +87,7 @@ def patch(paths: OPPaths):
 
 ####################################################################################################
 
-def generate_network_config(paths: OPPaths):
+def generate_network_config(config: L2Config, paths: OPPaths):
     """
     Generate the network configuration file. This records information about the L1 and the L2.
     """
@@ -111,6 +111,8 @@ def generate_network_config(paths: OPPaths):
             # TODO not sure this works
             deploy_config["l1GenesisBlockTimestamp"] = 0
         deploy_config["l1StartingBlockTag"] = "earliest"
+        deploy_config["l1ChainID"] = config.l1_chain_id
+        deploy_config["l2ChainID"] = config.l2_chain_id
         lib.write_json_file(paths.network_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
@@ -209,7 +211,7 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
                 err, prefix="Failed to generate L2 genesis and rollup configs: ")
 
     genesis = lib.read_json_file(paths.l2_genesis_path)
-    config.chain_id = genesis["config"]["chainId"]
+    config.l2_chain_id = genesis["config"]["chainId"]
 
     rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
     config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]

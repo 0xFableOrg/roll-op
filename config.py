@@ -37,6 +37,11 @@ class L2Config:
         :py:attribute:`l1_rpc`.
         """
 
+        self.l1_chain_id = 900
+        """
+        Chain ID of the L1. If spinning an L1 devnet, it will use this chain ID.
+        """
+
         # ==========================================================================================
         # L1 Information
 
@@ -107,7 +112,7 @@ class L2Config:
         self.chaindata_dir = f"{self.data_dir}/geth/chaindata"
         """Directory storing chain data."""
 
-        self.chain_id = 42069
+        self.l2_chain_id = 42069
         """Chain ID of the local L2."""
 
         # For the following values, allow environment override for now, to follow the original.
@@ -484,7 +489,7 @@ class L2Config:
         # genesis file generation time.
         if os.path.isfile(paths.l2_genesis_path):
             genesis = lib.read_json_file(paths.l2_genesis_path)
-            self.chain_id = genesis["config"]["chainId"]
+            self.l2_chain_id = genesis["config"]["chainId"]
 
         # === Node ===
 

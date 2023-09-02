@@ -58,7 +58,7 @@ def start(config: L2Config, paths: OPPaths):
             f"--datadir={config.data_dir}",
             f"--verbosity={config.verbosity}",
 
-            f"--networkid={config.chain_id}",
+            f"--networkid={config.l2_chain_id}",
             "--syncmode=full",  # doesn't matter, it's only us
             "--gcmode=archive",
 

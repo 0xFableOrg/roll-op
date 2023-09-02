@@ -10,6 +10,7 @@ import subprocess
 import sys
 
 import libroll as lib
+from config import L2Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 
@@ -22,15 +23,15 @@ DEVNET_L1_DATA_DIR = "db/devnetL1"
 
 ####################################################################################################
 
-def deploy_devnet_l1(paths: OPPaths):
+def deploy_devnet_l1(config: L2Config, paths: OPPaths):
     """
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
     generating the genesis file and config files, and deploying the L1 contracts.
     """
     os.makedirs(paths.devnet_gen_dir, exist_ok=True)
 
-    generate_devnet_l1_genesis(paths)
-    start_devnet_l1_node(paths)
+    generate_devnet_l1_genesis(config, paths)
+    start_devnet_l1_node(config, paths)
     print("Devnet L1 deployment is complete! L1 node is running.")
 
 
@@ -39,7 +40,7 @@ def deploy_devnet_l1(paths: OPPaths):
 GENESIS_TMPL = {}
 
 
-def generate_devnet_l1_genesis(paths: OPPaths):
+def generate_devnet_l1_genesis(config: L2Config, paths: OPPaths):
     """
     Generate the L1 genesis file (simply copies the template).
     """
@@ -47,11 +48,11 @@ def generate_devnet_l1_genesis(paths: OPPaths):
         print("L1 genesis already generated.")
     else:
         print("Generating L1 genesis.")
-        # noinspection PyPep8Naming
-        global GENESIS_TMPL  # overriden by exec below
-        with open("optimism/bedrock-devnet/devnet/genesis.py") as f:
-            exec(f.read(), globals(), globals())
         try:
+            global GENESIS_TMPL  # overriden by exec below
+            with open("optimism/bedrock-devnet/devnet/genesis.py") as f:
+                exec(f.read(), globals(), globals())
+            GENESIS_TMPL["config"]["chainId"] = config.l1_chain_id
             lib.write_json_file(paths.l1_genesis_path, GENESIS_TMPL)
         except Exception as err:
             raise lib.extend_exception(err, prefix="Failed to generate L1 genesis: ")
@@ -106,7 +107,7 @@ class DevnetL1Config:
 
 ####################################################################################################
 
-def start_devnet_l1_node(paths: OPPaths):
+def start_devnet_l1_node(config: L2Config, paths: OPPaths):
     """
     Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
     """
@@ -170,7 +171,7 @@ def start_devnet_l1_node(paths: OPPaths):
             f"--datadir={cfg.data_dir}",
             f"--verbosity={cfg.verbosity}",
 
-            f"--networkid={cfg.chain_id}",
+            f"--networkid={config.l1_chain_id}",
             "--syncmode=full",  # doesn't matter, it's only us
             "--gcmode=archive",
             "--rpc.allow-unprotected-txs", # allow legacy transactions for deterministic deployment
