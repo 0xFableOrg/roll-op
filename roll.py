@@ -6,6 +6,7 @@ invoking the appropriate commands.
 """
 
 import argparse
+import os
 
 import deps
 import l1
@@ -112,8 +113,23 @@ if __name__ == "__main__":
         if lib.args.command == "setup":
             setup()
 
-        paths = OPPaths("optimism")
+        # paths = OPPaths()
+        # config = devnet_config(paths)
+
+        # === Config for Hackaton ===
+
+        paths = OPPaths(gen_dir=".linea")
         config = devnet_config(paths)
+
+        # config.deploy_devnet_l1 = False
+        # config.l1_rpc_url = "http://linea-testnet"
+        # config.l1_chain_id = 59140
+        # config.contract_deployer_key = "0xTODO"
+        config.deployment_name = "linea"
+
+        os.makedirs(paths.gen_dir, exist_ok=True)
+
+        # === End Config for Hackaton ===
 
         if lib.args.command == "devnet":
             deps.check_or_install_geth()
