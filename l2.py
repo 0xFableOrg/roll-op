@@ -12,7 +12,7 @@ import l2_node
 import l2_proposer
 import libroll as lib
 from config import L2Config
-from deploy_config import DEPLOY_CONFIG
+from deploy_config import PRODUCTION_CONFIG, DEVNET_CONFIG
 from paths import OPPaths
 
 
@@ -97,7 +97,11 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     """
     print("Generating network config.")
 
-    deploy_config = DEPLOY_CONFIG.copy()
+    deploy_config = {}
+    if lib.args.preset == "production":
+        deploy_config = PRODUCTION_CONFIG.copy()
+    else:
+        deploy_config = DEVNET_CONFIG.copy()
 
     # set l1GenesisBlockTimestamp
     if os.path.isfile(paths.l1_genesis_path):
@@ -110,30 +114,32 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
         # also unused.
         deploy_config["l1GenesisBlockTimestamp"] = "0x0"
 
-
     deploy_config["l1ChainID"] = config.l1_chain_id
     deploy_config["l2ChainID"] = config.l2_chain_id
 
     deploy_config["enableGovernance"] = config.enable_governance
-    if config.enable_governance:
-        deploy_config["governanceTokenSymbol"] = config.governance_token_symbol
-        deploy_config["governanceTokenName"] = config.governance_token_name
-        deploy_config["governanceTokenOwner"] = config.admin_account
+    deploy_config["governanceTokenSymbol"] = config.governance_token_symbol
+    deploy_config["governanceTokenName"] = config.governance_token_name
+    deploy_config["governanceTokenOwner"] = config.admin_account
 
-    deploy_config["p2pSequencerAddress"]: config.p2p_sequencer_account
-    deploy_config["batchSenderAddress"]: config.batcher_account
-    deploy_config["l2OutputOracleProposer"]: config.proposer_account
-    deploy_config["l2OutputOracleChallenger"]: config.admin_account
-    deploy_config["proxyAdminOwner"]: config.admin_account
-    deploy_config["baseFeeVaultRecipient"]: config.admin_account
-    deploy_config["l1FeeVaultRecipient"]: config.admin_account
-    deploy_config["sequencerFeeVaultRecipient"]: config.admin_account
-    deploy_config["finalSystemOwner"]: config.admin_account
-    deploy_config["portalGuardian"]: config.admin_account
-    deploy_config["controller"]: config.admin_account
+    deploy_config["p2pSequencerAddress"] = config.p2p_sequencer_account
+    deploy_config["batchSenderAddress"] = config.batcher_account
+    deploy_config["l2OutputOracleProposer"] = config.proposer_account
+    deploy_config["l2OutputOracleChallenger"] = config.admin_account
+    deploy_config["proxyAdminOwner"] = config.admin_account
+    deploy_config["baseFeeVaultRecipient"] = config.admin_account
+    deploy_config["l1FeeVaultRecipient"] = config.admin_account
+    deploy_config["sequencerFeeVaultRecipient"] = config.admin_account
+    deploy_config["finalSystemOwner"] = config.admin_account
+    deploy_config["portalGuardian"] = config.admin_account
+    deploy_config["controller"] = config.admin_account
 
-    deploy_config["batchInboxAddress"]: config.batch_inbox_address
+    deploy_config["batchInboxAddress"] = config.batch_inbox_address
     deploy_config["l1StartingBlockTag"] = config.l1_starting_block_tag
+
+    # NOTE: temporarily make it faster because right now it's too slow to see if it works
+    # TODO: undo this
+    deploy_config["l2OutputOracleSubmissionInterval"] = 20
 
     # NOTE: devnet account config
     # proxyAdminOwner, finalSystemOwner, portalGuardian, baseFeeVaultRecipient,
@@ -148,29 +154,6 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     # https://github.com/ethereum-optimism/optimism/blob/develop/op-chain-ops/genesis/helpers.go#L34
 
     try:
-        # Copy the template, and modify it with timestamp and starting block tag.
-
-        # Note that we pick the timestamp at the time this file is generated. This doesn't matter
-        # much: if we start the L1 node later, it will simply have two consecutive blocks with a
-        # large timestamp difference, but no other consequences. The same logic applies if we shut
-        # down the node and restart it later.
-
-        deploy_config = lib.read_json_file(paths.deploy_config_template_path)
-
-        if os.path.isfile(paths.l1_genesis_path):
-            # If we have a genesis file for L1 (devnet L1)
-            l1_genesis = lib.read_json_file(paths.l1_genesis_path)
-            deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
-        else:
-            # NOTE: The l1 genesis block timestamp is never used, but it needs to be set anyway.
-            # This value is only used for generating a devnet L1 genesis file, but that logic is
-            # also unused.
-            deploy_config["l1GenesisBlockTimestamp"] = "0x0"
-
-        deploy_config["l1StartingBlockTag"] = "earliest"
-        deploy_config["l1ChainID"] = config.l1_chain_id
-        deploy_config["l2ChainID"] = config.l2_chain_id
-
         lib.write_json_file(config.deploy_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
@@ -270,12 +253,6 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ")
-
-    genesis = lib.read_json_file(paths.l2_genesis_path)
-    config.l2_chain_id = genesis["config"]["chainId"]
-
-    rollup_config_dict = lib.read_json_file(paths.rollup_config_path)
-    config.batch_inbox_address = rollup_config_dict["batch_inbox_address"]
 
 
 ####################################################################################################

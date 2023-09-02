@@ -16,7 +16,7 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
-from config import devnet_config, production_config
+from config import devnet_config, production_config, L2Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 from setup import setup
@@ -36,7 +36,7 @@ subparsers.add_parser(
     help="installs prerequisites and builds the optimism repository")
 
 # Devnet parser
-devnet_parser = subparsers.add_parser(
+subparsers.add_parser(
     "devnet",
     help="spins up a local devnet, comprising an L1 node and all L2 components")
 
@@ -111,9 +111,8 @@ parser.add_argument(
     default=None,
     dest="name")
 
-
 # Devnet arguments
-devnet_parser.add_argument(
+parser.add_argument(
     "--config",
     help="path to the config file",
     default=None,
@@ -138,7 +137,7 @@ if __name__ == "__main__":
         name = name if name else lib.args.preset
         name = name if name else "rollup"
 
-        paths = OPPaths(f".{name}")
+        paths = OPPaths(gen_dir=os.path.join("deployments", f".{name}"))
         config = None
         if lib.args.preset is None or lib.args.preset == "devnet":
             config = devnet_config(paths)
@@ -147,18 +146,34 @@ if __name__ == "__main__":
 
         config.deployment_name = name
 
-        # Parse config file
-        if lib.args.devnet_config_path:
+        # Parse config file if specified
+        if lib.args.config_path:
             try:
                 import tomli
             except Exception:
                 raise Exception(
                     f"Missing dependencies. Try running python roll.py setup first.")
-            if os.path.exists(lib.args.devnet_config_path):
-                with open(lib.args.devnet_config_path, mode="rb") as f:
+            if os.path.exists(lib.args.config_path):
+                with open(lib.args.config_path, mode="rb") as f:
                     devnet_config_file = tomli.load(f)
             else:
-                raise Exception(f"Cannot find config file at {lib.args.devnet_config_path}")
+                raise Exception(f"Cannot find config file at {lib.args.config_path}")
+
+            try:
+                config.l1_chain_id = devnet_config_file["l1_chain_id"]
+                config.l2_chain_id = devnet_config_file["l2_chain_id"]
+                config.l1_rpc = devnet_config_file["l1_rpc"]
+                config.contract_deployer_key = devnet_config_file["deployer_key"]
+                config.batcher_account = devnet_config_file["batcher_account"]
+                config.batcher_key = devnet_config_file["batcher_key"]
+                config.proposer_account = devnet_config_file["proposer_account"]
+                config.proposer_key = devnet_config_file["proposer_key"]
+                config.admin_account = devnet_config_file["admin_account"]
+                config.admin_key = devnet_config_file["admin_key"]
+                config.p2p_sequencer_account = devnet_config_file["p2p_sequencer_account"]
+                config.p2p_sequencer_key = devnet_config_file["p2p_sequencer_key"]
+            except KeyError as e:
+                raise Exception(f"Missing config file value: {e}")
 
         config.validate()
         os.makedirs(paths.gen_dir, exist_ok=True)

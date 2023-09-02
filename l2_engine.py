@@ -33,7 +33,8 @@ def start(config: L2Config, paths: OPPaths):
 
     if not os.path.exists(config.l2_engine_chaindata_dir):
         log_file = "logs/init_l2_genesis.log"
-        print(f"Directory {config.l2_engine_chaindata_dir} missing, importing genesis in op-geth node."
+        print(f"Directory {config.l2_engine_chaindata_dir} missing, "
+              "importing genesis in op-geth node."
               f"Logging to {log_file}")
         lib.run(
             "initializing genesis",

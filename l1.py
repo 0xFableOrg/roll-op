@@ -61,7 +61,7 @@ def generate_devnet_l1_genesis(config: L2Config, paths: OPPaths):
 ####################################################################################################
 
 class DevnetL1Config:
-    def __init__(self, geth_data_dir: str, paths: OPPaths):
+    def __init__(self, config: L2Config, geth_data_dir: str, paths: OPPaths):
         self.data_dir = geth_data_dir
         """Geth data directory for devnet L1 node."""
 
@@ -89,7 +89,7 @@ class DevnetL1Config:
         genesis = lib.read_json_file(paths.l1_genesis_path)
         self.chain_id = genesis["config"]["chainId"]
 
-        self.jwt_secret_path = paths.ops_bedrock_dir + "/test-jwt-secret.txt"
+        self.jwt_secret_path = config.jwt_secret_path
         """Path for Jason Web Token secret, probably useless for devnet L1."""
 
         # For the following values, allow environment override for now, to follow the original.
@@ -112,7 +112,7 @@ def start_devnet_l1_node(config: L2Config, paths: OPPaths):
     Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
     """
 
-    cfg = DevnetL1Config(DEVNET_L1_DATA_DIR, paths)
+    cfg = DevnetL1Config(config, DEVNET_L1_DATA_DIR, paths)
 
     # Make sure the port isn't occupied yet.
     # Necessary on MacOS that easily allows two processes to bind to the same port.
