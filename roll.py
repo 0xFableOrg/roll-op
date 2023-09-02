@@ -39,6 +39,10 @@ subparsers.add_parser(
     help="spins up a local L1 node with the rollup contracts deployed on it")
 
 subparsers.add_parser(
+    "l2",
+    help="spins up a local L2 blockchain, running all required components")
+
+subparsers.add_parser(
     "l2-engine",
     help="spins up a local l2 execution engine (op-geth) node")
 
