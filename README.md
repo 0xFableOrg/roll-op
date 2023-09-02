@@ -24,7 +24,7 @@ you can automatically subsidize gas for transactions that match certain criteria
 
 The following dependencies will be checked by `roll.py`:
 
-- Some common command line utilities: `make, `curl`, `tar`
+- Some common command line utilities: `make`, `curl`, `tar`
 - Git
 - Go 1.19
 

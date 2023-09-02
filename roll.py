@@ -35,9 +35,17 @@ subparsers.add_parser(
     "setup",
     help="installs prerequisites and builds the optimism repository")
 
-subparsers.add_parser(
+# Devnet parser
+devnet_parser = subparsers.add_parser(
     "devnet",
     help="spins up a local devnet, comprising an L1 node and all L2 components")
+
+# Devnet arguments
+devnet_parser.add_argument(
+    "--config-path",
+    help="path to the config file",
+    default=None,
+    dest="devnet_config_path")
 
 subparsers.add_parser(
     "clean",
@@ -113,29 +121,43 @@ if __name__ == "__main__":
         if lib.args.command == "setup":
             setup()
 
-        # paths = OPPaths()
-        # config = devnet_config(paths)
-        # config.validate()
+        paths = OPPaths()
+        config = devnet_config(paths)
+        config.validate()
 
         # === Config for Hackaton ===
 
-        paths = OPPaths(gen_dir=".linea")
-        config = devnet_config(paths)
+        # paths = OPPaths(gen_dir=".linea")
+        # config = devnet_config(paths)
 
-        config.deploy_devnet_l1 = False
-        config.l1_rpc = os.environ["L1_RPC"]
-        config.l1_chain_id = 59140
-        config.contract_deployer_key = os.environ["CONTRACT_DEPLOYER_KEY"]
-        config.deployment_name = "linea"
+        # config.deploy_devnet_l1 = False
+        # config.l1_rpc = os.environ["L1_RPC"]
+        # config.l1_chain_id = 59140
+        # config.contract_deployer_key = os.environ["CONTRACT_DEPLOYER_KEY"]
+        # config.deployment_name = "linea"
 
-        config.validate()
-        os.makedirs(paths.gen_dir, exist_ok=True)
+        # config.validate()
+        # os.makedirs(paths.gen_dir, exist_ok=True)
 
         # === End Config for Hackaton ===
 
         if lib.args.command == "devnet":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
+
+            # Check and read from the devnet configuration files if provided
+            if lib.args.devnet_config_path:
+                try:
+                    import tomli
+                except:
+                    raise Exception(
+                        f"Missing dependencies. Try running python roll.py setup first.")
+                if (os.path.exists(lib.args.devnet_config_path)):
+                    with open(lib.args.devnet_config_path, mode="rb") as fp:
+                        devnet_config_file = tomli.load(fp)
+                    print(devnet_config_file)
+                else:
+                    raise Exception(f"Cannot find config file at {lib.args.devnet_config_path}")
 
             if config.deploy_devnet_l1:
                 l1.deploy_devnet_l1(config, paths)
