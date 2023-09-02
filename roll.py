@@ -8,9 +8,17 @@ invoking the appropriate commands.
 import argparse
 
 import deps
+import l1
+import l2
+import l2_batcher
+import l2_engine
+import l2_node
+import l2_proposer
 import libroll as lib
+from config import devnet_config
+from paths import OPPaths
+from processes import PROCESS_MGR
 from setup import setup
-
 
 ####################################################################################################
 
@@ -36,11 +44,20 @@ subparsers.add_parser(
 
 subparsers.add_parser(
     "l1",
-    help="spins up a local L1 node with the rollup contracts deployed on it")
+    help="spins up a local L1 node")
 
 subparsers.add_parser(
     "l2",
-    help="spins up a local L2 blockchain, running all required components")
+    help="deploys and starts local L2 blockchain")
+
+subparsers.add_parser(
+    "deploy-l2",
+    help="deploys an L2 blockchain (creates the genesis and deploys the contracts to L1)")
+
+subparsers.add_parser(
+    "start-l2",
+    help="start all components of the rollup system "
+         "(L2 engine, L2 node, L2 batcher, and L2 proposer)")
 
 subparsers.add_parser(
     "l2-engine",
@@ -95,81 +112,67 @@ if __name__ == "__main__":
         if lib.args.command == "setup":
             setup()
 
-        from paths import OPPaths
         paths = OPPaths("optimism")
-        from config import devnet_config
         config = devnet_config(paths)
 
         if lib.args.command == "devnet":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
 
-            import l1
-            import l2
-            l1.deploy_devnet_l1(paths)
-            l2.deploy(paths)
-
-            from processes import PROCESS_MGR
+            if config.deploy_devnet_l1:
+                l1.deploy_devnet_l1(paths)
+            l2.deploy(config, paths)
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "clean":
-            import l1
-            import l2
             l1.clean(paths)
             l2.clean(paths)
 
         if lib.args.command == "l1":
             deps.check_or_install_foundry()
             deps.check_or_install_geth()
-            import l1
+
             l1.deploy_devnet_l1(paths)
-            from processes import PROCESS_MGR
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2":
             deps.check_or_install_foundry()
 
-            import l2
-            l2.deploy(paths)
+            l2.deploy_and_start(config, paths)
+            PROCESS_MGR.wait_all()
 
-            from processes import PROCESS_MGR
+        if lib.args.command == "deploy-l2":
+            deps.check_or_install_foundry()
+
+            l2.deploy(config, paths)
+
+        if lib.args.command == "start-l2":
+            config.deployments = lib.read_json_file(paths.addresses_json_path)
+            l2.start(config, paths)
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-engine":
-            import l2_engine
-            l2_engine.start(config, paths)
 
-            from processes import PROCESS_MGR
+            l2_engine.start(config, paths)
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-sequencer":
-            import l2_node
-            l2_node.start_l2_node(config(paths), paths, sequencer=True)
-
-            from processes import PROCESS_MGR
+            l2_node.start(config(paths), paths, sequencer=True)
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-batcher":
-            import l2_batcher
             l2_batcher.start(config)
-
-            from processes import PROCESS_MGR
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-proposer":
-            import l2_proposer
-            deployments = lib.read_json_file(paths.addresses_json_path)
-            l2_proposer.start(config, deployments)
-
-            from processes import PROCESS_MGR
+            config.deployments = lib.read_json_file(paths.addresses_json_path)
+            l2_proposer.start(config)
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "clean-l1":
-            import l1
             l1.clean(paths)
 
         if lib.args.command == "clean-l2":
-            import l2
             l2.clean(paths)
 
         print("Done.")

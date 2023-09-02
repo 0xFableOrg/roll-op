@@ -9,7 +9,7 @@ from processes import PROCESS_MGR
 
 ####################################################################################################
 
-def start_l2_node(config: L2Config, paths: OPPaths, sequencer: bool = True):
+def start(config: L2Config, paths: OPPaths, sequencer: bool = True):
     """
     Starts the OP node, which derives the L2 chain from the L1 chain & optionally creates new L2
     blocks, then waits for it to be reasy.

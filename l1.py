@@ -38,7 +38,6 @@ def deploy_devnet_l1(paths: OPPaths):
     generate_devnet_l1_genesis(paths)
     generate_network_config(paths)
     start_devnet_l1_node(paths)
-    deploy_l1_contracts(paths)
     print("Devnet L1 deployment is complete! L1 node is running.")
 
 
@@ -267,75 +266,6 @@ def start_devnet_l1_node(paths: OPPaths):
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
     lib.wait_for_rpc_server("127.0.0.1", cfg.rpc_port)
-
-
-####################################################################################################
-
-
-def deploy_l1_contracts(paths):
-    """
-    Deploy the L1 contracts to an L1.
-    Currently assumes the L1 is a local devnet L1.
-    """
-
-    if os.path.exists(paths.addresses_json_path):
-        print("Contracts already deployed.")
-        return
-
-    deploy_script = "scripts/Deploy.s.sol:Deploy"
-
-    # Private key of first dev Hardhat/Anvil account
-    private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-
-    log_file = "logs/deploy_l1_contracts.log"
-    print(f"Deploying contracts to L1. Logging to {log_file}")
-    lib.run_roll_log(
-        "deploy contracts",
-        f"forge script {deploy_script} --private-key {private_key} "
-        "--rpc-url http://127.0.0.1:8545 --broadcast",
-        cwd=paths.contracts_dir,
-        log_file=log_file)
-
-    log_file = "logs/create_l1_artifacts.log"
-    print(f"Creating L1 deployment artifacts. Logging to {log_file}")
-    lib.run_roll_log(
-        "create L1 deployment artifacts",
-        f"forge script {deploy_script} --private-key {private_key} --sig 'sync()' "
-        "--rpc-url http://127.0.0.1:8545 --broadcast",
-        cwd=paths.contracts_dir,
-        log_file=log_file)
-
-    try:
-        # Read the addresses in the L1 deployment artifacts and store them in json files
-        contracts = os.listdir(paths.devnet_l1_deployment_dir)
-        addresses = {}
-
-        for c in contracts:
-            if not c.endswith(".json"):
-                continue
-            data = lib.read_json_file(pjoin(paths.devnet_l1_deployment_dir, c))
-            addresses[c.replace(".json", "")] = data["address"]
-
-        sdk_addresses = {
-            # Addresses needed by the Optimism SDK
-            # We don't use this right now, but it doesn't hurt to include.
-            "AddressManager": "0x0000000000000000000000000000000000000000",
-            "StateCommitmentChain": "0x0000000000000000000000000000000000000000",
-            "CanonicalTransactionChain": "0x0000000000000000000000000000000000000000",
-            "BondManager": "0x0000000000000000000000000000000000000000",
-            "L1CrossDomainMessenger": addresses["L1CrossDomainMessengerProxy"],
-            "L1StandardBridge": addresses["L1StandardBridgeProxy"],
-            "OptimismPortal": addresses["OptimismPortalProxy"],
-            "L2OutputOracle": addresses["L2OutputOracleProxy"]
-        }
-
-        lib.write_json_file(paths.addresses_json_path, addresses)
-        lib.write_json_file(paths.sdk_addresses_json_path, sdk_addresses)
-        print(f"Wrote L1 contract addresses to {paths.addresses_json_path}")
-
-    except Exception as err:
-        raise lib.extend_exception(
-            err, prefix="Failed to extract addresses from L1 deployment artifacts: ")
 
 
 ####################################################################################################
