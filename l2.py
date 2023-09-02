@@ -33,7 +33,10 @@ def deploy(config: L2Config, paths: OPPaths):
     Deploy the rollup by deploying the contracts to L1 then generating the genesis file, but do not
     start the software components.
     """
+    patch(paths)
+    os.makedirs(paths.devnet_gen_dir, exist_ok=True)
     deploy_l1_contracts(paths)
+    generate_network_config(paths)
     generate_l2_genesis(config, paths)
     config.deployments = lib.read_json_file(paths.addresses_json_path)
 
@@ -56,6 +59,61 @@ def start(config: L2Config, paths: OPPaths):
     l2_proposer.start(config)
     l2_batcher.start(config)
     print("All L2 components are running.")
+
+
+####################################################################################################
+
+def patch(paths: OPPaths):
+    """
+    Apply modifications to the optimism repo necessary for our scripts to work.
+    """
+
+    # The original optimism repo edits the devnet configuration in place. Instead, we copy the
+    # original over once, then use that as a template to be modified going forward.
+    if not os.path.exists(paths.network_config_template_path):
+        shutil.copy(paths.network_config_path, paths.network_config_template_path)
+
+    # /usr/bin/bash does not always exist on MacOS (and potentially other Unixes)
+    # This was fixed upstream, but isn't fixed in the commit we're using
+    try:
+        scripts = os.path.join(paths.contracts_dir, "scripts")
+        deployer_path = os.path.join(scripts, "Deployer.sol")
+        deploy_config_path = os.path.join(scripts, "DeployConfig.s.sol")
+        lib.replace_in_file(deployer_path, {"/usr/bin/bash": "bash"})
+        lib.replace_in_file(deploy_config_path, {"/usr/bin/bash": "bash"})
+    except Exception as err:
+        raise lib.extend_exception(err, prefix="Failed to patch Solidity scripts: ")
+
+
+####################################################################################################
+
+def generate_network_config(paths: OPPaths):
+    """
+    Generate the network configuration file. This records information about the L1 and the L2.
+    """
+    print("Generating network config.")
+
+    try:
+        # Copy the template, and modify it with timestamp and starting block tag.
+
+        # Note that we pick the timestamp at the time this file is generated. This doesn't matter
+        # much: if we start the L1 node later, it will simply have two consecutive blocks with a
+        # large timestamp difference, but no other consequences. The same logic applies if we shut
+        # down the node and restart it later.
+
+        deploy_config = lib.read_json_file(paths.network_config_template_path)
+
+        if os.path.isfile(paths.l1_genesis_path):
+            # If we have a genesis file for L1 (devnet L1)
+            l1_genesis = lib.read_json_file(paths.l1_genesis_path)
+            deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
+        else:
+            # TODO not sure this works
+            deploy_config["l1GenesisBlockTimestamp"] = 0
+        deploy_config["l1StartingBlockTag"] = "earliest"
+        lib.write_json_file(paths.network_config_path, deploy_config)
+    except Exception as err:
+        raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
 
 ####################################################################################################
@@ -165,7 +223,7 @@ def clean(paths: OPPaths):
     was the first invocation.
     """
     l2_engine.clean(paths)
-    shutil.rmtree("opnode_discovery_db")
-    shutil.rmtree("opnode_peerstore_db")
+    shutil.rmtree("opnode_discovery_db", ignore_errors=True)
+    shutil.rmtree("opnode_peerstore_db", ignore_errors=True)
 
 ####################################################################################################

@@ -8,16 +8,11 @@ import pathlib
 import shutil
 import subprocess
 import sys
-from os.path import join as pjoin
 
 import libroll as lib
-# from l1_genesis import GENESIS_TMPL
 from paths import OPPaths
 from processes import PROCESS_MGR
 
-sys.path.append("optimism/bedrock-devnet/devnet")
-# noinspection PyUnresolvedReferences
-from genesis import GENESIS_TMPL  # noqa: E402
 
 ####################################################################################################
 
@@ -34,38 +29,15 @@ def deploy_devnet_l1(paths: OPPaths):
     """
     os.makedirs(paths.devnet_gen_dir, exist_ok=True)
 
-    patch(paths)
     generate_devnet_l1_genesis(paths)
-    generate_network_config(paths)
     start_devnet_l1_node(paths)
     print("Devnet L1 deployment is complete! L1 node is running.")
 
 
 ####################################################################################################
 
-def patch(paths: OPPaths):
-    """
-    Apply modifications to the optimism repo necessary for our scripts to work.
-    """
+GENESIS_TMPL = {}
 
-    # The original optimism repo edits the devnet configuration in place. Instead, we copy the
-    # original over once, then use that as a template to be modified going forward.
-    if not os.path.exists(paths.network_config_template_path):
-        shutil.copy(paths.network_config_path, paths.network_config_template_path)
-
-    # /usr/bin/bash does not always exist on MacOS (and potentially other Unixes)
-    # This was fixed upstream, but isn't fixed in the commit we're using
-    try:
-        scripts = pjoin(paths.contracts_dir, "scripts")
-        deployer_path = pjoin(scripts, "Deployer.sol")
-        deploy_config_path = pjoin(scripts, "DeployConfig.s.sol")
-        lib.replace_in_file(deployer_path, {"/usr/bin/bash": "bash"})
-        lib.replace_in_file(deploy_config_path, {"/usr/bin/bash": "bash"})
-    except Exception as err:
-        raise lib.extend_exception(err, prefix="Failed to patch Solidity scripts: ")
-
-
-####################################################################################################
 
 def generate_devnet_l1_genesis(paths: OPPaths):
     """
@@ -75,35 +47,14 @@ def generate_devnet_l1_genesis(paths: OPPaths):
         print("L1 genesis already generated.")
     else:
         print("Generating L1 genesis.")
+        # noinspection PyPep8Naming
+        global GENESIS_TMPL  # overriden by exec below
+        with open("optimism/bedrock-devnet/devnet/genesis.py") as f:
+            exec(f.read(), globals(), globals())
         try:
             lib.write_json_file(paths.l1_genesis_path, GENESIS_TMPL)
         except Exception as err:
             raise lib.extend_exception(err, prefix="Failed to generate L1 genesis: ")
-
-
-####################################################################################################
-
-def generate_network_config(paths: OPPaths):
-    """
-    Generate the network configuration file. This records information about the L1 and the L2.
-    Notaly, it is not read when spinning the L1 node.
-    """
-    print("Generating network config.")
-
-    try:
-        # Copy the template, and modify it with timestamp and starting block tag.
-
-        # Note that we pick the timestamp at the time this file is generated. This doesn't matter
-        # much: if we start the L1 node later, it will simply have two consecutive blocks with a
-        # large timestamp difference, but no other consequences. The same logic applies if we shut
-        # down the node and restart it later.
-
-        deploy_config = lib.read_json_file(paths.network_config_template_path)
-        deploy_config["l1GenesisBlockTimestamp"] = GENESIS_TMPL["timestamp"]
-        deploy_config["l1StartingBlockTag"] = "earliest"
-        lib.write_json_file(paths.network_config_path, deploy_config)
-    except Exception as err:
-        raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
 
 
 ####################################################################################################
