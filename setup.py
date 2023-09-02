@@ -12,6 +12,7 @@ import libroll as lib
 ####################################################################################################
 
 def setup():
+    deps.setup_python_deps()
     deps.check_go()
     deps.check_or_install_jq()
     deps.check_or_install_node()

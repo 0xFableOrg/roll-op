@@ -620,6 +620,7 @@ def op_doc_config(paths: OPPaths):
 
 ####################################################################################################
 
+
 L2_EXECUTION_DATA_DIR = "db/L2-execution"
 """Directory to store the op-geth blockchain data."""
 

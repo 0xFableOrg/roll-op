@@ -118,7 +118,6 @@ def generate_network_config(config: L2Config, paths: OPPaths):
         deploy_config["l1ChainID"] = config.l1_chain_id
         deploy_config["l2ChainID"] = config.l2_chain_id
 
-
         lib.write_json_file(config.deploy_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate devnet L1 config: ")
