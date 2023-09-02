@@ -7,7 +7,7 @@ from processes import PROCESS_MGR
 
 ####################################################################################################
 
-def start(config: L2Config, deployment: dict):
+def start(config: L2Config):
     """
     Starts the OP proposer, which proposes L2 output roots.
     """
@@ -17,6 +17,9 @@ def start(config: L2Config, deployment: dict):
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
 
+    if config.deployments is None:
+        raise "Deployments not set!"
+
     PROCESS_MGR.start(
         "starting L2 proposer",
         [
@@ -25,10 +28,12 @@ def start(config: L2Config, deployment: dict):
             # Proposer-Specific Options
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-proposer/flags/flags.go
 
+            # TODO check on deployment not being None
+
             f"--l1-eth-rpc='{config.l1_rpc}'",
             f"--rollup-rpc='{config.l2_node_rpc}'",
             f"--poll-interval={config.proposer_poll_interval}s",
-            f"--l2oo-address={deployment['L2OutputOracleProxy']}",
+            f"--l2oo-address={config.deployments['L2OutputOracleProxy']}",
             *(["--allow-non-finalized"] if config.allow_non_finalized else []),
 
             # RPC Options
