@@ -121,10 +121,10 @@ if __name__ == "__main__":
         paths = OPPaths(gen_dir=".linea")
         config = devnet_config(paths)
 
-        # config.deploy_devnet_l1 = False
-        # config.l1_rpc_url = "http://linea-testnet"
-        # config.l1_chain_id = 59140
-        # config.contract_deployer_key = "0xTODO"
+        config.deploy_devnet_l1 = False
+        config.l1_rpc = os.environ["L1_RPC"]
+        config.l1_chain_id = 59140
+        config.contract_deployer_key = os.environ["CONTRACT_DEPLOYER_KEY"]
         config.deployment_name = "linea"
 
         os.makedirs(paths.gen_dir, exist_ok=True)
