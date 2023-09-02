@@ -109,8 +109,10 @@ def generate_network_config(config: L2Config, paths: OPPaths):
             l1_genesis = lib.read_json_file(paths.l1_genesis_path)
             deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
         else:
-            # TODO not sure this works
-            deploy_config["l1GenesisBlockTimestamp"] = 0
+            # NOTE: The l1 genesis block timestamp is never used, but it needs to be set anyway.
+            # This value is only used for generating a devnet L1 genesis file, but that logic is
+            # also unused.
+            deploy_config["l1GenesisBlockTimestamp"] = "0x0"
 
         deploy_config["l1StartingBlockTag"] = "earliest"
         deploy_config["l1ChainID"] = config.l1_chain_id
@@ -137,6 +139,10 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
+    env = {**os.environ,
+           "DEPLOYMENT_CONTEXT": config.deployment_name,
+           "ETH_RPC_URL": config.l1_rpc}
+
     log_file = "logs/deploy_l1_contracts.log"
     print(f"Deploying contracts to L1. Logging to {log_file}")
     lib.run_roll_log(
@@ -144,7 +150,7 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
         f"--rpc-url {config.l1_rpc} --broadcast",
         cwd=paths.contracts_dir,
-        env={**os.environ, "DEPLOYMENT_CONTEXT": config.deployment_name},
+        env=env,
         log_file=log_file)
 
     log_file = "logs/create_l1_artifacts.log"
@@ -154,7 +160,7 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
         f"--sig 'sync()' --rpc-url {config.l1_rpc} --broadcast",
         cwd=paths.contracts_dir,
-        env={**os.environ, "DEPLOYMENT_CONTEXT": config.deployment_name},
+        env=env,
         log_file=log_file)
 
     try:

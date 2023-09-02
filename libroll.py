@@ -166,7 +166,8 @@ def run_roll_log(descr: str, command: str | list[str], log_file: str, **kwargs):
     import term
     max_lines = kwargs.pop("max_lines", -3)
     prefix = kwargs.pop("prefix", "| ")
-    use_ansi_esc = kwargs.pop("use_ansi_esc", True)
+    # noinspection PyUnresolvedReferences
+    use_ansi_esc = kwargs.pop("use_ansi_esc", args.use_ansi_esc)
 
     if kwargs.get("forward", None) is not None or kwargs.get("stream", None) is not None:
         raise AssertionError("Cannot specify `forward` or `stream`")
