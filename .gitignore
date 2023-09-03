@@ -8,6 +8,7 @@
 /logs
 /db
 /op-geth
+/blockscout
 /opnode_discovery_db
 /opnode_peerstore_db
 /.env

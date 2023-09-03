@@ -7,6 +7,8 @@ invoking the appropriate commands.
 
 import argparse
 import os
+import shutil
+import subprocess
 
 import deps
 import l1
@@ -19,7 +21,7 @@ import libroll as lib
 from config import devnet_config, production_config, L2Config
 from paths import OPPaths
 from processes import PROCESS_MGR
-from setup import setup
+from setup import setup, setup_blockscout_repo
 
 ####################################################################################################
 
@@ -118,6 +120,37 @@ parser.add_argument(
     default=None,
     dest="config_path")
 
+parser.add_argument(
+    "--explorer",
+    help="deploy a blockscout explorer for the L2 chain",
+    default=False,
+    dest="explorer",
+    action="store_true")
+
+
+####################################################################################################
+
+def launch_blockscout():
+    """
+    Launch the blockscout block explorer.
+    """
+    # Remove old volumes
+    shutil.rmtree(
+        "blockscout/docker-compose/services/blockscout-db-data", ignore_errors=True)
+    shutil.rmtree(
+        "blockscout/docker-compose/services/redis-data", ignore_errors=True)
+
+    log_file = "logs/launch_blockscout.log"
+    print(f"Launching the blockscout block explorer. Logging to {log_file}\n"
+          "This may take a while...")
+
+    PROCESS_MGR.start(
+        "spin up block explorer",
+        "DOCKER_TAG=5.1.0 docker compose -f "
+        "docker-compose-no-build-hardhat-network.yml up",
+        cwd="blockscout/docker-compose",
+        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+
 ####################################################################################################
 
 if __name__ == "__main__":
@@ -183,6 +216,15 @@ if __name__ == "__main__":
             except KeyError as e:
                 raise Exception(f"Missing config file value: {e}")
 
+        if lib.args.explorer:
+            # Invert defaults, because it was hard to make blockscout work if the L2 engine wasn't
+            # on the 8545 port.
+            if config.l1_rpc == "http://127.0.0.1:8545":
+                config.l1_rpc = "http://127.0.0.1:9545"
+                config.l1_rpc_port = 9545
+            config.l2_engine_rpc = "http://127.0.0.1:8545"
+            config.l2_engine_rpc_port = 8545
+
         config.validate()
         os.makedirs(paths.gen_dir, exist_ok=True)
 
@@ -193,6 +235,8 @@ if __name__ == "__main__":
             if config.deploy_devnet_l1:
                 l1.deploy_devnet_l1(config, paths)
             l2.deploy_and_start(config, paths)
+            if lib.args.explorer:
+                launch_blockscout()
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "clean":
@@ -210,6 +254,8 @@ if __name__ == "__main__":
             deps.check_or_install_foundry()
 
             l2.deploy_and_start(config, paths)
+            if lib.args.explorer:
+                launch_blockscout()
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "deploy-l2":
@@ -220,10 +266,14 @@ if __name__ == "__main__":
         if lib.args.command == "start-l2":
             config.deployments = lib.read_json_file(paths.addresses_json_path)
             l2.start(config, paths)
+            if lib.args.explorer:
+                launch_blockscout()
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-engine":
             l2_engine.start(config, paths)
+            if lib.args.explorer:
+                launch_blockscout()
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-sequencer":
@@ -245,6 +295,7 @@ if __name__ == "__main__":
         if lib.args.command == "clean-l2":
             l2.clean(config, paths)
 
+
         print("Done.")
     except KeyboardInterrupt:
         # Usually not triggered because we will exit via the exit hook handler.
@@ -254,5 +305,6 @@ if __name__ == "__main__":
             raise e
         else:
             print(f"Aborted with error: {e}")
+
 
 ####################################################################################################

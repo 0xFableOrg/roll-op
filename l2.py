@@ -186,15 +186,21 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
+    print(config.l1_rpc)
+
     env = {**os.environ,
            "DEPLOYMENT_CONTEXT": config.deployment_name,
            "ETH_RPC_URL": config.l1_rpc}
+
+    # TODO remove this
+    gas_multiplier = 130  # default value
 
     log_file = "logs/deploy_l1_contracts.log"
     print(f"Deploying contracts to L1. Logging to {log_file}")
     lib.run_roll_log(
         "deploy contracts",
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
+        f"--gas-estimate-multiplier {gas_multiplier} "
         f"--rpc-url {config.l1_rpc} --broadcast",
         cwd=paths.contracts_dir,
         env=env,
@@ -205,6 +211,7 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
     lib.run_roll_log(
         "create L1 deployment artifacts",
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
+        f"--gas-estimate-multiplier {gas_multiplier} "
         f"--sig 'sync()' --rpc-url {config.l1_rpc} --broadcast",
         cwd=paths.contracts_dir,
         env=env,

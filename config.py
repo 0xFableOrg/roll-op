@@ -66,6 +66,11 @@ class L2Config:
 
         # TODO
 
+        self.l1_rpc_port = 9545
+        """
+        Port to use for the L1 RPC server (9545 by default).
+        """
+
         # ==========================================================================================
         # Private Keys
 

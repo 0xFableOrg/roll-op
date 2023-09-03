@@ -98,7 +98,7 @@ class DevnetL1Config:
         self.verbosity = os.environ.get("GETH_VERBOSITY", 3)
         """Geth verbosity level (from 0 to 5, see geth --help)."""
 
-        self.rpc_port = os.environ.get("RPC_PORT", 8545)
+        self.rpc_port = os.environ.get("RPC_PORT", config.l1_rpc_port)
         """Port to use for the http-based JSON-RPC server."""
 
         self.ws_port = os.environ.get("WS_PORT", 8546)
@@ -122,7 +122,7 @@ def start_devnet_l1_node(config: L2Config, paths: OPPaths):
     except Exception:
         running = False
     if running:
-        raise Exception("Couldn't start L1 node: server already running at localhost:8545")
+        raise Exception(f"Couldn't start L1 node: server already running at localhost:{cfg.rpc_port}")
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
