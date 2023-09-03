@@ -4,9 +4,11 @@ Exposes function to set up the project, in particular clone the Optimism monorep
 
 import os
 import shutil
+import sys
 
 import deps
 import libroll as lib
+import platform
 
 
 ####################################################################################################
@@ -20,6 +22,7 @@ def setup():
     deps.check_or_install_foundry()
     setup_optimism_repo()
     setup_op_geth_repo()
+    setup_blockscout_repo()
 
 
 ####################################################################################################
@@ -92,3 +95,31 @@ def setup_op_geth_repo():
     lib.chmodx("bin/op-geth")
 
     print("Successfully built the op-geth repository.")
+
+
+####################################################################################################
+
+def setup_blockscout_repo():
+    github_url = "https://github.com/blockscout/blockscout.git"
+    git_tag = "49eee16ee1078a975a060b1564e6ea5b1ad70f39"
+
+    if os.path.isfile("blockscout"):
+        raise Exception("Error: 'blockscout' exists as a file and not a directory.")
+    elif not os.path.exists("blockscout"):
+        print("Cloning the blockscout repository. This may take a while...")
+        descr = "clone the blockscout repository"
+        lib.run(descr, f"git clone {github_url}")
+        print(f"Succeeded: {descr}")
+
+        lib.run("checkout stable version", f"git checkout --detach {git_tag}",
+                cwd="blockscout")
+
+        # TODO make this not replace multiple times if run multiple times
+        if sys.platform == "darwin" and platform.processor() == "arm":
+            anchor_line = "image: blockscout/blockscout:${DOCKER_TAG:-latest}"
+            lib.replace_in_file(
+                "blockscout/docker-compose/docker-compose-no-build-hardhat-network.yml",
+                {anchor_line: f"{anchor_line}\nplatform: linux/arm64"})
+
+
+####################################################################################################
