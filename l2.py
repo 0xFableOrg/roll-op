@@ -5,6 +5,7 @@ This module defines functions related to spinning an op-geth node.
 import os
 import pathlib
 import shutil
+import time
 
 import l2_batcher
 import l2_engine
@@ -103,16 +104,29 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     else:
         deploy_config = DEVNET_CONFIG.copy()
 
-    # set l1GenesisBlockTimestamp
     if os.path.isfile(paths.l1_genesis_path):
         # If we have a genesis file for L1 (devnet L1)
+        # Fetching the latest block somehow does not work with the local L1.
+        # But since we're spinning the L1 right before usually, using earliest work just as well.
+        deploy_config["l1StartingBlockTag"] = "earliest"
+
         l1_genesis = lib.read_json_file(paths.l1_genesis_path)
         deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
+
     else:
-        # NOTE: The l1 genesis block timestamp is never used, but it needs to be set anyway.
-        # This value is only used for generating a devnet L1 genesis file, but that logic is
-        # also unused.
-        deploy_config["l1GenesisBlockTimestamp"] = "0x0"
+        try:
+            out = lib.run(
+                "get latest block",
+                f"cast block latest --rpc-url {config.l1_rpc} "
+                "| grep -E '(hash|number|timestamp)' "
+                "| awk '{print $2}'",
+                forward="capture")
+            [blockhash, number, timestamp, *_rest] = out.split("\n")
+            deploy_config["l1StartingBlockTag"] = blockhash
+            deploy_config["l2OutputOracleStartingTimestamp"] = int(timestamp)
+            lib.debug(f"L1 starting block is {number} ({blockhash} at time {timestamp})")
+        except Exception as e:
+            raise lib.extend_exception(e, "Failed to get latest block")
 
     deploy_config["l1ChainID"] = config.l1_chain_id
     deploy_config["l2ChainID"] = config.l2_chain_id
@@ -135,7 +149,6 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     deploy_config["controller"] = config.admin_account
 
     deploy_config["batchInboxAddress"] = config.batch_inbox_address
-    deploy_config["l1StartingBlockTag"] = config.l1_starting_block_tag
 
     # NOTE: temporarily make it faster because right now it's too slow to see if it works
     # TODO: undo this
