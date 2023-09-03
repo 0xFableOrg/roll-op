@@ -250,9 +250,7 @@ class L2Config:
         default).
         """
 
-        # TODO
-        self.l1_starting_block_tag = "earliest"
-        # self.l1_starting_block_tag = "latest"
+        self.l1_starting_block_tag = "latest"
         """
         Either a block tag (one of: earliest, finalized, safe, latest or pending) or a blockhash,
         that determines the L1 block from which the L2 blockchain will start.
