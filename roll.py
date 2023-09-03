@@ -172,6 +172,14 @@ if __name__ == "__main__":
                 config.admin_key = devnet_config_file["admin_key"]
                 config.p2p_sequencer_account = devnet_config_file["p2p_sequencer_account"]
                 config.p2p_sequencer_key = devnet_config_file["p2p_sequencer_key"]
+
+                if devnet_config_file.get("batching_inbox_address") is not None:
+                    config.batching_inbox_address = devnet_config_file["batching_inbox_address"]
+                else:
+                    addr = "0xff69000000000000000000000000000000000000"
+                    str_id = str(config.l2_chain_id)
+                    config.batching_inbox_address = addr[:-len(str_id)] + str_id
+
             except KeyError as e:
                 raise Exception(f"Missing config file value: {e}")
 
@@ -215,7 +223,6 @@ if __name__ == "__main__":
             PROCESS_MGR.wait_all()
 
         if lib.args.command == "l2-engine":
-
             l2_engine.start(config, paths)
             PROCESS_MGR.wait_all()
 
