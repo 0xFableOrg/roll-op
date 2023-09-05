@@ -145,13 +145,19 @@ def setup_paymaster(config: L2Config):
         f"echo RPC_URL={config.l2_engine_rpc} > paymaster/.env"
     )
     lib.run("set paymaster RPC", "echo PAYMASTER_RPC_URL=http://localhost:3000 >> paymaster/.env")
+    entrypointAddress = lib.read_json_file(
+        "account-abstraction/deployments/opstack/EntryPoint.json"
+    )["address"]
     lib.run(
         "set entrypoint", 
-        "echo ENTRYPOINT_ADDRESS=0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 >> paymaster/.env"
+        f"echo ENTRYPOINT_ADDRESS={entrypointAddress} >> paymaster/.env"
     )
+    simpleAccountFactoryAddress = lib.read_json_file(
+        "account-abstraction/deployments/opstack/SimpleAccountFactory.json"
+    )["address"]
     lib.run(
         "set factory", 
-        "echo SIMPLE_ACCOUNT_FACTORY_ADDRESS=0x9406Cc6185a346906296840746125a0E44976454 >> paymaster/.env"
+        f"echo SIMPLE_ACCOUNT_FACTORY_ADDRESS={simpleAccountFactoryAddress} >> paymaster/.env"
     )
     paymaster_address = subprocess.check_output(
         ["grep", '==VerifyingPaymaster addr=', "logs/deploy_4337_contracts.log"]
