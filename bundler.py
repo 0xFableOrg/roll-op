@@ -58,9 +58,7 @@ def setup_4337_contracts():
     if os.path.isfile("account-abstraction"):
         raise Exception("Error: 'account-abstraction' exists as a file and not a directory.")
     elif not os.path.exists("account-abstraction"):
-        descr = "clone the account-abstraction repository"
-        lib.run(descr, f"git clone {github_url}")
-        print(f"Succeeded: {descr}")
+        lib.clone_repo(github_url, "clone the account-abstraction repository")
 
     # If contracts have not been previously deployed
     if not os.path.exists("account-abstraction/deployments/opstack"):
@@ -117,13 +115,12 @@ def setup_stackup_bundler():
         stderr=subprocess.STDOUT
     )
     print("Bundler is running!")
-    # PROCESS_MGR.wait_all()
 
 def setup_paymaster():
     # install paymaster dependencies
     lib.run_roll_log(
         "install paymaster dependencies", 
-        command=deps.cmd_with_node("npm install"), 
+        command=deps.cmd_with_node("pnpm install"), 
         cwd="paymaster",
         log_file="logs/install_paymaster_dependencies.log"
     )
@@ -152,7 +149,7 @@ def setup_paymaster():
     log_file = open(log_file_path, "w")
     PROCESS_MGR.start(
         "start paymaster", 
-        "npm run start",
+        "pnpm run start",
         cwd="paymaster",
         forward="fd", 
         stdout=log_file, 
@@ -167,7 +164,7 @@ def setup_paymaster():
 # CLEANUP
 
 def clean():
-    lib.run("cleanup account abstraction directory", "rm -rf account-abstraction")
+    lib.run("cleanup account abstraction directory", "rm -rf account-abstraction/deployments/opstack")
     lib.run("cleanup environment variable", "rm .env")
     print("Cleanup successful!")
 

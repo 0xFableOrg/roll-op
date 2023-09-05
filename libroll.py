@@ -312,6 +312,15 @@ def append_to_path(path: str):
     """
     os.environ["PATH"] = f"{os.environ['PATH']}{os.pathsep}{os.path.abspath(path)}"
 
+####################################################################################################
+
+def clone_repo(url: str, descr: str):
+    """
+    Clone a git repository
+    """
+    run(descr, f"git clone {url}")
+    print(f"Succeeded: {descr}")
+
 
 ####################################################################################################
 

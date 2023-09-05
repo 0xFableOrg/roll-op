@@ -33,9 +33,7 @@ def setup_optimism_repo():
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
     elif not os.path.exists("optimism"):
         print("Cloning the optimism repository. This may take a while...")
-        descr = "clone the optimism repository"
-        lib.run(descr, f"git clone {github_url}")
-        print("Successfully cloned the optimism repository.")
+        lib.clone_repo(github_url, "clone the optimism repository")
 
     lib.run("checkout stable version", f"git checkout --detach {git_tag}",
             cwd="optimism")
@@ -74,9 +72,7 @@ def setup_op_geth_repo():
     if os.path.isfile("op-geth"):
         raise Exception("Error: 'op-geth' exists as a file and not a directory.")
     elif not os.path.exists("op-geth"):
-        descr = "clone the op-geth repository"
-        lib.run(descr, f"git clone {github_url}")
-        print(f"Succeeded: {descr}")
+        lib.clone_repo(github_url, "clone the op-geth repository")
 
     lib.run("checkout stable version", f"git checkout --detach {git_tag}",
             cwd="op-geth")
