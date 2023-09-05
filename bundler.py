@@ -6,6 +6,7 @@ import os
 import libroll as lib
 import deps
 from processes import PROCESS_MGR
+from config import L2Config
 
 ####################################################################################################
 # CONSTANTS
@@ -46,13 +47,14 @@ parser.add_argument(
 # SETUP
 
 def start():
-    setup_4337_contracts()
-    setup_stackup_bundler()
-    setup_paymaster()
+    config = L2Config()
+    setup_4337_contracts(config)
+    setup_stackup_bundler(config)
+    setup_paymaster(config)
 
 # --------------------------------------------------------------------------------------------------
 
-def setup_4337_contracts():
+def setup_4337_contracts(config: L2Config):
     github_url = "https://github.com/0xFableOrg/account-abstraction.git"
 
     if os.path.isfile("account-abstraction"):
@@ -69,10 +71,15 @@ def setup_4337_contracts():
             cwd="account-abstraction",
             log_file=log_file
         )
-        # we need to configure the network to point to local network
-        # we also need to set private key for deployment
-        priv_key = input("Enter private key that you would like to deploy contracts with: ")
+        # set private key for deployment
+        if config.deployer_key is None:
+            priv_key = input("Enter private key that you would like to deploy contracts with: ")
+            config.deployer_key = priv_key
+        else:
+            priv_key = config.deployer_key
         lib.run("set private key", f"echo PRIVATE_KEY={priv_key} > account-abstraction/.env")
+        # set rpc url for deployment
+        lib.run("set rpc url", f"echo RPC_URL={config.l2_engine_rpc} >> account-abstraction/.env")
         log_file = "logs/deploy_4337_contracts.log"
         lib.run_roll_log(
             "deploy contracts", 
@@ -84,7 +91,7 @@ def setup_4337_contracts():
     else:
         print("Account abstraction contracts already deployed.")
 
-def setup_stackup_bundler():
+def setup_stackup_bundler(config: L2Config):
     github_url = "github.com/stackup-wallet/stackup-bundler"
     version = "latest"
 
@@ -92,8 +99,15 @@ def setup_stackup_bundler():
     print("Installation successful")
 
     # set environment variables for bundler
-    lib.run("set full node RPC", "echo ERC4337_BUNDLER_ETH_CLIENT_URL=http://localhost:8545 > .env")
-    priv_key = input("Enter private key for bundler: ")
+    lib.run(
+        "set full node RPC",
+        f"echo ERC4337_BUNDLER_ETH_CLIENT_URL={config.l2_engine_rpc} > .env"
+    )
+    if config.bundler_key is None:
+        priv_key = input("Enter private key for bundler: ")
+        config.bundler_key = priv_key
+    else:
+        priv_key = config.bundler_key
     lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={priv_key} >> .env")
 
     # make sure that GOPATH is set in PATH
@@ -116,7 +130,7 @@ def setup_stackup_bundler():
     )
     print("Bundler is running!")
 
-def setup_paymaster():
+def setup_paymaster(config: L2Config):
     # install paymaster dependencies
     lib.run_roll_log(
         "install paymaster dependencies", 
@@ -126,7 +140,10 @@ def setup_paymaster():
     )
 
     # set environment variables for paymaster (deterministic deployments can be hardcoded)
-    lib.run("set node RPC", "echo RPC_URL=http://localhost:8545 > paymaster/.env")
+    lib.run(
+        "set node RPC",
+        f"echo RPC_URL={config.l2_engine_rpc} > paymaster/.env"
+    )
     lib.run("set paymaster RPC", "echo PAYMASTER_RPC_URL=http://localhost:3000 >> paymaster/.env")
     lib.run(
         "set entrypoint", 
@@ -140,7 +157,12 @@ def setup_paymaster():
         ["grep", '==VerifyingPaymaster addr=', "logs/deploy_4337_contracts.log"]
     ).decode().strip().split(' ')[-1]
     lib.run("set paymaster", f"echo PAYMASTER_ADDRESS={paymaster_address} >> paymaster/.env")
-    priv_key = input("Enter private key for paymaster signer: ")
+    # set private key for paymaster
+    if config.deployer_key is None:
+        priv_key = input("Enter private key for paymaster signer: ")
+        config.deployer_key = priv_key
+    else:
+        priv_key = config.deployer_key
     lib.run("set private key", f"echo PRIVATE_KEY={priv_key} >> paymaster/.env")
 
     # start paymaster signer service

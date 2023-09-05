@@ -375,6 +375,23 @@ class L2Config:
 
         # NOTE(norswap): The pprof server listens on port 6060 by default.
 
+        # ==========================================================================================
+        # Account Abstraction Configuration
+
+        # === Private Key ===
+
+        self.deployer_key = None
+        """
+        Private key to use for deploying 4337 contracts and paymaster signature (None by default).
+        Will be used if set, otherwise will prompt users to enter private key.
+        """
+
+        self.bundler_key = None
+        """
+        Private key to use for submitting bundled transactions (None by default).
+        Will be used if set, otherwise will prompt users to enter private key.
+        """
+
     # ==============================================================================================
     # Updating / Altering the Configuration
 
