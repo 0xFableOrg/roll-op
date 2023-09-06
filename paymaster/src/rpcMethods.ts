@@ -29,6 +29,9 @@ export async function sponsorTransaction(userOp: UserOperation): Promise<UserOpe
         provider
     );
 
+    /// NOTE: Define additional transaction sponsor logic here if needed
+    /// For example, it could be a list of whitelisted addresses
+
     const coder = new ethers.AbiCoder();
     const validAfter = (await provider.getBlock('latest'))?.timestamp;
     // sanity check for validAfter
