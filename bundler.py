@@ -9,12 +9,6 @@ from processes import PROCESS_MGR
 from config import L2Config
 
 ####################################################################################################
-# CONSTANTS
-
-# Minimum Go version required by the Stackup bundler.
-GO_VERSION = "1.19"
-
-####################################################################################################
 # ARGUMENT PARSING
 
 # Store the parsed arguments here.
@@ -110,13 +104,6 @@ def setup_stackup_bundler(config: L2Config):
         priv_key = config.bundler_key
     lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={priv_key} >> .env")
 
-    # make sure that GOPATH is set in PATH
-    current_path = os.environ.get("PATH", "")
-    gopath = subprocess.check_output(["go", "env", "GOPATH"]).decode().strip()
-    # append the bin directory of GOPATH to PATH
-    new_path = f"{gopath}/bin:{current_path}"
-    os.environ["PATH"] = new_path
-
     # start bundler as a persistent process
     print("Starting bundler...")
     log_file_path = "logs/stackup_bundler.log"
@@ -163,6 +150,10 @@ def setup_paymaster(config: L2Config):
         ["grep", '==VerifyingPaymaster addr=', "logs/deploy_4337_contracts.log"]
     ).decode().strip().split(' ')[-1]
     lib.run("set paymaster", f"echo PAYMASTER_ADDRESS={paymaster_address} >> paymaster/.env")
+    lib.run(
+        "set sponsored transactions time validity",
+        f"echo TIME_VALIDITY={config.paymaster_validity} >> paymaster/.env"
+    )
     # set private key for paymaster
     if config.deployer_key is None:
         priv_key = input("Enter private key for paymaster signer: ")
@@ -185,9 +176,6 @@ def setup_paymaster(config: L2Config):
     )
     print("Paymaster service is running!")
 
-    # allow background processes to continue running
-    PROCESS_MGR.wait_all()
-
 ####################################################################################################
 # CLEANUP
 
@@ -209,6 +197,8 @@ if __name__ == "__main__":
         deps.check_go()
         if args.command == "start":
             start()
+            # allow background processes to continue running
+            PROCESS_MGR.wait_all()
         elif args.command == "clean":
             clean()
 

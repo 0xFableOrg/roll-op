@@ -392,6 +392,11 @@ class L2Config:
         Will be used if set, otherwise will prompt users to enter private key.
         """
 
+        self.paymaster_validity = 300
+        """
+        Time validity (in seconds) for the sponsored transaction that is signed by paymaster.
+        """
+
     # ==============================================================================================
     # Updating / Altering the Configuration
 
