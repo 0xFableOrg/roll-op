@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import sys
+import subprocess
 
 import libroll as lib
 import term
@@ -72,6 +73,12 @@ def check_go():
             f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher.\n"
             "Go is backwards compatible, so your old project will continue to build.")
 
+    # make sure that GOPATH is set in PATH (this is needed for 4337 bundler)
+    current_path = os.environ.get("PATH", "")
+    gopath = subprocess.check_output(["go", "env", "GOPATH"]).decode().strip()
+    # append the bin directory of GOPATH to PATH
+    new_path = f"{gopath}/bin:{current_path}"
+    os.environ["PATH"] = new_path
 
 ####################################################################################################
 

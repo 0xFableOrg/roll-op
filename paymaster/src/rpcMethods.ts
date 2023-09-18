@@ -36,7 +36,8 @@ export async function sponsorTransaction(userOp: UserOperation): Promise<UserOpe
     const validAfter = (await provider.getBlock('latest'))?.timestamp;
     // sanity check for validAfter
     if (validAfter === undefined) throw new Error('Could not get latest block timestamp');
-    const validUntil = validAfter + 300; // 5 minutes
+    // time validity of 5 minutes by default if not set
+    const validUntil = validAfter + parseInt(process.env.TIME_VALIDITY ?? '300');
     const hash = await paymaster.getHash(userOp, validUntil, validAfter);
     const signature = await signer.signMessage(ethers.getBytes(hash));
 
