@@ -12,3 +12,5 @@
 /opnode_peerstore_db
 .DS_Store
 /.env
+/deployments
+/blockscout
