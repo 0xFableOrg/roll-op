@@ -107,9 +107,7 @@ def setup_blockscout_repo():
         raise Exception("Error: 'blockscout' exists as a file and not a directory.")
     elif not os.path.exists("blockscout"):
         print("Cloning the blockscout repository. This may take a while...")
-        descr = "clone the blockscout repository"
-        lib.run(descr, f"git clone {github_url}")
-        print(f"Succeeded: {descr}")
+        lib.clone_repo(github_url, "clone the blockscout repository")
 
         lib.run("checkout stable version", f"git checkout --detach {git_tag}",
                 cwd="blockscout")
