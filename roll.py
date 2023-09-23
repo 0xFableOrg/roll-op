@@ -140,9 +140,10 @@ def launch_blockscout():
     shutil.rmtree(
         "blockscout/docker-compose/services/redis-data", ignore_errors=True)
 
-    log_file = "logs/launch_blockscout.log"
-    print(f"Launching the blockscout block explorer. Logging to {log_file}\n"
-          "This may take a while...")
+    log_file_name = "logs/launch_blockscout.log"
+    log_file = open(log_file_name, "w")
+    print(f"Launching the blockscout block explorer. Logging to {log_file_name}\n"
+          "Explorer available at localhost:4000 in a little bit.")
 
     PROCESS_MGR.start(
         "spin up block explorer",
