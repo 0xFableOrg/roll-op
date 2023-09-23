@@ -55,8 +55,8 @@ def deploy(config: L2Config, paths: OPPaths):
 def start(config: L2Config, paths: OPPaths):
     """
     Starts all components of the the L2 system: the L2 engine, the L2 node, the L2 batcher, and the
-    L2 proposer. This assumes the L2 contracts have already been deployed to L1 and the L2 genesis
-    has already been generated.
+    L2 proposer. This assumes the L2 contracts have already been deployed to L1 and that the L2
+    genesis has already been generated.
     """
     l2_engine.start(config, paths)
     l2_node.start(config, paths, sequencer=True)
@@ -97,18 +97,43 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     """
     print("Generating network config.")
 
+    # Get base config, default is the devnet config, but can overriden to production config via
+    # the --preset flag.
+
     deploy_config = {}
     if lib.args.preset == "production":
         deploy_config = PRODUCTION_CONFIG.copy()
     else:
         deploy_config = DEVNET_CONFIG.copy()
 
-    if os.path.isfile(paths.l1_genesis_path):
-        # If we have a genesis file for L1 (devnet L1)
-        # Fetching the latest block somehow does not work with the local L1.
-        # But since we're spinning the L1 right before usually, using earliest work just as well.
-        deploy_config["l1StartingBlockTag"] = "earliest"
+    # We need to know the earliest L1 block that might contain rollup-related information
+    # ("l1StartingBlockTag"). This accepts either a blockhash, or a "block tag".
 
+    # Because it's pretty hard to find the documentation on these tags, here is the information I've
+    # been able to gather. The possibile values are: earliest, finalized, safe, latest or pending.
+    #
+    # "Earliest" is block 0. On Ethereum, "safe" is a block that has received 2/3 attestations but
+    # isn't finalized yet, "finalized" is a block that has been finalized, "latest" is the latest
+    # proposed block, with no guarantee of attestations. "Pending" is an image of a block that could
+    # theoretically be proposed, but probably won't be (because the node isn't the proposer).
+    #
+    # On L2s, these things are probably slighty different. I'm just wildly guessing here.
+    # "Finalized" might be for blocks whose batch has been posted to a finalized L1 block, "safe"
+    # might be for blocks whose batch has been posted to L1, and "latest" might be for blocks that
+    # have been sent by the sequencer but not posted yet. (NOT SURE, JUST GUESSES)
+
+    # Anyhow, we use "earliest" on a local devnet (we have a genesis file for L1), because fetching
+    # the latest block somehow does not work against the local L1. But since we're usually spinning
+    # the L1 right before the L2, using "earliest" works just as well.
+    #
+    # Otherwise, we use cast to get the "latest" block from the configured RPC endpoint and use its
+    # hash.
+
+    # TODO: why can't we do the same cast manipulation for the local L1?
+    # TODO: l2OutputOracleStartingTimestamp ???
+
+    if os.path.isfile(paths.l1_genesis_path):
+        deploy_config["l1StartingBlockTag"] = "earliest"
         l1_genesis = lib.read_json_file(paths.l1_genesis_path)
         deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
 
