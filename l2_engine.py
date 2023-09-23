@@ -98,7 +98,11 @@ def start(config: L2Config, paths: OPPaths):
             "--metrics.port=9060",
 
             # Configuration for the rollup engine
-            "--rollup.disabletxpoolgossip=true",
+            f"--rollup.disabletxpoolgossip={config.l2_engine_disable_tx_gossip}",
+
+            # Other geth options
+            f"--txlookuplimit={config.l2_engine_history_transactions}",
+
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_engine_rpc_port)

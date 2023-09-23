@@ -121,6 +121,8 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     # "Finalized" might be for blocks whose batch has been posted to a finalized L1 block, "safe"
     # might be for blocks whose batch has been posted to L1, and "latest" might be for blocks that
     # have been sent by the sequencer but not posted yet. (NOT SURE, JUST GUESSES)
+    #
+    # op-geth doesn't compute pending blocks by default (option `--rollup.computependingblock`).
 
     # Anyhow, we use "earliest" on a local devnet (we have a genesis file for L1), because fetching
     # the latest block somehow does not work against the local L1. But since we're usually spinning

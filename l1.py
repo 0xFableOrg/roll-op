@@ -104,6 +104,9 @@ class DevnetL1Config:
         self.ws_port = os.environ.get("WS_PORT", 8546)
         """Port to use for the WebSocket-based JSON_RPC server."""
 
+        self.l1_p2p_port = 30303
+        """Port to use for the p2p server of the devnet L1. (default: 30303 — geth default)"""
+
 
 ####################################################################################################
 
@@ -176,6 +179,9 @@ def start_devnet_l1_node(config: L2Config, paths: OPPaths):
             "--syncmode=full",  # doesn't matter, it's only us
             "--gcmode=archive",
             "--rpc.allow-unprotected-txs",  # allow legacy transactions for deterministic deployment
+
+            # p2p network config
+            f"--port={cfg.l1_p2p_port}",
 
             # No peers: the blockchain is only this node
             "--nodiscover",
