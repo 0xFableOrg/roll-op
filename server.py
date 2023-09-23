@@ -5,7 +5,6 @@ import os
 from flask import Flask, request
 
 import libroll as lib
-from processes import PROCESS_MGR
 
 app = Flask(__name__)
 

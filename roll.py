@@ -18,10 +18,10 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
-from config import devnet_config, production_config, L2Config
+from config import devnet_config, production_config
 from paths import OPPaths
 from processes import PROCESS_MGR
-from setup import setup, setup_blockscout_repo
+from setup import setup
 
 ####################################################################################################
 
@@ -186,7 +186,7 @@ if __name__ == "__main__":
                 import tomli
             except Exception:
                 raise Exception(
-                    f"Missing dependencies. Try running python roll.py setup first.")
+                    "Missing dependencies. Try running python roll.py setup first.")
             if os.path.exists(lib.args.config_path):
                 with open(lib.args.config_path, mode="rb") as f:
                     devnet_config_file = tomli.load(f)

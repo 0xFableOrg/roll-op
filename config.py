@@ -1,6 +1,5 @@
 import os.path
 
-import libroll as lib
 from paths import OPPaths
 
 # Summary on default port mapping:
