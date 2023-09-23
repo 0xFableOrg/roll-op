@@ -152,6 +152,7 @@ def launch_blockscout():
         cwd="blockscout/docker-compose",
         forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
+
 ####################################################################################################
 
 if __name__ == "__main__":
@@ -295,7 +296,6 @@ if __name__ == "__main__":
 
         if lib.args.command == "clean-l2":
             l2.clean(config, paths)
-
 
         print("Done.")
     except KeyboardInterrupt:

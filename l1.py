@@ -122,7 +122,8 @@ def start_devnet_l1_node(config: L2Config, paths: OPPaths):
     except Exception:
         running = False
     if running:
-        raise Exception(f"Couldn't start L1 node: server already running at localhost:{cfg.rpc_port}")
+        raise Exception(
+            f"Couldn't start L1 node: server already running at localhost:{cfg.rpc_port}")
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
@@ -174,7 +175,7 @@ def start_devnet_l1_node(config: L2Config, paths: OPPaths):
             f"--networkid={config.l1_chain_id}",
             "--syncmode=full",  # doesn't matter, it's only us
             "--gcmode=archive",
-            "--rpc.allow-unprotected-txs", # allow legacy transactions for deterministic deployment
+            "--rpc.allow-unprotected-txs",  # allow legacy transactions for deterministic deployment
 
             # No peers: the blockchain is only this node
             "--nodiscover",

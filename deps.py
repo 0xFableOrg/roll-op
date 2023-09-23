@@ -89,6 +89,7 @@ def check_go():
     new_path = f"{gopath}/bin:{current_path}"
     os.environ["PATH"] = new_path
 
+
 ####################################################################################################
 
 JQ_URL_LINUX = "https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64"
