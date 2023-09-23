@@ -37,6 +37,7 @@ parser.add_argument(
     dest="use_ansi_esc",
     action="store_false")
 
+
 ####################################################################################################
 # SETUP
 
@@ -45,6 +46,7 @@ def start():
     setup_4337_contracts(config)
     setup_stackup_bundler(config)
     setup_paymaster(config)
+
 
 # --------------------------------------------------------------------------------------------------
 
@@ -60,8 +62,8 @@ def setup_4337_contracts(config: L2Config):
     if not os.path.exists("account-abstraction/deployments/opstack"):
         log_file = "logs/build_4337_contracts.log"
         lib.run_roll_log(
-            "install account abstraction dependencies", 
-            command=deps.cmd_with_node("yarn install"), 
+            "install account abstraction dependencies",
+            command=deps.cmd_with_node("yarn install"),
             cwd="account-abstraction",
             log_file=log_file
         )
@@ -80,14 +82,15 @@ def setup_4337_contracts(config: L2Config):
         lib.run("set rpc url", f"echo RPC_URL={config.l2_engine_rpc} >> account-abstraction/.env")
         log_file = "logs/deploy_4337_contracts.log"
         lib.run_roll_log(
-            "deploy contracts", 
-            command=deps.cmd_with_node("yarn deploy --network opstack"), 
+            "deploy contracts",
+            command=deps.cmd_with_node("yarn deploy --network opstack"),
             cwd="account-abstraction",
             log_file=log_file
         )
         print("Account abstraction contracts successfully deployed.")
     else:
         print("Account abstraction contracts already deployed.")
+
 
 def setup_stackup_bundler(config: L2Config):
     github_url = "github.com/stackup-wallet/stackup-bundler"
@@ -110,19 +113,20 @@ def setup_stackup_bundler(config: L2Config):
     log_file_path = "logs/stackup_bundler.log"
     log_file = open(log_file_path, "w")
     PROCESS_MGR.start(
-        "start bundler", 
+        "start bundler",
         "stackup-bundler start --mode private",
-        forward="fd", 
-        stdout=log_file, 
+        forward="fd",
+        stdout=log_file,
         stderr=subprocess.STDOUT
     )
     print("Bundler is running!")
 
+
 def setup_paymaster(config: L2Config):
     # install paymaster dependencies
     lib.run_roll_log(
-        "install paymaster dependencies", 
-        command=deps.cmd_with_node("pnpm install"), 
+        "install paymaster dependencies",
+        command=deps.cmd_with_node("pnpm install"),
         cwd="paymaster",
         log_file="logs/install_paymaster_dependencies.log"
     )
@@ -137,14 +141,14 @@ def setup_paymaster(config: L2Config):
         "account-abstraction/deployments/opstack/EntryPoint.json"
     )["address"]
     lib.run(
-        "set entrypoint", 
+        "set entrypoint",
         f"echo ENTRYPOINT_ADDRESS={entrypointAddress} >> paymaster/.env"
     )
     simpleAccountFactoryAddress = lib.read_json_file(
         "account-abstraction/deployments/opstack/SimpleAccountFactory.json"
     )["address"]
     lib.run(
-        "set factory", 
+        "set factory",
         f"echo SIMPLE_ACCOUNT_FACTORY_ADDRESS={simpleAccountFactoryAddress} >> paymaster/.env"
     )
     paymaster_address = subprocess.check_output(
@@ -163,22 +167,25 @@ def setup_paymaster(config: L2Config):
     log_file_path = "logs/paymaster_signer.log"
     log_file = open(log_file_path, "w")
     PROCESS_MGR.start(
-        "start paymaster", 
+        "start paymaster",
         "pnpm run start",
         cwd="paymaster",
-        forward="fd", 
-        stdout=log_file, 
+        forward="fd",
+        stdout=log_file,
         stderr=subprocess.STDOUT
     )
     print("Paymaster service is running!")
+
 
 ####################################################################################################
 # CLEANUP
 
 def clean():
-    lib.run("cleanup account abstraction directory", "rm -rf account-abstraction/deployments/opstack")
+    lib.run("cleanup account abstraction directory",
+            "rm -rf account-abstraction/deployments/opstack")
     lib.run("cleanup environment variable", "rm .env")
     print("Cleanup successful!")
+
 
 ####################################################################################################
 
