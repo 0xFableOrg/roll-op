@@ -147,12 +147,15 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
 
 ####################################################################################################
 
-def run_roll_log(descr: str, command: str | list[str], log_file: str, **kwargs):
+def run_roll_log(descr: str, command: str | list[str], log_file: str | None, **kwargs):
     """
     A wrapper for :py:func:`run` that uses `forward="stream"` with a stream that combines
     :py:class:`Tee` with :py:class:`term.FixedTermSizeStream` to both forward the output to
     the file `log_file` and to the terminal, where it will not take up more than a fixed number
     of lines and be cleared at the end.
+
+    If you do not need logging to a file (only the rolling functionality), you can specify None
+    for the `log_file` argument.
 
     `kwargs` matches the arguments of :py:func:`run` except that you shouldn't specify `forward` and
     `stream`, and that the following options are added:
@@ -175,7 +178,8 @@ def run_roll_log(descr: str, command: str | list[str], log_file: str, **kwargs):
     stream = sys.stdout
     if use_ansi_esc:
         stream = term.FixedTermSizeStream(stream, max_lines=max_lines, prefix=prefix)
-    stream = Tee(stream, open(log_file, "w"))
+    if log_file is not None:
+        stream = Tee(stream, open(log_file, "w"))
     run(descr, command, **kwargs, stream=stream)
     if use_ansi_esc:
         term.clear_from_saved()
@@ -321,8 +325,10 @@ def clone_repo(url: str, descr: str):
     """
     Clone a git repository
     """
-    run(descr, f"git clone {url}")
-    print(f"Succeeded: {descr}")
+    run_roll_log(
+        descr=descr,
+        command=f"git clone --progress {url}",
+        log_file=None)
 
 
 ####################################################################################################
