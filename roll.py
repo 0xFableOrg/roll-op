@@ -211,6 +211,7 @@ if __name__ == "__main__":
                 if devnet_config_file.get("batching_inbox_address") is not None:
                     config.batching_inbox_address = devnet_config_file["batching_inbox_address"]
                 else:
+                    # Derive a unique batch inbox address from the chain id.
                     addr = "0xff69000000000000000000000000000000000000"
                     str_id = str(config.l2_chain_id)
                     config.batching_inbox_address = addr[:-len(str_id)] + str_id

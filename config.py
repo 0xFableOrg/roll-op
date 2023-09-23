@@ -290,6 +290,31 @@ class L2Config:
         self.l2_engine_authrpc_port = 9551
         """Port to use for the L2 engine authRPC server."""
 
+        self.l2_engine_history_transactions = 2350000
+        """
+        Number of recent blocks to maintain transactions index for (default = about one
+        year (geth default), 0 = entire chain)
+        
+        This is the `--txlookuplimit` option in geth <= 1.12 and `--history.transactions` in geth >=
+        1.13.
+        """
+
+        self.l2_engine_disable_tx_gossip = True
+        """
+        Whether to disable transaction pool gossiping (True by default).
+        
+        In a system with a single sequencer, publicizing the mempool holds very little advantage:
+        it can cause spam by MEV searchers trying to frontrun or backrun transactions.
+        On the flip side, if the node crashes, gossiping can help refill the sequencer's mempool.
+        
+        I believe it's possible to set this to False (enable gossip) but restrict the peers in
+        another way, such that "centralized redundancy" (multiple nodes ran by the same entity)
+        can be achieved.
+        
+        This is currently pretty irrelevant, because we hardcode the --maxpeers=0 and --nodiscover
+        flags.
+        """
+
         # ==========================================================================================
         # Node Configuration
 
