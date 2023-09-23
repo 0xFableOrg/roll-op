@@ -56,6 +56,7 @@ def setup_4337_contracts(config: L2Config):
     if os.path.isfile("account-abstraction"):
         raise Exception("Error: 'account-abstraction' exists as a file and not a directory.")
     elif not os.path.exists("account-abstraction"):
+        print("Cloning the account-abstraction repository. This may take a while...")
         lib.clone_repo(github_url, "clone the account-abstraction repository")
 
     # If contracts have not been previously deployed
