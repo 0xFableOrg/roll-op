@@ -5,7 +5,6 @@ This module defines functions related to spinning an op-geth node.
 import os
 import pathlib
 import shutil
-import time
 
 import l2_batcher
 import l2_engine
