@@ -254,22 +254,6 @@ class L2Config:
         default).
         """
 
-        self.l1_starting_block_tag = "latest"
-        """
-        Either a block tag (one of: earliest, finalized, safe, latest or pending) or a blockhash,
-        that determines the L1 block from which the L2 blockchain will start.
-        
-        Earliest is block 0. On Ethereum, safe is a block that has received 2/3 attestations but
-        isn't finalized yet, finalized is a block that has been finalized, latest is the latest
-        proposed block, with no guarantee of attestations. Pending is an image of a block that could
-        theoretically be proposed, but probably won't be (because the node isn't the proposer).
-        
-        On L2, these things are probably slight different: finalized is probably for blocks whose
-        batch has been posted to a finalized L1 block, safe is probably for blocks whose batch has
-        been posted to L1, and latest is probably for blocks that have been sent by the sequencer
-        but not posted yet. (NOT SURE, JUST GUESSES)
-        """
-
         # ==========================================================================================
         # L2 Execution Engine Configuration
 
@@ -592,7 +576,6 @@ class L2Config:
 
         # === Network ===
 
-        self.l1_starting_block_tag = "earliest"
         self.jwt_secret_path = paths.jwt_test_secret_path
 
         # === Node ===
