@@ -775,7 +775,6 @@ class Config:
         :py:meth:`use_op_doc_config`.
         """
 
-        # TODO parameterize
         self.allow_non_finalized = True
 
         # === Node ===
