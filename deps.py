@@ -39,7 +39,13 @@ def _setup_python_deps():
     """
     Install required Python dependencies.
     """
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "tomli"])
+    try:
+        import tomli
+    except ModuleNotFoundError:
+        if lib.ask_yes_no("The Tomli python library is required. Install?\n"
+                          "This will install globally if not running in a venv (see README.md)."):
+            lib.run("install Tomli",
+                    [sys.executable, "-m", "pip", "install", "tomli"])
 
 
 ####################################################################################################
@@ -362,6 +368,5 @@ def install_geth():
         raise lib.extend_exception(err, prefix="Failed to install geth: ")
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
-
 
 ####################################################################################################
