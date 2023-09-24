@@ -6,7 +6,8 @@ from os.path import join as pjoin
 
 class OPPaths:
     """
-    A class whose fields are paths to various directories and files within the OP monorepo.
+    A class whose fields are paths to various directories and files, both inside the Optimism
+    monorepo and inside the generated files directory (which by default is `optimism/.devnet`).
     """
 
     def __init__(self, monorepo_dir="optimism", gen_dir=pjoin("optimism", ".devnet")):
