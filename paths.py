@@ -75,7 +75,7 @@ class OPPaths:
         """
         Directory where the deployment script will place the deployment artifacts (contract
         addresses etc) for the L1 rollup contracts. If a `deployment_name` is provided in the
-        L2Config, it will be appended as a new path component.
+        :py:class:Config, it will be appended as a new path component.
         """
 
         self.addresses_json_path = pjoin(self.gen_dir, "addresses.json")

@@ -1,13 +1,13 @@
 import subprocess
 import sys
 
-from config import L2Config
+from config import Config
 from processes import PROCESS_MGR
 
 
 ####################################################################################################
 
-def start(config: L2Config):
+def start(config: Config):
     """
     Starts the OP batcher, which submits transaction batches.
     """

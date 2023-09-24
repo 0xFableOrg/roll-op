@@ -11,14 +11,14 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
-from config import L2Config
+from config import Config
 from deploy_config import PRODUCTION_CONFIG, DEVNET_CONFIG
 from paths import OPPaths
 
 
 ####################################################################################################
 
-def deploy_and_start(config: L2Config):
+def deploy_and_start(config: Config):
     """
     Deploys the rollup contracts to L1, create the L2 genesis then runs all components of the L2
     system (the L2 engine, the L2 node, the L2 batcher, and the L2 proposer).
@@ -30,7 +30,7 @@ def deploy_and_start(config: L2Config):
 
 ####################################################################################################
 
-def deploy(config: L2Config):
+def deploy(config: Config):
     """
     Deploy the rollup by deploying the contracts to L1 then generating the genesis file, but do not
     start the software components.
@@ -52,7 +52,7 @@ def deploy(config: L2Config):
 
 ####################################################################################################
 
-def start(config: L2Config):
+def start(config: Config):
     """
     Starts all components of the the L2 system: the L2 engine, the L2 node, the L2 batcher, and the
     L2 proposer. This assumes the L2 contracts have already been deployed to L1 and that the L2
@@ -91,7 +91,7 @@ def patch(paths: OPPaths):
 
 ####################################################################################################
 
-def generate_deploy_config(config: L2Config):
+def generate_deploy_config(config: Config):
     """
     Generate the network configuration file. This records information about the L1 and the L2.
     """
@@ -199,7 +199,7 @@ def generate_deploy_config(config: L2Config):
 
 ####################################################################################################
 
-def deploy_l1_contracts(config: L2Config):
+def deploy_l1_contracts(config: Config):
     """
     Deploy the L1 contracts to an L1.
     Currently assumes the L1 is a local devnet L1.
@@ -276,7 +276,7 @@ def deploy_l1_contracts(config: L2Config):
 
 ####################################################################################################
 
-def generate_l2_genesis(config: L2Config):
+def generate_l2_genesis(config: Config):
     """
     Generate the L2 genesis file and rollup configs.
     """
@@ -301,7 +301,7 @@ def generate_l2_genesis(config: L2Config):
 
 ####################################################################################################
 
-def generate_jwt_secret(config: L2Config):
+def generate_jwt_secret(config: Config):
     if os.path.isfile(config.jwt_secret_path) and os.path.getsize(config.jwt_secret_path) >= 64:
         return
 
@@ -317,7 +317,7 @@ def generate_jwt_secret(config: L2Config):
 
 ####################################################################################################
 
-def clean(config: L2Config):
+def clean(config: Config):
     """
     Cleans up build outputs, such that trying to deploy the L2 blockchain will proceed as though it
     was the first invocation.
