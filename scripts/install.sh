@@ -28,12 +28,17 @@ activate_venv() {
 }
 
 install_dev_dependencies() {
-    # Install development dependencies
-    echo "installing development dependencies"
-
     # Check if pip3 version is greater or equal than 21.2.1, otherwise upgrade it
-    pip3_version=$(pip3 --version | awk '{print $2}')
-    if python3 -c "import sys; sys.exit(not (sys.version_info >= (21, 2, 1)))"; then
+    pip3_version=$(python3 -c "import pip; print(pip.__version__)")
+
+    check_pip3_version() {
+        python3 -c \
+        "import pip;\
+        import sys;\
+        sys.exit(not [int(x) for x in pip.__version__.split('.')] >= [21, 2, 1])"
+    }
+
+    if check_pip3_version; then
         echo "pip3 version is $pip3_version"
     else
         echo "pip3 version is $pip3_version, but 21.2.1 or greater is required"
@@ -58,7 +63,7 @@ install_dev_dependencies() {
         echo "forcing autopep8 to right version"
         pip3 install autopep8==$autopep8_version
     else
-        echo "autopep8 is installed"
+        echo "autopep8 version $autopep8_version"
     fi
 }
 
