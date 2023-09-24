@@ -18,13 +18,20 @@ infrastructure (a bundler and a paymaster) and helps you configure them so that
 you can automatically subsidize gas for transactions that match certain criteria
 (e.g. transactions to specific whitelisted contracts).
 
+## Versioning
+
+The current version of simple-op-stack-rollup deploys software pinned to the following commit
+
+- Optimism Monorepo: [`7168db67c5b421975fef2a090aa6e6ee4e3ff298`](https://github.com/ethereum-optimism/optimism/tree/7168db67c5b421975fef2a090aa6e6ee4e3ff298)
+- op-geth: [`v1.101106.0`](https://github.com/ethereum-optimism/op-geth/tree/v1.101106.0)
+
 ## Prerequisites
 
 - Python >= 3.10 (to run the `roll.py` script)
 
 The following dependencies will be checked by `roll.py`:
 
-- Some common command line utilities: `make`, `curl`, `tar`
+- Some common command line utilities: `make`, `curl`, `tar` and `awk`.
 - Git
 - Go 1.19
 
