@@ -4,23 +4,29 @@ from paths import OPPaths
 
 # Summary on default port mapping:
 #
-# - L1 RPC: 8545
+# - L1 http RPC: 8545
 # - L1 WebSocket RPC: 8546
 # - L1 authRPC: 8551 (authenticated APIs)
-# - L1 p2p: 30303
-# - L2 engine RPC: 9545 (like L1 RPC but for L2)
+# - L1 p2p: 30303 (block & tx gossip)
+# - L2 engine http RPC: 9545 (like L1 http RPC but for L2)
 # - L2 engine Websocket RPC: 9546 (like L1 Websocket RPC but for L2)
-# - L2 p2p: 30313 (like L1 p2p but for L2)
 # - L2 engine authRPC: 9551 (like L1 authRPC but for L2 — op-node <> engine communication)
+# - L2 engine p2p: 30313 (like L1 p2p but for L2)
 # - L2 node RPC: 7545 (optimism_ and admin_ namespaces)
 # - L2 proposer RPC: 5545 (no namespaces)
 # - L2 batcher RPC: 6545 (admin_ namespace)
 
-# When following the OP stack "Getting Started" document (doesn't spin its own L1), the following
-# ports are used:
+# When following the OP stack "Getting Started" document, the following ports are used:
+# (The L1 and L2 engine ports are inverted, and the other components are numbered differently.)
 #
-# - L2 engine RPC: 8545
+# - L1 http RPC: 9545
+# - L1 WebSocket RPC: 9546
+# - L1 authRPC: 9551 (authenticated APIs)
+# - L1 p2p: 30313 (block & tx gossip)
+# - L2 engine http RPC: 8545
+# - L2 engine Websocket RPC: 8546 (like L1 Websocket RPC but for L2)
 # - L2 engine authRPC: 8551
+# - L2 engine p2p: 30303 (geth default)
 # - L2 node RPC: 8547
 # - L2 proposer RPC: 8560 (no namespaces)
 # - L2 batcher RPC: 8548 (admin_ namespace)
@@ -34,40 +40,6 @@ class L2Config:
         """
         This object is a registry of paths into the optimism directory that we need to build &
         deploy op-stack rollups.
-        """
-
-        # ==========================================================================================
-        # L1 Configuration
-
-        self.deploy_devnet_l1 = True
-        """
-        Whether to deploy a local L1 devnet (True by default).
-        If false, it means deploying on an existing L1 blockchain, specified by
-        :py:attribute:`l1_rpc`.
-        """
-
-        self.l1_chain_id = 900
-        """
-        Chain ID of the L1. If spinning an L1 devnet, it will use this chain ID.
-        """
-
-        self.deployment_name = "devnetL1"
-        """
-        Name for the deployment, this is used as `DEPLOYMENT_CONTEXT` during contract deployments,
-        to determine the directory where the deploy script will put the deployment artifacts.
-        """
-        # NOTE: setting this variable is not required for chains "known" by the optimism repo deploy
-        # script, but required for other chains to put the deployment artifacts in their own
-        # directory.
-
-        # ==========================================================================================
-        # Devnet L1 Configuration
-
-        # TODO
-
-        self.l1_rpc_port = 9545
-        """
-        Port to use for the L1 RPC server (9545 by default).
         """
 
         # ==========================================================================================
@@ -178,6 +150,13 @@ class L2Config:
         Uses `{paths.gen_dir}/opnode_p2p_priv.txt` by default.
         """
 
+        self.l1_signer_account = "0xca062b0fd91172d89bcd4bb084ac4e21972cc467"
+        """Address of the devnet L1 block signer."""
+
+        self.l1_signer_private_key = \
+            "3e4bde571b86929bf08e2aaad9a6a1882664cd5e65b96fff7d03e1c4e6dfa15c"
+        """Private key of the devnet L1 block signer."""
+
         # ==========================================================================================
         # Deployment
 
@@ -207,6 +186,33 @@ class L2Config:
 
         # ==========================================================================================
         #  Network Configuration
+
+        # NOTE: All URLs in this section are used to instruct various services/nodes on how to
+        # reach the other services. This configuration mirrors the configuration of each of the
+        # individual services, which must specify on which port/address they listen.
+        #
+        # The reasons the configuration is not unique is that:
+        # - The actual software deployment might involve port mapping.
+        # - Binding to 0.0.0.0 (always the default) means listening to every single network
+        #   interface connected to the server.
+        #
+        # Anyhow, changing a port often involves changing a configuration in this section AND
+        # changing a configuration option in the service-specific section.
+
+        self.deployment_name = "devnetL1"
+        """
+        Name for the rollup deployment, this will be set as the `DEPLOYMENT_CONTEXT` environment
+        variable during contract deployment to L1, to determine the directory where the deploy
+        script will put the deployment artifacts.
+        """
+        # NOTE: setting this variable is not required for chains "known" by the optimism repo deploy
+        # script, but required for other chains to put the deployment artifacts in their own
+        # directory.
+
+        self.l1_chain_id = 900
+        """
+        Chain ID of the L1 to use. If spinning an L1 devnet, it will use this chain ID.
+        """
 
         self.l1_rpc = "http://127.0.0.1:8545"
         """
@@ -249,6 +255,8 @@ class L2Config:
         execution engine. Will be generated if it does not already exist.
         
         Uses `{paths.gen_dir}/jwt-secret.txt` by default.
+        
+        This is also passed to the devnet L1 (if started) currently, but unclear if it's needed.
         """
 
         self.deployments = None
@@ -264,40 +272,86 @@ class L2Config:
         """
 
         # ==========================================================================================
+        # Devnet L1 Configuration
+
+        self.deploy_devnet_l1 = True
+        """
+        Whether to deploy a local L1 devnet (True by default).
+        If false, it means deploying on an existing L1 blockchain, specified by
+        :py:attribute:`l1_rpc`.
+        """
+
+        # Any attribute defined in this section are only meaningful (used) if
+        # :py:attribute:`deploy_devnet_l1` is True!
+
+        self.l1_data_dir = "db/devnetL1"
+        """Geth data directory for devnet L1 node."""
+
+        # See also the properties starting with `l1` below which are paths derived from
+        # :py:attribute:`l1_data_dir`.
+
+        self.l1_verbosity = 3
+        """Geth verbosity level (from 0 to 5, see geth --help)."""
+
+        self.l1_p2p_port = 30303
+        """Port to use for the p2p server of the devnet L1. (default: 30303 — geth default)"""
+
+        self.l1_rpc_listen_addr = "0.0.0.0"
+        """Address the devnet L1 http RPC server should bind to ("0.0.0.0" by default)."""
+
+        self.l1_rpc_port = 8545
+        """Port to use for the devnet L1 http RPC server (9545 by default)."""
+
+        self.l1_rpc_ws_listen_addr = "0.0.0.0"
+        """Address the devnet L1 WebSocket RPC server should bind to ("0.0.0.0" by default)."""
+
+        self.l1_rpc_ws_port = 8546
+        """Port to use for the WebSocket JSON_RPC server (8546 by default)."""
+
+        self.l1_authrpc_listen_addr = "0.0.0.0"
+        """Address the devnet L1 authRPC server should bind to ("0.0.0.0" by default)."""
+
+        self.l1_authrpc_port = 8551
+        """Port to use for the devnet L1 authRPC server (8551 by default)."""
+
+        self.l1_password = "l1_devnet_password"
+        """Password to use to secure the signer key."""
+
+        # ==========================================================================================
         # L2 Execution Engine Configuration
 
-        self.l2_engine_data_dir = L2_EXECUTION_DATA_DIR
+        self.l2_engine_data_dir = "db/L2-execution"
         """Geth data directory for the L2 engine."""
 
-        self.l2_engine_chaindata_dir = f"{self.l2_engine_data_dir}/geth/chaindata"
-        """Directory storing chain data for the L2 engine."""
+        # See also the properties starting with `l2_engine` below which are paths derived from
+        # :py:attribute:`l2_engine_data_dir`.
 
         self.l2_chain_id = 42069
         """Chain ID of the local L2."""
 
         self.l2_engine_verbosity = 3
-        """Geth verbosity level (from 0 to 5, see geth --help)."""
+        """Geth verbosity level (from 0 to 5, see op-geth --help)."""
 
         self.l2_engine_p2p_port = 30313
-        """Port to use for the p2p server of the L2 engine."""
+        """Port to use for the p2p server of the L2 engine (30313 by default)."""
 
         self.l2_engine_rpc_listen_addr = "0.0.0.0"
-        """Address the L2 engine RPC server should bind to ("0.0.0.0" by default)."""
+        """Address the L2 engine http RPC server should bind to ("0.0.0.0" by default)."""
 
         self.l2_engine_rpc_port = 9545
-        """Port to use for the http-based JSON-RPC server."""
+        """Port to use for the L2 engine http JSON-RPC server."""
 
         self.l2_engine_rpc_ws_listen_addr = "0.0.0.0"
         """Address the L2 engine WebSocket RPC server should bind to ("0.0.0.0" by default)."""
 
         self.l2_engine_rpc_ws_port = 9546
-        """Port to use for the WebSocket-based JSON_RPC server."""
+        """Port to use for the WebSocket JSON_RPC server."""
 
         self.l2_engine_authrpc_listen_addr = "0.0.0.0"
         """Address the L2 engine authRPC server should bind to ("0.0.0.0" by default)."""
 
         self.l2_engine_authrpc_port = 9551
-        """Port to use for the L2 engine authRPC server."""
+        """Port to use for the L2 engine authRPC server (9551 by default)."""
 
         self.l2_engine_history_transactions = 2350000
         """
@@ -578,7 +632,36 @@ class L2Config:
         """
         return os.path.join(self.paths.deployments_parent_dir, self.deployment_name)
 
-    # ==============================================================================================
+    # ----------------------------------------------------------------------------------------------
+
+    @property
+    def l1_keystore_dir(self):
+        """Keystore directory for devnet L1 node (each file stores an encrypted signer key)."""
+        return f"{self.l1_data_dir}/keystore"
+
+    @property
+    def l1_chaindata_dir(self):
+        """Directory storing chain data."""
+        return f"{self.l1_data_dir}/geth/chaindata"
+
+    @property
+    def l1_password_path(self):
+        """Path to file storing the password for the signer key."""
+        return f"{self.l1_data_dir}/password"
+
+    @property
+    def l1_tmp_signer_key_path(self):
+        """Path to file storing the signer key during the initial import."""
+        return f"{self.l1_data_dir}/block-signer-key"
+
+    # ----------------------------------------------------------------------------------------------
+
+    @property
+    def l2_engine_chaindata_dir(self):
+        """Directory storing chain data for the L2 engine."""
+        return f"{self.l2_engine_data_dir}/geth/chaindata"
+
+# ==============================================================================================
 
     def validate(self):
         """
@@ -640,7 +723,6 @@ class L2Config:
         # === Network ===
 
         # We need to do this because the documentation assigns 8545 to the L2 engine RPC.
-        # TODO update L1 config here to bind these nodes
         self.l1_rpc = "http://127.0.0.1:9545"
         self.l1_rpc_for_node = "ws://127.0.0.1:9546"
 
@@ -649,6 +731,20 @@ class L2Config:
         self.l2_node_rpc = "http://127.0.0.1:8547"
 
         self.jwt_secret_path = "jwt.txt"
+
+        # === Devnet L1 ===
+
+        self.l1_rpc_port = 9545
+        self.l1_rpc_ws_port = 9546
+        self.l1_authrpc_port = 9551
+        self.l1_p2p_port = 30313
+
+        # === Engine ===
+
+        self.l2_engine_rpc_port = 8545
+        self.l2_engine_rpc_ws_port = 8546
+        self.l2_engine_authrpc_port = 8551
+        self.l2_engine_p2p_port = 30303
 
         # === Node ===
 
@@ -731,11 +827,5 @@ def production_config(paths: OPPaths):
     config.use_production_config()
     return config
 
-
-####################################################################################################
-
-
-L2_EXECUTION_DATA_DIR = "db/L2-execution"
-"""Directory to store the op-geth blockchain data."""
 
 ####################################################################################################

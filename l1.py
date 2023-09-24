@@ -60,102 +60,50 @@ def generate_devnet_l1_genesis(config: L2Config):
 
 ####################################################################################################
 
-class DevnetL1Config:
-    def __init__(self, config: L2Config, geth_data_dir: str, paths: OPPaths):
-        self.data_dir = geth_data_dir
-        """Geth data directory for devnet L1 node."""
-
-        self.keystore_dir = f"{self.data_dir}/keystore"
-        """Keystore directory for devnet L1 node (each file stores an encrypted signer key)."""
-
-        self.chaindata_dir = f"{self.data_dir}/geth/chaindata"
-        """Directory storing chain data."""
-
-        self.password_path = f"{self.data_dir}/password"
-        """Path to file storing the password for the signer key."""
-
-        self.password = "l1_devnet_password"
-        """Password to use to secure the signer key."""
-
-        self.tmp_signer_key_path = f"{self.data_dir}/block-signer-key"
-        """Path to file storing the signer key during the initial import."""
-
-        self.signer_address = "0xca062b0fd91172d89bcd4bb084ac4e21972cc467"
-        """Address of the block signer."""
-
-        self.signer_private_key = "3e4bde571b86929bf08e2aaad9a6a1882664cd5e65b96fff7d03e1c4e6dfa15c"
-        """Private key of the block signer."""
-
-        genesis = lib.read_json_file(paths.l1_genesis_path)
-        self.chain_id = genesis["config"]["chainId"]
-
-        self.jwt_secret_path = config.jwt_secret_path
-        """Path for Jason Web Token secret, probably useless for devnet L1."""
-
-        # For the following values, allow environment override for now, to follow the original.
-        # In due time, remove that as we provide our own way to customize.
-
-        self.verbosity = os.environ.get("GETH_VERBOSITY", 3)
-        """Geth verbosity level (from 0 to 5, see geth --help)."""
-
-        self.rpc_port = os.environ.get("RPC_PORT", config.l1_rpc_port)
-        """Port to use for the http-based JSON-RPC server."""
-
-        self.ws_port = os.environ.get("WS_PORT", 8546)
-        """Port to use for the WebSocket-based JSON_RPC server."""
-
-        self.l1_p2p_port = 30303
-        """Port to use for the p2p server of the devnet L1. (default: 30303 — geth default)"""
-
-
-####################################################################################################
-
 def start_devnet_l1_node(config: L2Config):
     """
     Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
     """
 
-    cfg = DevnetL1Config(config, DEVNET_L1_DATA_DIR, config.paths)
-
     # Make sure the port isn't occupied yet.
     # Necessary on MacOS that easily allows two processes to bind to the same port.
     running = True
     try:
-        lib.wait("127.0.0.1", cfg.rpc_port, retries=1)
+        lib.wait("127.0.0.1", config.l1_rpc_port, retries=1)
     except Exception:
         running = False
     if running:
         raise Exception(
-            f"Couldn't start L1 node: server already running at localhost:{cfg.rpc_port}")
+            f"Couldn't start L1 node: server already running at localhost:{config.l1_rpc_port}")
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
 
-    if not os.path.exists(cfg.keystore_dir):
+    if not os.path.exists(config.l1_keystore_dir):
         # Initial account setup
-        print(f"Directory '{cfg.keystore_dir}' missing, running account import.")
-        with open(cfg.password_path, "w") as f:
-            f.write(cfg.password)
-        with open(cfg.tmp_signer_key_path, "w") as f:
-            f.write(cfg.signer_private_key.replace("0x", ""))
+        print(f"Directory '{config.l1_keystore_dir}' missing, running account import.")
+        with open(config.l1_password_path, "w") as f:
+            f.write(config.l1_password)
+        with open(config.l1_tmp_signer_key_path, "w") as f:
+            f.write(config.l1_signer_private_key.replace("0x", ""))
         lib.run(
             "importing signing keys",
             ["geth", "account", "import",
-             f"--datadir={cfg.data_dir}",
-             f"--password={cfg.password_path}",
-             cfg.tmp_signer_key_path])
-        os.remove(f"{cfg.data_dir}/block-signer-key")
+             f"--datadir={config.l1_data_dir}",
+             f"--password={config.l1_password_path}",
+             config.l1_tmp_signer_key_path])
+        os.remove(f"{config.l1_data_dir}/block-signer-key")
 
-    if not os.path.exists(cfg.chaindata_dir):
+    if not os.path.exists(config.l1_chaindata_dir):
         log_file = "logs/init_l1_genesis.log"
-        print(f"Directory {cfg.chaindata_dir} missing, importing genesis in L1 node."
+        print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node."
               f"Logging to {log_file}")
         lib.run(
             "initializing genesis",
             ["geth",
-             f"--verbosity={cfg.verbosity}",
+             f"--verbosity={config.l1_verbosity}",
              "init",
-             f"--datadir={cfg.data_dir}",
+             f"--datadir={config.l1_data_dir}",
              config.paths.l1_genesis_path])
 
     log_file_path = "logs/l1_node.log"
@@ -172,8 +120,8 @@ def start_devnet_l1_node(config: L2Config):
         [
             "geth",
 
-            f"--datadir={cfg.data_dir}",
-            f"--verbosity={cfg.verbosity}",
+            f"--datadir={config.l1_data_dir}",
+            f"--verbosity={config.l1_verbosity}",
 
             f"--networkid={config.l1_chain_id}",
             "--syncmode=full",  # doesn't matter, it's only us
@@ -181,7 +129,7 @@ def start_devnet_l1_node(config: L2Config):
             "--rpc.allow-unprotected-txs",  # allow legacy transactions for deterministic deployment
 
             # p2p network config
-            f"--port={cfg.l1_p2p_port}",
+            f"--port={config.l1_p2p_port}",
 
             # No peers: the blockchain is only this node
             "--nodiscover",
@@ -191,32 +139,32 @@ def start_devnet_l1_node(config: L2Config):
             "--http",
             "--http.corsdomain=*",
             "--http.vhosts=*",
-            "--http.addr=0.0.0.0",
-            f"--http.port={cfg.rpc_port}",
+            f"--http.addr={config.l1_rpc_listen_addr}",
+            f"--http.port={config.l1_rpc_port}",
             "--http.api=web3,debug,eth,txpool,net,engine",
 
             # WebSocket JSON-RPC server config
             "--ws",
-            "--ws.addr=0.0.0.0",
-            f"--ws.port={cfg.ws_port}",
+            f"--ws.addr={config.l1_rpc_ws_listen_addr}",
+            f"--ws.port={config.l1_rpc_ws_port}",
             "--ws.origins=*",
             "--ws.api=debug,eth,txpool,net,engine",
 
             # Configuration for clique signing, clique itself is enabled via the genesis file
-            f"--unlock={cfg.signer_address}",
+            f"--unlock={config.l1_signer_account}",
             "--mine",
-            f"--miner.etherbase={cfg.signer_address}",
-            f"--password={cfg.data_dir}/password",
+            f"--miner.etherbase={config.l1_signer_account}",
+            f"--password={config.l1_password_path}",
             "--allow-insecure-unlock",
 
             # Authenticated RPC config
             # TODO Do we use or need this for the devnet?
             #      I think it's only for connection to a consensus client, or between op-node and
             #      the L2 execution engine.
-            "--authrpc.addr=0.0.0.0",
-            "--authrpc.port=8551",
+            f"--authrpc.addr={config.l1_authrpc_listen_addr}",
+            f"--authrpc.port={config.l1_authrpc_port}",
             "--authrpc.vhosts=*",
-            f"--authrpc.jwtsecret={cfg.jwt_secret_path}",
+            f"--authrpc.jwtsecret={config.jwt_secret_path}",
 
             # Configuration for the metrics server (we currently don't use this)
             "--metrics",
@@ -224,7 +172,7 @@ def start_devnet_l1_node(config: L2Config):
             "--metrics.port=6060"
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
-    lib.wait_for_rpc_server("127.0.0.1", cfg.rpc_port)
+    lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_port)
 
 
 ####################################################################################################
