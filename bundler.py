@@ -67,20 +67,14 @@ def setup_4337_contracts(config: L2Config):
         )
         # set private key for deployment
         if config.deployer_key is None:
-            priv_key = input("Enter private key that you would like to deploy contracts with: ")
-            config.deployer_key = priv_key
-        else:
-            priv_key = config.deployer_key
-        lib.run("set deployment key", f"echo PRIVATE_KEY={priv_key} > account-abstraction/.env")
+            config.deployer_key = input("Enter private key that you would like to deploy contracts with: ")
+        lib.run("set deployment key", f"echo PRIVATE_KEY={config.deployer_key} > account-abstraction/.env")
         # set private key for paymaster
         if config.paymaster_key is None:
-            paymaster_key = input("Enter private key for paymaster signer: ")
-            config.paymaster_key = paymaster_key
-        else:
-            paymaster_key = config.paymaster_key
+            config.paymaster_key = input("Enter private key for paymaster signer: ")
         lib.run(
             "set paymaster key",
-            f"echo PAYMASTER_PRIVATE_KEY={paymaster_key} >> account-abstraction/.env"
+            f"echo PAYMASTER_PRIVATE_KEY={config.paymaster_key} >> account-abstraction/.env"
         )
         # set rpc url for deployment
         lib.run("set rpc url", f"echo RPC_URL={config.l2_engine_rpc} >> account-abstraction/.env")
@@ -108,11 +102,8 @@ def setup_stackup_bundler(config: L2Config):
         f"echo ERC4337_BUNDLER_ETH_CLIENT_URL={config.l2_engine_rpc} > .env"
     )
     if config.bundler_key is None:
-        priv_key = input("Enter private key for bundler: ")
-        config.bundler_key = priv_key
-    else:
-        priv_key = config.bundler_key
-    lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={priv_key} >> .env")
+        config.bundler_key = input("Enter private key for bundler: ")
+    lib.run("set private key", f"echo ERC4337_BUNDLER_PRIVATE_KEY={config.bundler_key} >> .env")
 
     # start bundler as a persistent process
     print("Starting bundler...")
