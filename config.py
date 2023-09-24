@@ -698,6 +698,8 @@ class Config:
 
         self.proposer_poll_interval = 1
         self.proposer_num_confirmations = 1
+
+        # Will not work if this is false. Why?
         self.allow_non_finalized = True
 
         #  === Batcher ===
