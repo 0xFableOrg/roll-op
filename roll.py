@@ -139,7 +139,7 @@ def load_config() -> Config:
     deployment_name = deployment_name if deployment_name else lib.args.preset
     deployment_name = deployment_name if deployment_name else "rollup"
 
-    paths = OPPaths(gen_dir=os.path.join("deployments", f".{deployment_name}"))
+    paths = OPPaths(gen_dir=os.path.join("deployments", f"{deployment_name}"))
 
     # Define config preset
     if lib.args.preset is None or lib.args.preset == "devnet":
