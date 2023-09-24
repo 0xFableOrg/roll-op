@@ -382,13 +382,19 @@ class L2Config:
 
         self.deployer_key = None
         """
-        Private key to use for deploying 4337 contracts and paymaster signature (None by default).
+        Private key to use for deploying 4337 contracts (None by default).
         Will be used if set, otherwise will prompt users to enter private key.
         """
 
         self.bundler_key = None
         """
         Private key to use for submitting bundled transactions (None by default).
+        Will be used if set, otherwise will prompt users to enter private key.
+        """
+
+        self.paymaster_key = None
+        """
+        Private key as paymaster signer (None by default).
         Will be used if set, otherwise will prompt users to enter private key.
         """
 
