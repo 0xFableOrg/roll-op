@@ -69,7 +69,7 @@ def start(config: L2Config, paths: OPPaths):
             # p2p network config, avoid conflicts with L1 geth nodes
             f"--port={config.l2_engine_p2p_port}",
 
-            "--rpc.allow-unprotected-txs",
+            "--rpc.allow-unprotected-txs", # allow legacy transactions for deterministic deployment
 
             # HTTP JSON-RPC server config
             "--http",
