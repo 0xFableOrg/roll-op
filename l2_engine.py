@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 
-from config import L2Config, L2_EXECUTION_DATA_DIR
+from config import L2Config
 from processes import PROCESS_MGR
 
 import libroll as lib
@@ -109,13 +109,13 @@ def start(config: L2Config):
 
 ####################################################################################################
 
-def clean():
+def clean(config: L2Config):
     """
     Cleans up build outputs, such that trying to deploy the L2 execution engine (op-geth) will
     proceed as though it was the first invocation.
     """
-    if os.path.exists(L2_EXECUTION_DATA_DIR):
-        print(f"Cleaning up {L2_EXECUTION_DATA_DIR}")
-        shutil.rmtree(L2_EXECUTION_DATA_DIR, ignore_errors=True)
+    if os.path.exists(config.l2_engine_data_dir):
+        print(f"Cleaning up {config.l2_engine_data_dir}")
+        shutil.rmtree(config.l2_engine_data_dir, ignore_errors=True)
 
 ####################################################################################################
