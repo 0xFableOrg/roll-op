@@ -217,15 +217,12 @@ def deploy_l1_contracts(config: L2Config):
            "DEPLOYMENT_CONTEXT": config.deployment_name,
            "ETH_RPC_URL": config.l1_rpc}
 
-    # TODO remove this
-    gas_multiplier = 130  # default value
-
     log_file = "logs/deploy_l1_contracts.log"
     print(f"Deploying contracts to L1. Logging to {log_file}")
     lib.run_roll_log(
         "deploy contracts",
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
-        f"--gas-estimate-multiplier {gas_multiplier} "
+        f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
         f"--rpc-url {config.l1_rpc} --broadcast",
         cwd=config.paths.contracts_dir,
         env=env,
@@ -236,7 +233,9 @@ def deploy_l1_contracts(config: L2Config):
     lib.run_roll_log(
         "create L1 deployment artifacts",
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
-        f"--gas-estimate-multiplier {gas_multiplier} "
+        # Note: this is probably not required since we do not actually deploy anything here,
+        # but I figure it doesn't hurt?
+        f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
         f"--sig 'sync()' --rpc-url {config.l1_rpc} --broadcast",
         cwd=config.paths.contracts_dir,
         env=env,

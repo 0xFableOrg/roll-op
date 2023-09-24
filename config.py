@@ -179,6 +179,15 @@ class L2Config:
         """
 
         # ==========================================================================================
+        # Deployment
+
+        self.l1_deployment_gas_multiplier = 130
+        """
+        Percent-based multiplier to gas estimations during contract deployment on L1 (130 by
+        default, which is the Foundry default).
+        """
+
+        # ==========================================================================================
         # Governance
 
         self.enable_governance = False
