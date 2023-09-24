@@ -163,23 +163,28 @@ if __name__ == "__main__":
             exit()
 
         deps.basic_setup()
-        deps.check_basic_prerequisites()
 
         if lib.args.command == "setup":
             setup()
+            exit(0)
 
-        name = lib.args.name
-        name = name if name else lib.args.preset
-        name = name if name else "rollup"
+        # Define deployment name
+        deployment_name = lib.args.name
+        deployment_name = deployment_name if deployment_name else lib.args.preset
+        deployment_name = deployment_name if deployment_name else "rollup"
 
-        paths = OPPaths(gen_dir=os.path.join("deployments", f".{name}"))
+        paths = OPPaths(gen_dir=os.path.join("deployments", f".{deployment_name}"))
         config = None
+
+        # Define config preset
         if lib.args.preset is None or lib.args.preset == "devnet":
             config = devnet_config(paths)
         elif lib.args.preset == "production":
             config = production_config(paths)
+        else:
+            raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'devnet', 'production'.")
 
-        config.deployment_name = name
+        config.deployment_name = deployment_name
 
         # Parse config file if specified
         if lib.args.config_path:

@@ -29,6 +29,8 @@ def basic_setup():
             "This may cause it to not handle ANSI escape codes well.\n"
             "You can disable them with --no-ansi-esc\n")
 
+    _check_basic_prerequisites()
+
 
 ####################################################################################################
 
@@ -41,7 +43,7 @@ def setup_python_deps():
 
 ####################################################################################################
 
-def check_basic_prerequisites():
+def _check_basic_prerequisites():
     """
     check basic prerequisites that we won't offer to install.
     """
