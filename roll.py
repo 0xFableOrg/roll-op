@@ -7,9 +7,8 @@ invoking the appropriate commands.
 
 import argparse
 import os
-import shutil
-import subprocess
 
+import block_explorer
 import deps
 import l1
 import l2
@@ -18,7 +17,7 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
-from config import devnet_config, production_config
+from config import devnet_config, production_config, L2Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 from setup import setup
@@ -130,32 +129,83 @@ parser.add_argument(
 
 ####################################################################################################
 
-def launch_blockscout():
+def load_config() -> L2Config:
     """
-    Launch the blockscout block explorer.
+    Uses the program arguments (found at `lib.args`) to create and populate a :py:class:`L2Config`
+    object.
     """
-    # Remove old volumes
-    shutil.rmtree(
-        "blockscout/docker-compose/services/blockscout-db-data", ignore_errors=True)
-    shutil.rmtree(
-        "blockscout/docker-compose/services/redis-data", ignore_errors=True)
 
-    log_file_name = "logs/launch_blockscout.log"
-    log_file = open(log_file_name, "w")
-    print(f"Launching the blockscout block explorer. Logging to {log_file_name}\n"
-          "Explorer available at localhost:4000 in a little bit.")
+    deployment_name = lib.args.name
+    deployment_name = deployment_name if deployment_name else lib.args.preset
+    deployment_name = deployment_name if deployment_name else "rollup"
 
-    PROCESS_MGR.start(
-        "spin up block explorer",
-        "DOCKER_TAG=5.1.0 docker compose -f "
-        "docker-compose-no-build-hardhat-network.yml up",
-        cwd="blockscout/docker-compose",
-        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+    paths = OPPaths(gen_dir=os.path.join("deployments", f".{deployment_name}"))
+
+    # Define config preset
+    if lib.args.preset is None or lib.args.preset == "devnet":
+        config = devnet_config(paths)
+    elif lib.args.preset == "production":
+        config = production_config(paths)
+    else:
+        raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'devnet', 'production'.")
+
+    config.deployment_name = deployment_name
+
+    # Parse config file if specified
+    if lib.args.config_path:
+        try:
+            import tomli
+        except Exception:
+            raise Exception(
+                "Missing dependencies. Try running python roll.py setup first.")
+        if os.path.exists(lib.args.config_path):
+            with open(lib.args.config_path, mode="rb") as f:
+                devnet_config_file = tomli.load(f)
+        else:
+            raise Exception(f"Cannot find config file at {lib.args.config_path}")
+
+        try:
+            config.l1_chain_id = devnet_config_file["l1_chain_id"]
+            config.l2_chain_id = devnet_config_file["l2_chain_id"]
+            config.l1_rpc = devnet_config_file["l1_rpc"]
+            config.contract_deployer_key = devnet_config_file["deployer_key"]
+            config.batcher_account = devnet_config_file["batcher_account"]
+            config.batcher_key = devnet_config_file["batcher_key"]
+            config.proposer_account = devnet_config_file["proposer_account"]
+            config.proposer_key = devnet_config_file["proposer_key"]
+            config.admin_account = devnet_config_file["admin_account"]
+            config.admin_key = devnet_config_file["admin_key"]
+            config.p2p_sequencer_account = devnet_config_file["p2p_sequencer_account"]
+            config.p2p_sequencer_key = devnet_config_file["p2p_sequencer_key"]
+
+            if devnet_config_file.get("batching_inbox_address") is not None:
+                config.batching_inbox_address = devnet_config_file["batching_inbox_address"]
+            else:
+                # Derive a unique batch inbox address from the chain id.
+                addr = "0xff69000000000000000000000000000000000000"
+                str_id = str(config.l2_chain_id)
+                config.batching_inbox_address = addr[:-len(str_id)] + str_id
+
+        except KeyError as e:
+            raise Exception(f"Missing config file value: {e}")
+
+    if lib.args.explorer:
+        # Invert defaults, because it was hard to make blockscout work if the L2 engine wasn't
+        # on the 8545 port.
+        if config.l1_rpc == "http://127.0.0.1:8545":
+            config.l1_rpc = "http://127.0.0.1:9545"
+            config.l1_rpc_port = 9545
+        config.l2_engine_rpc = "http://127.0.0.1:8545"
+        config.l2_engine_rpc_port = 8545
+
+    config.validate()
+
+    return config
 
 
 ####################################################################################################
 
-if __name__ == "__main__":
+def main():
     lib.args = parser.parse_args()
     try:
         if lib.args.command is None:
@@ -163,145 +213,77 @@ if __name__ == "__main__":
             exit()
 
         deps.basic_setup()
+        config = load_config()
 
         if lib.args.command == "setup":
-            setup()
-            exit(0)
+            setup(config)
 
-        # Define deployment name
-        deployment_name = lib.args.name
-        deployment_name = deployment_name if deployment_name else lib.args.preset
-        deployment_name = deployment_name if deployment_name else "rollup"
-
-        paths = OPPaths(gen_dir=os.path.join("deployments", f".{deployment_name}"))
-        config = None
-
-        # Define config preset
-        if lib.args.preset is None or lib.args.preset == "devnet":
-            config = devnet_config(paths)
-        elif lib.args.preset == "production":
-            config = production_config(paths)
-        else:
-            raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'devnet', 'production'.")
-
-        config.deployment_name = deployment_name
-
-        # Parse config file if specified
-        if lib.args.config_path:
-            try:
-                import tomli
-            except Exception:
-                raise Exception(
-                    "Missing dependencies. Try running python roll.py setup first.")
-            if os.path.exists(lib.args.config_path):
-                with open(lib.args.config_path, mode="rb") as f:
-                    devnet_config_file = tomli.load(f)
-            else:
-                raise Exception(f"Cannot find config file at {lib.args.config_path}")
-
-            try:
-                config.l1_chain_id = devnet_config_file["l1_chain_id"]
-                config.l2_chain_id = devnet_config_file["l2_chain_id"]
-                config.l1_rpc = devnet_config_file["l1_rpc"]
-                config.contract_deployer_key = devnet_config_file["deployer_key"]
-                config.batcher_account = devnet_config_file["batcher_account"]
-                config.batcher_key = devnet_config_file["batcher_key"]
-                config.proposer_account = devnet_config_file["proposer_account"]
-                config.proposer_key = devnet_config_file["proposer_key"]
-                config.admin_account = devnet_config_file["admin_account"]
-                config.admin_key = devnet_config_file["admin_key"]
-                config.p2p_sequencer_account = devnet_config_file["p2p_sequencer_account"]
-                config.p2p_sequencer_key = devnet_config_file["p2p_sequencer_key"]
-
-                if devnet_config_file.get("batching_inbox_address") is not None:
-                    config.batching_inbox_address = devnet_config_file["batching_inbox_address"]
-                else:
-                    # Derive a unique batch inbox address from the chain id.
-                    addr = "0xff69000000000000000000000000000000000000"
-                    str_id = str(config.l2_chain_id)
-                    config.batching_inbox_address = addr[:-len(str_id)] + str_id
-
-            except KeyError as e:
-                raise Exception(f"Missing config file value: {e}")
-
-        if lib.args.explorer:
-            # Invert defaults, because it was hard to make blockscout work if the L2 engine wasn't
-            # on the 8545 port.
-            if config.l1_rpc == "http://127.0.0.1:8545":
-                config.l1_rpc = "http://127.0.0.1:9545"
-                config.l1_rpc_port = 9545
-            config.l2_engine_rpc = "http://127.0.0.1:8545"
-            config.l2_engine_rpc_port = 8545
-
-        config.validate()
-        os.makedirs(paths.gen_dir, exist_ok=True)
-
-        if lib.args.command == "devnet":
+        elif lib.args.command == "devnet":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
 
             if config.deploy_devnet_l1:
-                l1.deploy_devnet_l1(config, paths)
-            l2.deploy_and_start(config, paths)
+                l1.deploy_devnet_l1(config)
+            l2.deploy_and_start(config)
             if lib.args.explorer:
-                launch_blockscout()
+                block_explorer.launch_blockscout()
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "clean":
-            l1.clean(paths)
-            l2.clean(config, paths)
+        elif lib.args.command == "clean":
+            l1.clean(config.paths)
+            l2.clean(config)
 
-        if lib.args.command == "l1":
+        elif lib.args.command == "l1":
             deps.check_or_install_foundry()
             deps.check_or_install_geth()
 
-            l1.deploy_devnet_l1(config, paths)
+            l1.deploy_devnet_l1(config)
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "l2":
+        elif lib.args.command == "l2":
             deps.check_or_install_foundry()
 
-            l2.deploy_and_start(config, paths)
+            l2.deploy_and_start(config)
             if lib.args.explorer:
-                launch_blockscout()
+                block_explorer.launch_blockscout()
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "deploy-l2":
+        elif lib.args.command == "deploy-l2":
             deps.check_or_install_foundry()
 
-            l2.deploy(config, paths)
+            l2.deploy(config)
 
-        if lib.args.command == "start-l2":
-            config.deployments = lib.read_json_file(paths.addresses_json_path)
-            l2.start(config, paths)
+        elif lib.args.command == "start-l2":
+            config.deployments = lib.read_json_file(config.paths.addresses_json_path)
+            l2.start(config)
             if lib.args.explorer:
-                launch_blockscout()
+                block_explorer.launch_blockscout()
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "l2-engine":
-            l2_engine.start(config, paths)
+        elif lib.args.command == "l2-engine":
+            l2_engine.start(config)
             if lib.args.explorer:
-                launch_blockscout()
+                block_explorer.launch_blockscout()
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "l2-sequencer":
-            l2_node.start(config(paths), paths, sequencer=True)
+        elif lib.args.command == "l2-sequencer":
+            l2_node.start(config, sequencer=True)
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "l2-batcher":
+        elif lib.args.command == "l2-batcher":
             l2_batcher.start(config)
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "l2-proposer":
-            config.deployments = lib.read_json_file(paths.addresses_json_path)
+        elif lib.args.command == "l2-proposer":
+            config.deployments = lib.read_json_file(config.paths.addresses_json_path)
             l2_proposer.start(config)
             PROCESS_MGR.wait_all()
 
-        if lib.args.command == "clean-l1":
-            l1.clean(paths)
+        elif lib.args.command == "clean-l1":
+            l1.clean(config.paths)
 
-        if lib.args.command == "clean-l2":
-            l2.clean(config, paths)
+        elif lib.args.command == "clean-l2":
+            l2.clean(config)
 
         print("Done.")
     except KeyboardInterrupt:
@@ -312,6 +294,12 @@ if __name__ == "__main__":
             raise e
         else:
             print(f"Aborted with error: {e}")
+
+
+####################################################################################################
+
+if __name__ == "__main__":
+    main()
 
 
 ####################################################################################################

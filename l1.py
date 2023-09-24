@@ -23,15 +23,15 @@ DEVNET_L1_DATA_DIR = "db/devnetL1"
 
 ####################################################################################################
 
-def deploy_devnet_l1(config: L2Config, paths: OPPaths):
+def deploy_devnet_l1(config: L2Config):
     """
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
     generating the genesis file and config files, and deploying the L1 contracts.
     """
-    os.makedirs(paths.gen_dir, exist_ok=True)
+    os.makedirs(config.paths.gen_dir, exist_ok=True)
 
-    generate_devnet_l1_genesis(config, paths)
-    start_devnet_l1_node(config, paths)
+    generate_devnet_l1_genesis(config)
+    start_devnet_l1_node(config)
     print("Devnet L1 deployment is complete! L1 node is running.")
 
 
@@ -40,11 +40,11 @@ def deploy_devnet_l1(config: L2Config, paths: OPPaths):
 GENESIS_TMPL = {}
 
 
-def generate_devnet_l1_genesis(config: L2Config, paths: OPPaths):
+def generate_devnet_l1_genesis(config: L2Config):
     """
     Generate the L1 genesis file (simply copies the template).
     """
-    if os.path.exists(paths.l1_genesis_path):
+    if os.path.exists(config.paths.l1_genesis_path):
         print("L1 genesis already generated.")
     else:
         print("Generating L1 genesis.")
@@ -53,7 +53,7 @@ def generate_devnet_l1_genesis(config: L2Config, paths: OPPaths):
             with open("optimism/bedrock-devnet/devnet/genesis.py") as f:
                 exec(f.read(), globals(), globals())
             GENESIS_TMPL["config"]["chainId"] = config.l1_chain_id
-            lib.write_json_file(paths.l1_genesis_path, GENESIS_TMPL)
+            lib.write_json_file(config.paths.l1_genesis_path, GENESIS_TMPL)
         except Exception as err:
             raise lib.extend_exception(err, prefix="Failed to generate L1 genesis: ")
 
@@ -110,12 +110,12 @@ class DevnetL1Config:
 
 ####################################################################################################
 
-def start_devnet_l1_node(config: L2Config, paths: OPPaths):
+def start_devnet_l1_node(config: L2Config):
     """
     Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
     """
 
-    cfg = DevnetL1Config(config, DEVNET_L1_DATA_DIR, paths)
+    cfg = DevnetL1Config(config, DEVNET_L1_DATA_DIR, config.paths)
 
     # Make sure the port isn't occupied yet.
     # Necessary on MacOS that easily allows two processes to bind to the same port.
@@ -156,7 +156,7 @@ def start_devnet_l1_node(config: L2Config, paths: OPPaths):
              f"--verbosity={cfg.verbosity}",
              "init",
              f"--datadir={cfg.data_dir}",
-             paths.l1_genesis_path])
+             config.paths.l1_genesis_path])
 
     log_file_path = "logs/l1_node.log"
     print(f"Starting L1 node. Logging to {log_file_path}")

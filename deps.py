@@ -30,11 +30,12 @@ def basic_setup():
             "You can disable them with --no-ansi-esc\n")
 
     _check_basic_prerequisites()
+    _setup_python_deps()
 
 
 ####################################################################################################
 
-def setup_python_deps():
+def _setup_python_deps():
     """
     Install required Python dependencies.
     """
