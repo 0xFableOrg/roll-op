@@ -3,13 +3,12 @@ import sys
 
 from config import L2Config
 import libroll as lib
-from paths import OPPaths
 from processes import PROCESS_MGR
 
 
 ####################################################################################################
 
-def start(config: L2Config, paths: OPPaths, sequencer: bool = True):
+def start(config: L2Config, sequencer: bool = True):
     """
     Starts the OP node, which derives the L2 chain from the L1 chain & optionally creates new L2
     blocks, then waits for it to be reasy.
@@ -37,7 +36,7 @@ def start(config: L2Config, paths: OPPaths, sequencer: bool = True):
             f"--l2={config.l2_engine_authrpc}",
             f"--l2.jwt-secret={config.jwt_secret_path}",
             f"--verifier.l1-confs={config.verifier_l1_confs}",
-            f"--rollup.config={paths.rollup_config_path}",
+            f"--rollup.config={config.paths.rollup_config_path}",
 
             # Sequencer Options
 

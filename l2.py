@@ -18,29 +18,29 @@ from paths import OPPaths
 
 ####################################################################################################
 
-def deploy_and_start(config: L2Config, paths: OPPaths):
+def deploy_and_start(config: L2Config):
     """
     Deploys the rollup contracts to L1, create the L2 genesis then runs all components of the L2
     system (the L2 engine, the L2 node, the L2 batcher, and the L2 proposer).
     """
 
-    deploy(config, paths)
-    start(config, paths)
+    deploy(config)
+    start(config)
 
 
 ####################################################################################################
 
-def deploy(config: L2Config, paths: OPPaths):
+def deploy(config: L2Config):
     """
     Deploy the rollup by deploying the contracts to L1 then generating the genesis file, but do not
     start the software components.
     """
-    patch(paths)
-    os.makedirs(paths.gen_dir, exist_ok=True)
-    generate_deploy_config(config, paths)
-    deploy_l1_contracts(config, paths)
-    generate_l2_genesis(config, paths)
-    config.deployments = lib.read_json_file(paths.addresses_json_path)
+    patch(config.paths)
+    os.makedirs(config.paths.gen_dir, exist_ok=True)
+    generate_deploy_config(config)
+    deploy_l1_contracts(config)
+    generate_l2_genesis(config)
+    config.deployments = lib.read_json_file(config.paths.addresses_json_path)
 
     if config.deployments.get("L2OutputOracleProxy") is None:
         raise Exception(
@@ -52,14 +52,14 @@ def deploy(config: L2Config, paths: OPPaths):
 
 ####################################################################################################
 
-def start(config: L2Config, paths: OPPaths):
+def start(config: L2Config):
     """
     Starts all components of the the L2 system: the L2 engine, the L2 node, the L2 batcher, and the
     L2 proposer. This assumes the L2 contracts have already been deployed to L1 and that the L2
     genesis has already been generated.
     """
-    l2_engine.start(config, paths)
-    l2_node.start(config, paths, sequencer=True)
+    l2_engine.start(config)
+    l2_node.start(config, sequencer=True)
     l2_proposer.start(config)
     l2_batcher.start(config)
     print("All L2 components are running.")
@@ -91,7 +91,7 @@ def patch(paths: OPPaths):
 
 ####################################################################################################
 
-def generate_deploy_config(config: L2Config, paths: OPPaths):
+def generate_deploy_config(config: L2Config):
     """
     Generate the network configuration file. This records information about the L1 and the L2.
     """
@@ -100,7 +100,6 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     # Get base config, default is the devnet config, but can overriden to production config via
     # the --preset flag.
 
-    deploy_config = {}
     if lib.args.preset == "production":
         deploy_config = PRODUCTION_CONFIG.copy()
     else:
@@ -134,9 +133,9 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
     # TODO: why can't we do the same cast manipulation for the local L1?
     # TODO: l2OutputOracleStartingTimestamp ???
 
-    if os.path.isfile(paths.l1_genesis_path):
+    if os.path.isfile(config.paths.l1_genesis_path):
         deploy_config["l1StartingBlockTag"] = "earliest"
-        l1_genesis = lib.read_json_file(paths.l1_genesis_path)
+        l1_genesis = lib.read_json_file(config.paths.l1_genesis_path)
         deploy_config["l1GenesisBlockTimestamp"] = l1_genesis["timestamp"]
 
     else:
@@ -200,13 +199,13 @@ def generate_deploy_config(config: L2Config, paths: OPPaths):
 
 ####################################################################################################
 
-def deploy_l1_contracts(config: L2Config, paths: OPPaths):
+def deploy_l1_contracts(config: L2Config):
     """
     Deploy the L1 contracts to an L1.
     Currently assumes the L1 is a local devnet L1.
     """
 
-    if os.path.exists(paths.addresses_json_path):
+    if os.path.exists(config.paths.addresses_json_path):
         print("L1 contracts already deployed.")
         return
 
@@ -228,7 +227,7 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
         f"--gas-estimate-multiplier {gas_multiplier} "
         f"--rpc-url {config.l1_rpc} --broadcast",
-        cwd=paths.contracts_dir,
+        cwd=config.paths.contracts_dir,
         env=env,
         log_file=log_file)
 
@@ -239,7 +238,7 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
         f"forge script {deploy_script} --private-key {config.contract_deployer_key} "
         f"--gas-estimate-multiplier {gas_multiplier} "
         f"--sig 'sync()' --rpc-url {config.l1_rpc} --broadcast",
-        cwd=paths.contracts_dir,
+        cwd=config.paths.contracts_dir,
         env=env,
         log_file=log_file)
 
@@ -267,9 +266,9 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
             "L2OutputOracle": addresses["L2OutputOracleProxy"]
         }
 
-        lib.write_json_file(paths.addresses_json_path, addresses)
-        lib.write_json_file(paths.sdk_addresses_json_path, sdk_addresses)
-        print(f"Wrote L1 contract addresses to {paths.addresses_json_path}")
+        lib.write_json_file(config.paths.addresses_json_path, addresses)
+        lib.write_json_file(config.paths.sdk_addresses_json_path, sdk_addresses)
+        print(f"Wrote L1 contract addresses to {config.paths.addresses_json_path}")
 
     except Exception as err:
         raise lib.extend_exception(
@@ -278,11 +277,11 @@ def deploy_l1_contracts(config: L2Config, paths: OPPaths):
 
 ####################################################################################################
 
-def generate_l2_genesis(config: L2Config, paths: OPPaths):
+def generate_l2_genesis(config: L2Config):
     """
     Generate the L2 genesis file and rollup configs.
     """
-    if os.path.exists(paths.l2_genesis_path):
+    if os.path.exists(config.paths.l2_genesis_path):
         print("L2 genesis and rollup configs already generated.")
     else:
         print("Generating L2 genesis and rollup configs.")
@@ -293,9 +292,9 @@ def generate_l2_genesis(config: L2Config, paths: OPPaths):
                  f"--l1-rpc={config.l1_rpc}",
                  f"--deploy-config={config.deploy_config_path}",
                  f"--deployment-dir={config.deployments_dir}",
-                 f"--outfile.l2={paths.l2_genesis_path}",
-                 f"--outfile.rollup={paths.rollup_config_path}"],
-                cwd=paths.op_node_dir)
+                 f"--outfile.l2={config.paths.l2_genesis_path}",
+                 f"--outfile.rollup={config.paths.rollup_config_path}"],
+                cwd=config.paths.op_node_dir)
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ")
@@ -319,19 +318,19 @@ def generate_jwt_secret(config: L2Config):
 
 ####################################################################################################
 
-def clean(config: L2Config, paths: OPPaths):
+def clean(config: L2Config):
     """
     Cleans up build outputs, such that trying to deploy the L2 blockchain will proceed as though it
     was the first invocation.
     """
-    if os.path.exists(paths.gen_dir):
-        lib.debug(f"Cleaning up {paths.gen_dir}")
+    if os.path.exists(config.paths.gen_dir):
+        lib.debug(f"Cleaning up {config.paths.gen_dir}")
 
-    for file_path in pathlib.Path(paths.gen_dir).iterdir():
+    for file_path in pathlib.Path(config.paths.gen_dir).iterdir():
         if file_path.is_file() and file_path.name != "genesis-l1.json":
             os.remove(file_path)
 
-    l2_engine.clean(paths)
+    l2_engine.clean()
 
     lib.debug(f"Cleaning up {config.deployments_dir}")
     shutil.rmtree(config.deployments_dir, ignore_errors=True)

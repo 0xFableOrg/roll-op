@@ -4,7 +4,6 @@ import subprocess
 import sys
 
 from config import L2Config, L2_EXECUTION_DATA_DIR
-from paths import OPPaths
 from processes import PROCESS_MGR
 
 import libroll as lib
@@ -12,7 +11,7 @@ import libroll as lib
 
 ####################################################################################################
 
-def start(config: L2Config, paths: OPPaths):
+def start(config: L2Config):
     """
     Spin the L2 execution engine (op-geth), then wait for it to be ready.
     """
@@ -42,7 +41,7 @@ def start(config: L2Config, paths: OPPaths):
              f"--verbosity={config.l2_engine_verbosity}",
              "init",
              f"--datadir={config.l2_engine_data_dir}",
-             paths.l2_genesis_path])
+             config.paths.l2_genesis_path])
 
     log_file_path = "logs/l2_engine.log"
     print(f"Starting op-geth node. Logging to {log_file_path}")
@@ -69,7 +68,7 @@ def start(config: L2Config, paths: OPPaths):
             # p2p network config, avoid conflicts with L1 geth nodes
             f"--port={config.l2_engine_p2p_port}",
 
-            "--rpc.allow-unprotected-txs", # allow legacy transactions for deterministic deployment
+            "--rpc.allow-unprotected-txs",  # allow legacy transactions for deterministic deployment
 
             # HTTP JSON-RPC server config
             "--http",
@@ -110,7 +109,7 @@ def start(config: L2Config, paths: OPPaths):
 
 ####################################################################################################
 
-def clean(paths: OPPaths):
+def clean():
     """
     Cleans up build outputs, such that trying to deploy the L2 execution engine (op-geth) will
     proceed as though it was the first invocation.
