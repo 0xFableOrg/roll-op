@@ -1,14 +1,14 @@
 import subprocess
 import sys
 
-from config import L2Config
+from config import Config
 import libroll as lib
 from processes import PROCESS_MGR
 
 
 ####################################################################################################
 
-def start(config: L2Config, sequencer: bool = True):
+def start(config: Config, sequencer: bool = True):
     """
     Starts the OP node, which derives the L2 chain from the L1 chain & optionally creates new L2
     blocks, then waits for it to be reasy.

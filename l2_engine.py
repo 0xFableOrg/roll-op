@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 
-from config import L2Config
+from config import Config
 from processes import PROCESS_MGR
 
 import libroll as lib
@@ -11,7 +11,7 @@ import libroll as lib
 
 ####################################################################################################
 
-def start(config: L2Config):
+def start(config: Config):
     """
     Spin the L2 execution engine (op-geth), then wait for it to be ready.
     """
@@ -109,7 +109,7 @@ def start(config: L2Config):
 
 ####################################################################################################
 
-def clean(config: L2Config):
+def clean(config: Config):
     """
     Cleans up build outputs, such that trying to deploy the L2 execution engine (op-geth) will
     proceed as though it was the first invocation.

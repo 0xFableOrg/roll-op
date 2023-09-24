@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 import libroll as lib
-from config import L2Config
+from config import Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 
@@ -23,7 +23,7 @@ DEVNET_L1_DATA_DIR = "db/devnetL1"
 
 ####################################################################################################
 
-def deploy_devnet_l1(config: L2Config):
+def deploy_devnet_l1(config: Config):
     """
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
     generating the genesis file and config files, and deploying the L1 contracts.
@@ -40,7 +40,7 @@ def deploy_devnet_l1(config: L2Config):
 GENESIS_TMPL = {}
 
 
-def generate_devnet_l1_genesis(config: L2Config):
+def generate_devnet_l1_genesis(config: Config):
     """
     Generate the L1 genesis file (simply copies the template).
     """
@@ -60,7 +60,7 @@ def generate_devnet_l1_genesis(config: L2Config):
 
 ####################################################################################################
 
-def start_devnet_l1_node(config: L2Config):
+def start_devnet_l1_node(config: Config):
     """
     Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
     """

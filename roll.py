@@ -17,7 +17,7 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
-from config import devnet_config, production_config, L2Config
+from config import devnet_config, production_config, Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 from setup import setup
@@ -129,9 +129,9 @@ parser.add_argument(
 
 ####################################################################################################
 
-def load_config() -> L2Config:
+def load_config() -> Config:
     """
-    Uses the program arguments (found at `lib.args`) to create and populate a :py:class:`L2Config`
+    Uses the program arguments (found at `lib.args`) to create and populate a :py:class:`Config`
     object.
     """
 

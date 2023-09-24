@@ -10,12 +10,12 @@ import deps
 import libroll as lib
 import platform
 
-from config import L2Config
+from config import Config
 
 
 ####################################################################################################
 
-def setup(config: L2Config):
+def setup(config: Config):
     deps.check_go()
     deps.check_or_install_jq()
     deps.check_or_install_node()

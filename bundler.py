@@ -6,7 +6,7 @@ import os
 import libroll as lib
 import deps
 from processes import PROCESS_MGR
-from config import L2Config
+from config import Config
 
 ####################################################################################################
 # ARGUMENT PARSING
@@ -42,7 +42,7 @@ parser.add_argument(
 # SETUP
 
 def start():
-    config = L2Config()
+    config = Config()
     setup_4337_contracts(config)
     setup_stackup_bundler(config)
     setup_paymaster(config)
@@ -50,7 +50,7 @@ def start():
 
 # --------------------------------------------------------------------------------------------------
 
-def setup_4337_contracts(config: L2Config):
+def setup_4337_contracts(config: Config):
     github_url = "https://github.com/0xFableOrg/account-abstraction.git"
 
     if os.path.isfile("account-abstraction"):
@@ -89,7 +89,7 @@ def setup_4337_contracts(config: L2Config):
         print("Account abstraction contracts already deployed.")
 
 
-def setup_stackup_bundler(config: L2Config):
+def setup_stackup_bundler(config: Config):
     github_url = "github.com/stackup-wallet/stackup-bundler"
     version = "latest"
 
@@ -122,7 +122,7 @@ def setup_stackup_bundler(config: L2Config):
     print("Bundler is running!")
 
 
-def setup_paymaster(config: L2Config):
+def setup_paymaster(config: Config):
     # install paymaster dependencies
     lib.run_roll_log(
         "install paymaster dependencies",

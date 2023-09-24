@@ -32,7 +32,7 @@ from paths import OPPaths
 # - L2 batcher RPC: 8548 (admin_ namespace)
 
 
-class L2Config:
+class Config:
 
     def __init__(self, paths: OPPaths = None):
 
@@ -801,7 +801,7 @@ def devnet_config(paths: OPPaths):
     """
     Get a full devnet configuration.
     """
-    config = L2Config(paths)
+    config = Config(paths)
     config.use_devnet_config(paths)
     return config
 
@@ -812,7 +812,7 @@ def op_doc_config(paths: OPPaths):
     """
     Get a full devnet configuration.
     """
-    config = L2Config(paths)
+    config = Config(paths)
     config.use_op_doc_config()
     return config
 
@@ -823,7 +823,7 @@ def production_config(paths: OPPaths):
     """
     Get a full production configuration.
     """
-    config = L2Config(paths)
+    config = Config(paths)
     config.use_production_config()
     return config
 
