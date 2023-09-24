@@ -31,12 +31,16 @@ The following dependencies will be checked by `roll.py`:
 `roll.py` will check the following dependencies and install them for you if needed (the script will
 always for your permission before installing anything outside the current directory):
 
+- [Tomli Python Lib](https://pypi.org/project/tomli/)
+    - Will be installed globally if you don't run the script in a venv.
+    - You can install locally (in a venv within the roll-op directory) by running
+      `source scripts/install.sh` before running `roll.py`.
 - Node.js 16.x
 - Yarn (`npm install -g yarn` — the old one, not yarn v3 aka yarn berry)
 - Geth > 1.12.0 (but only if you want to run a devnet L1 node)
 - The `jq` command line utility
 - Foundry
-- 
+
 ## Running
 
 ```bash

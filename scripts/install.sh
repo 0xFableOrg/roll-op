@@ -62,9 +62,7 @@ install_dev_dependencies() {
     fi
 }
 
-check_python_version
-
-if [ $? -eq 0 ]; then
+if check_python_version; then
     activate_venv
     install_dev_dependencies
 fi
