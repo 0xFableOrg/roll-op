@@ -71,7 +71,17 @@ def setup_4337_contracts(config: L2Config):
             config.deployer_key = priv_key
         else:
             priv_key = config.deployer_key
-        lib.run("set private key", f"echo PRIVATE_KEY={priv_key} > account-abstraction/.env")
+        lib.run("set deployment key", f"echo PRIVATE_KEY={priv_key} > account-abstraction/.env")
+        # set private key for paymaster
+        if config.paymaster_key is None:
+            paymaster_key = input("Enter private key for paymaster signer: ")
+            config.paymaster_key = paymaster_key
+        else:
+            paymaster_key = config.paymaster_key
+        lib.run(
+            "set paymaster key",
+            f"echo PAYMASTER_PRIVATE_KEY={paymaster_key} >> account-abstraction/.env"
+        )
         # set rpc url for deployment
         lib.run("set rpc url", f"echo RPC_URL={config.l2_engine_rpc} >> account-abstraction/.env")
         log_file = "logs/deploy_4337_contracts.log"
@@ -155,12 +165,7 @@ def setup_paymaster(config: L2Config):
         f"echo TIME_VALIDITY={config.paymaster_validity} >> paymaster/.env"
     )
     # set private key for paymaster
-    if config.deployer_key is None:
-        priv_key = input("Enter private key for paymaster signer: ")
-        config.deployer_key = priv_key
-    else:
-        priv_key = config.deployer_key
-    lib.run("set private key", f"echo PRIVATE_KEY={priv_key} >> paymaster/.env")
+    lib.run("set private key", f"echo PRIVATE_KEY={config.paymaster_key} >> paymaster/.env")
 
     # start paymaster signer service
     print("Starting paymaster signer service...")
