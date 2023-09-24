@@ -65,7 +65,8 @@ def is_well_known_term():
     handle ANSI escapes.
     """
     term = os.getenv("TERM")
-    return term in ["xterm", "linux", "vt100", "vt220", "xterm-color", "xterm-256color"]
+    return term in ["xterm", "linux", "vt100", "vt220", "xterm-color", "xterm-256color", "tmux",
+                    "tmux256-color", "screen", "screen-256color"]
 
 
 ####################################################################################################
