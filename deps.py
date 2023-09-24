@@ -2,6 +2,7 @@
 This module exposes functions to check the presence, and sometimes install op-stack dependencies.
 """
 
+import importlib.util
 import os
 import re
 import shutil
@@ -39,9 +40,7 @@ def _setup_python_deps():
     """
     Install required Python dependencies.
     """
-    try:
-        import tomli
-    except ModuleNotFoundError:
+    if importlib.util.find_spec("tomli") is None:
         if lib.ask_yes_no("The Tomli python library is required. Install?\n"
                           "This will install globally if not running in a venv (see README.md)."):
             lib.run("install Tomli",
