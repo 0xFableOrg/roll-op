@@ -17,12 +17,6 @@ from processes import PROCESS_MGR
 
 ####################################################################################################
 
-DEVNET_L1_DATA_DIR = "db/devnetL1"
-"""Directory to store the devnet L1 blockchain data."""
-
-
-####################################################################################################
-
 def deploy_devnet_l1(config: Config):
     """
     Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
@@ -69,7 +63,7 @@ def start_devnet_l1_node(config: Config):
         "L1 node", config.l1_rpc_listen_addr, config.l1_rpc_listen_port)
 
     # Create geth db if it doesn't exist.
-    os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
+    os.makedirs(config.l1_data_dir, exist_ok=True)
 
     if not os.path.exists(config.l1_keystore_dir):
         # Initial account setup
@@ -170,17 +164,17 @@ def start_devnet_l1_node(config: Config):
 
 ####################################################################################################
 
-def clean(paths: OPPaths):
+def clean(config: Config):
     """
     Cleans up build outputs, such that trying to deploy the devnet L1 node will proceed as though it
     was the first invocation.
     """
-    if os.path.exists(paths.gen_dir):
-        path = os.path.join(paths.gen_dir, "genesis-l1.json")
+    if os.path.exists(config.paths.gen_dir):
+        path = os.path.join(config.paths.gen_dir, "genesis-l1.json")
         pathlib.Path(path).unlink(missing_ok=True)
 
-    if os.path.exists(DEVNET_L1_DATA_DIR):
-        print(f"Cleaning up {DEVNET_L1_DATA_DIR}")
-        shutil.rmtree(DEVNET_L1_DATA_DIR, ignore_errors=True)
+    if os.path.exists(config.l1_data_dir):
+        print(f"Cleaning up {config.l1_data_dir}")
+        shutil.rmtree(config.l1_data_dir, ignore_errors=True)
 
 ####################################################################################################

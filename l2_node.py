@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -37,9 +38,9 @@ def start(config: Config, sequencer: bool = True):
             # f"--l1={config.l1_rpc_for_node}",
             f"--l1={config.l1_rpc}",
             f"--l2={config.l2_engine_authrpc}",
-            f"--l2.jwt-secret={config.jwt_secret_path}",
+            f"--l2.jwt-secret={os.path.join('..', config.jwt_secret_path)}",
             f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
-            f"--rollup.config={config.paths.rollup_config_path}",
+            f"--rollup.config={os.path.join('..', config.paths.rollup_config_path)}",
             f"--l1.rpckind={config.l2_node_l1_rpc_kind}",
 
             # Sequencer Options
@@ -76,7 +77,10 @@ def start(config: Config, sequencer: bool = True):
                 f"--metrics.port={config.l2_node_metrics_listen_port}",
                 f"--metrics.addr={config.l2_node_metrics_listen_addr}"]),
         ],
-        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+        cwd=config.db_path,  # so that `opnode_*_db` directories get created under the db directory
+        forward="fd",
+        stdout=log_file,
+        stderr=subprocess.STDOUT)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_node_rpc_listen_port)
 
