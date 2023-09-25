@@ -15,7 +15,7 @@ def start(config: Config, sequencer: bool = True):
     """
 
     lib.ensure_port_unoccupied(
-        "L2 node", config.node_rpc_listen_addr, config.node_rpc_listen_port)
+        "L2 node", config.l2_node_rpc_listen_addr, config.l2_node_rpc_listen_port)
 
     log_file_path = "logs/l2_node.log"
     print(f"Starting L2 node. Logging to {log_file_path}")
@@ -38,29 +38,29 @@ def start(config: Config, sequencer: bool = True):
             f"--l1={config.l1_rpc}",
             f"--l2={config.l2_engine_authrpc}",
             f"--l2.jwt-secret={config.jwt_secret_path}",
-            f"--verifier.l1-confs={config.verifier_l1_confs}",
+            f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
             f"--rollup.config={config.paths.rollup_config_path}",
 
             # Sequencer Options
 
             *([] if not sequencer else [
                 "--sequencer.enabled",
-                f"--sequencer.l1-confs={config.sequencer_l1_confs}",
+                f"--sequencer.l1-confs={config.l2_node_sequencer_l1_confs}",
             ]),
 
             # RPC Options
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
 
-            f"--rpc.addr={config.node_rpc_listen_addr}",
-            f"--rpc.port={config.node_rpc_listen_port}",
+            f"--rpc.addr={config.l2_node_rpc_listen_addr}",
+            f"--rpc.port={config.l2_node_rpc_listen_port}",
 
             # P2P Flags
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/p2p_flags.go
 
-            *(["--p2p.disable"] if not config.p2p_enabled else [
-                f"--p2p.listen.ip={config.p2p_listen_addr}",
-                f"--p2p.listen.tcp={config.p2p_tcp_listen_port}",
-                f"--p2p.listen.udp={config.p2p_udp_listen_port}",
+            *(["--p2p.disable"] if not config.l2_node_p2p_enabled else [
+                f"--p2p.listen.ip={config.l2_node_p2p_listen_addr}",
+                f"--p2p.listen.tcp={config.l2_node_p2p_tcp_listen_port}",
+                f"--p2p.listen.udp={config.l2_node_p2p_udp_listen_port}",
                 f"--p2p.priv.path={config.p2p_peer_key_path}",
                 *([] if config.p2p_sequencer_key is None else [
                     f"--p2p.sequencer.key={config.p2p_sequencer_key}"
@@ -72,11 +72,11 @@ def start(config: Config, sequencer: bool = True):
 
             *([] if not config.proposer_metrics else [
                 "--metrics.enabled",
-                f"--metrics.port={config.node_metrics_listen_port}",
-                f"--metrics.addr={config.node_metrics_listen_addr}"]),
+                f"--metrics.port={config.l2_node_metrics_listen_port}",
+                f"--metrics.addr={config.l2_node_metrics_listen_addr}"]),
         ],
         forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
-    lib.wait_for_rpc_server("127.0.0.1", config.node_rpc_listen_port)
+    lib.wait_for_rpc_server("127.0.0.1", config.l2_node_rpc_listen_port)
 
 ####################################################################################################
