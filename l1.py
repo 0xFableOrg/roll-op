@@ -158,13 +158,14 @@ def start_devnet_l1_node(config: Config):
             "--allow-insecure-unlock",
 
             # Authenticated RPC config
-            # TODO Do we use or need this for the devnet?
-            #      I think it's only for connection to a consensus client, or between op-node and
-            #      the L2 execution engine.
             f"--authrpc.addr={config.l1_authrpc_listen_addr}",
             f"--authrpc.port={config.l1_authrpc_port}",
-            "--authrpc.vhosts=*",
-            f"--authrpc.jwtsecret={config.jwt_secret_path}",
+            # NOTE: The Optimism monorepo accepts connections from any host, and specifies the JWT
+            # secret to be the same used on L2. We don't see any reason to do that (we never use
+            # authenticated RPC), so we restrict access to localhost only (authrpc can't be turned
+            # off), and don't specify the JWT secret (`--authrpc.jwtsecret=jwt_secret_path`) which
+            # causes a random secret to be created in `config.l1_data_dir/geth/jwtsecret`.
+            "--authrpc.vhosts=127.0.0.1",
 
             # Configuration for the metrics server (we currently don't use this)
             "--metrics",
