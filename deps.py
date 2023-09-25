@@ -22,7 +22,7 @@ def basic_setup():
     os.makedirs("logs", exist_ok=True)
     os.makedirs("bin", exist_ok=True)
 
-    lib.append_to_path("bin")
+    lib.prepend_to_path("bin")
 
     if lib.args.use_ansi_esc and not term.is_well_known_term():
         print(
@@ -263,7 +263,7 @@ def check_or_install_foundry():
 
     # Doing this here, even if Foundry might already be in path, covers the edge case where we
     # installed Foundry in a previous run of the tool, but the user didn't restart their shell.
-    lib.append_to_path(os.path.expanduser("~/.foundry/bin"))
+    lib.prepend_to_path(os.path.expanduser("~/.foundry/bin"))
 
     if shutil.which("forge") is not None:
         if check_forge_version():

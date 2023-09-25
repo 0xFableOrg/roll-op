@@ -312,11 +312,11 @@ def chmodx(file_path: str):
 
 ####################################################################################################
 
-def append_to_path(path: str):
+def prepend_to_path(path: str):
     """
-    Adds an absolute version of `path` to the end of the `PATH` environment variable.
+    Adds an absolute version of `path` to the start of the `PATH` environment variable.
     """
-    os.environ["PATH"] = f"{os.environ['PATH']}{os.pathsep}{os.path.abspath(path)}"
+    os.environ["PATH"] = f"{os.path.abspath(path)}{os.pathsep}{os.environ['PATH']}"
 
 
 ####################################################################################################
