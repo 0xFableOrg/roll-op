@@ -16,7 +16,7 @@ from config import Config
 ####################################################################################################
 
 def setup(config: Config):
-    deps.check_go()
+    deps.check_or_install_go()
     deps.check_or_install_jq()
     deps.check_or_install_node()
     deps.check_or_install_yarn()

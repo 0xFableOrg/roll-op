@@ -4,10 +4,10 @@ This module exposes functions to check the presence, and sometimes install op-st
 
 import importlib.util
 import os
+import platform
 import re
 import shutil
 import sys
-import subprocess
 
 import libroll as lib
 import term
@@ -33,6 +33,20 @@ def basic_setup():
     _check_basic_prerequisites()
     _setup_python_deps()
 
+
+def post_setup():
+    """
+    Does some setup, but is dependent on the dependencies installed by :py:func:`setup.setup`, so
+    cannot be rolled into :py:func:`basic_setup`.
+    """
+
+    # If bin/go exists (and is thus used), we don't want to use GOROOT.
+    if os.path.isfile("bin/go"):
+        os.environ.pop("GOROOT", None)  # works if GOROOT isn't set
+
+    # make sure that GOPATH is set in PATH (this is needed for 4337 bundler)
+    gopath = lib.run("get GOPATH", "go env GOPATH")
+    lib.prepend_to_path(gopath)
 
 ####################################################################################################
 
@@ -87,26 +101,74 @@ def _check_basic_prerequisites():
 
 ####################################################################################################
 
-GO_VERSION = "1.19"
+GO_MIN_VERSION = "1.19"
 """Minimum Go version required by the Optimism repository."""
 
+GO_MAX_VERSION = "1.20.8"
+"""Maximum Go version found to work."""
 
-def check_go():
+GO_INSTALL_VERSION = "1.20.8"
+"""Version of Go to install if not found."""
+
+
+def check_or_install_go():
     if shutil.which("go") is None:
-        raise Exception(
-            f"go is not installed. Please install Go version {GO_VERSION} or higher.")
-    elif lib.run("get go version", "go version") < GO_VERSION:
-        raise Exception(
-            f"Go version is too low. Please update to Go **version {GO_VERSION}** or higher.\n"
-            "Go is backwards compatible, so your old project will continue to build.")
+        if not install_go():
+            raise Exception(
+                f"go is not installed. Please install Go version {GO_MIN_VERSION} or higher.")
+    else:
+        version = lib.run("get go version", "go version")
+        version = re.search(r"go version go(\d+\.\d+\.\d+)", version).group(1)
+        print(version)
+        if version < GO_MIN_VERSION and not install_go():
+            raise Exception(
+                f"Go version is too low. "
+                "Please update to Go **version {GO_MIN_VERSION}** or higher.\n"
+                "Go is backwards compatible, so your old projects will continue to build.")
+        if version > GO_MAX_VERSION and not install_go():
+            raise Exception(
+                f"Go version is too high. "
+                f"Please use to Go version {GO_MIN_VERSION} to {GO_MAX_VERSION}.\n",
+                "(Or let us install a local Go!)")
 
-    # make sure that GOPATH is set in PATH (this is needed for 4337 bundler)
-    current_path = os.environ.get("PATH", "")
-    gopath = subprocess.check_output(["go", "env", "GOPATH"]).decode().strip()
-    # append the bin directory of GOPATH to PATH
-    new_path = f"{gopath}/bin:{current_path}"
-    os.environ["PATH"] = new_path
 
+def install_go() -> bool:
+    """
+    Installs Go in ./bin.
+    """
+
+    if not lib.ask_yes_no(
+            f"Go >= {GO_MIN_VERSION} is required. "
+            f"Install Go {GO_INSTALL_VERSION} in ./bin?"):
+        return False
+
+    os.makedirs("bin", exist_ok=True)
+
+    if sys.platform not in ("linux", "darwin"):
+        raise Exception(
+            f"Unsupported OS for automatic go installation: {sys.platform}.\n"
+            "Please install go manually, make sure it is executable and in $PATH or in ./bin/")
+
+    machine = platform.machine().lower()
+    if machine not in ("amd64", "arm64"):
+        raise Exception(
+            f"Unsupported architecture for automatic go installation: {machine}.\n"
+            "Please install go manually, make sure it is executable and in $PATH or in ./bin/")
+
+    try:
+        print(f"Downloading go {GO_INSTALL_VERSION} ...")
+        os.makedirs("bin/go_install", exist_ok=True)
+        descr = "install go"
+        url = f"https://go.dev/dl/go{GO_INSTALL_VERSION}.{sys.platform}-{machine}.tar.gz"
+        lib.run(descr, f"curl -L {url}  | tar xz -C bin/go_install --strip-components=1")
+        lib.run("symlink go to bin/go", "ln -sf go_install/bin/go bin/go")
+        lib.chmodx("bin/go")
+    except Exception as err:
+        shutil.rmtree("bin/go_install", ignore_errors=True)
+        raise lib.extend_exception(err, prefix="Failed to install go: ")
+
+    print(f"Successfully installed go {GO_INSTALL_VERSION} as ./bin/go")
+    return True
 
 ####################################################################################################
 

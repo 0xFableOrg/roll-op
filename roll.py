@@ -217,8 +217,11 @@ def main():
 
         if lib.args.command == "setup":
             setup(config)
+            return
 
-        elif lib.args.command == "devnet":
+        deps.post_setup()
+
+        if lib.args.command == "devnet":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
 
@@ -234,8 +237,8 @@ def main():
             l2.clean(config)
 
         elif lib.args.command == "l1":
-            deps.check_or_install_foundry()
             deps.check_or_install_geth()
+            deps.check_or_install_foundry()
 
             l1.deploy_devnet_l1(config)
             PROCESS_MGR.wait_all()
