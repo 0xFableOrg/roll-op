@@ -329,7 +329,7 @@ def clean(config: Config):
         if file_path.is_file() and file_path.name != "genesis-l1.json":
             os.remove(file_path)
 
-    l2_engine.clean()
+    l2_engine.clean(config)
 
     lib.debug(f"Cleaning up {config.deployments_dir}")
     shutil.rmtree(config.deployments_dir, ignore_errors=True)
