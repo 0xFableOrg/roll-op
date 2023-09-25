@@ -194,9 +194,9 @@ def load_config() -> Config:
         # on the 8545 port.
         if config.l1_rpc == "http://127.0.0.1:8545":
             config.l1_rpc = "http://127.0.0.1:9545"
-            config.l1_rpc_port = 9545
+            config.l1_rpc_listen_port = 9545
         config.l2_engine_rpc = "http://127.0.0.1:8545"
-        config.l2_engine_rpc_port = 8545
+        config.l2_engine_rpc_listen_port = 8545
 
     config.validate()
 
