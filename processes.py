@@ -200,7 +200,7 @@ class BackgroundProcessManager:
             for process in self.processes:
                 if self.is_alive(process):
                     alive_count += 1
-                    lib.debug(f"Terminating {process.deployment_name}")
+                    lib.debug(f"Terminating {process.name}")
                     process.terminate()
 
             # There was no process to terminate
@@ -215,7 +215,7 @@ class BackgroundProcessManager:
             for process in self.processes:
                 if self.is_alive(process):
                     alive_count += 1
-                    lib.debug(f"Killing {process.deployment_name}")
+                    lib.debug(f"Killing {process.name}")
                     process.kill()
 
             # There was no process to kill
@@ -226,7 +226,7 @@ class BackgroundProcessManager:
             time.sleep(1)
             for process in self.processes:
                 if self.is_alive(process):
-                    print(f"Failed to promptly kill {process.deployment_name}")
+                    print(f"Failed to promptly kill {process.name}")
         finally:
             self.processes.clear()
 
