@@ -65,16 +65,8 @@ def start_devnet_l1_node(config: Config):
     Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
     """
 
-    # Make sure the port isn't occupied yet.
-    # Necessary on MacOS that easily allows two processes to bind to the same port.
-    running = True
-    try:
-        lib.wait("127.0.0.1", config.l1_rpc_port, retries=1)
-    except Exception:
-        running = False
-    if running:
-        raise Exception(
-            f"Couldn't start L1 node: server already running at localhost:{config.l1_rpc_port}")
+    lib.ensure_port_unoccupied(
+        "L1 node", config.l1_rpc_listen_addr, config.l1_rpc_port)
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)

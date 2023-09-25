@@ -4,6 +4,8 @@ import sys
 from config import Config
 from processes import PROCESS_MGR
 
+import libroll as lib
+
 
 ####################################################################################################
 
@@ -11,6 +13,9 @@ def start(config: Config):
     """
     Starts the OP batcher, which submits transaction batches.
     """
+
+    lib.ensure_port_unoccupied(
+        "L2 batcher", config.batcher_rpc_listen_addr, config.batcher_rpc_listen_port)
 
     log_file_path = "logs/l2_batcher.log"
     print(f"Starting L2 batcher. Logging to {log_file_path}")

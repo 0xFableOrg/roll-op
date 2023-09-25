@@ -16,16 +16,8 @@ def start(config: Config):
     Spin the L2 execution engine (op-geth), then wait for it to be ready.
     """
 
-    # Make sure the port isn't occupied yet.
-    # Necessary on MacOS that easily allows two processes to bind to the same port.
-    running = True
-    try:
-        lib.wait("127.0.0.1", config.l2_engine_rpc_port, retries=1)
-    except Exception:
-        running = False
-    if running:
-        raise Exception(
-            "Couldn't start op-geth node: server already running at localhost:9545")
+    lib.ensure_port_unoccupied(
+        "op-geth", config.l2_engine_rpc_listen_addr, config.l2_engine_rpc_port)
 
     # Create geth db if it doesn't exist.
     os.makedirs(config.l2_engine_data_dir, exist_ok=True)

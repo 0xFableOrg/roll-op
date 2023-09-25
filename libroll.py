@@ -354,8 +354,7 @@ class Tee:
 
 ####################################################################################################
 
-
-def wait(address: str, port: int, retries: int = 10, wait_secs: int = 1):
+def wait_for_port(address: str, port: int, retries: int = 10, wait_secs: int = 1):
     """
     Waits for `address:port` to be reachable. Will try up to `retries` times, waiting `wait_secs`
     in between each attempt.
@@ -374,6 +373,23 @@ def wait(address: str, port: int, retries: int = 10, wait_secs: int = 1):
                 time.sleep(wait_secs)
 
     raise Exception(f"Timed out waiting for {address}:{port}.")
+
+
+####################################################################################################
+
+def ensure_port_unoccupied(service_name: str, addr: str, port: int):
+    """
+    Raises an exception if the given port is already bound on the given address.
+    Necessary on MacOS that easily allows two processes to bind to the same port.
+    """
+    running = True
+    try:
+        wait_for_port(addr, port, retries=1)
+    except Exception:
+        running = False
+    if running:
+        raise Exception(
+            f"Couldn't start {service_name}: server already running at {addr}:{port}")
 
 
 ####################################################################################################
