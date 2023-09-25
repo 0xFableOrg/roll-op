@@ -381,12 +381,12 @@ class Config:
         # ==========================================================================================
         # Node Configuration
 
-        self.sequencer_l1_confs = 4
+        self.l2_node_sequencer_l1_confs = 4
         """
         Minimum number of L1 blocks that the L1 origin of L2 block must be behind the L1 head.
         """
 
-        self.verifier_l1_confs = 0
+        self.l2_node_verifier_l1_confs = 0
         """
         Don't attempt to derive L2 blocks from L1 blocks that are less than this number of L1 blocks
         before the L1 head. (While L1 reorgs are supported, they are slow to perform.)
@@ -394,14 +394,14 @@ class Config:
 
         # === RPC ===
 
-        self.node_enable_admin = False
+        self.l2_node_enable_admin = False
         """
         Whether the "admin" namespace node API is enabled (False by default). This API allows
         starting, stopping, and querying the status of the sequencer (cf.
         https://github.com/ethereum-optimism/optimism/blob/develop/op-node/sources/rollupclient.go).
         """
 
-        self.node_rpc_listen_addr = "0.0.0.0"
+        self.l2_node_rpc_listen_addr = "0.0.0.0"
         """
         Address the node RPC server should bind to ("0.0.0.0" by default).
         
@@ -410,7 +410,7 @@ class Config:
         (cf. :py:attribute:`node_enable_admin`).
         """
 
-        self.node_rpc_listen_port = 7545
+        self.l2_node_rpc_listen_port = 7545
         """
         Port the node RPC server should bind to (7545 by default).
         
@@ -421,40 +421,40 @@ class Config:
 
         # === P2P Options ===
 
-        self.p2p_enabled = True
+        self.l2_node_p2p_enabled = True
         """
         Whether to enable P2P (peer discovery + block gossip — True by default).
         """
 
-        self.p2p_listen_addr = "0.0.0.0"
+        self.l2_node_p2p_listen_addr = "0.0.0.0"
         """
         IP to bind LibP2P and Discv5 to.
         """
 
-        self.p2p_tcp_listen_port = 9222
+        self.l2_node_p2p_tcp_listen_port = 9222
         """
         TCP port to bind LibP2P to. Any available system port if set to 0.
         """
 
-        self.p2p_udp_listen_port = 0
+        self.l2_node_p2p_udp_listen_port = 0
         """
         UDP port to bind Discv5 to. Same as TCP port if left 0.
         """
 
         # === Metrics ===
 
-        self.node_metrics = False
+        self.l2_node_metrics = False
         """
         Whether to record metrics in the proposer (False by default).
         """
 
-        self.node_metrics_listen_port = 7302
+        self.l2_node_metrics_listen_port = 7302
         """
         Port to the node metrics server should bind to (7302 by default).
         Ignored if :py:attribute:`node_metrics` is False.
         """
 
-        self.node_metrics_listen_addr = "0.0.0.0"
+        self.l2_node_metrics_listen_addr = "0.0.0.0"
         """
         Address the node metrics server should bind to ("0.0.0.0" by default).
         Ignored if :py:attribute:`node_metrics` is False.
@@ -697,7 +697,7 @@ class Config:
 
         # === Node ===
 
-        self.sequencer_l1_confs = 0
+        self.l2_node_sequencer_l1_confs = 0
         self.p2p_peer_key_path = paths.p2p_key_path
 
         # === Proposer ===
@@ -756,9 +756,9 @@ class Config:
 
         # === Node ===
 
-        self.sequencer_l1_confs = 3
-        self.verifier_l1_confs = 3
-        self.node_rpc_listen_port = 8547
+        self.l2_node_sequencer_l1_confs = 3
+        self.l2_node_verifier_l1_confs = 3
+        self.l2_node_rpc_listen_port = 8547
 
         # === Proposer ===
 
@@ -787,8 +787,8 @@ class Config:
 
         # === Node ===
 
-        self.sequencer_l1_confs = 3
-        self.verifier_l1_confs = 3
+        self.l2_node_sequencer_l1_confs = 3
+        self.l2_node_verifier_l1_confs = 3
 
         # === Proposer ===
 
