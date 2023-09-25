@@ -66,16 +66,18 @@ always for your permission before installing anything outside the current direct
 ## Contributing (for developers building simple-op-stack rollup)
 
 ```bash
-# Install dependencies
-source scripts/install.sh
+# Enable dev environment and make sure dev dependencies are installed
+source devenv.sh
 
 # ... do stuff
 
-# Run format before committing
-make format
-
-# Run checks before committing
+# Run lint & format checks
 make check
+
+# Fix issues highlighted by make check if possible (some lint issues might need manual fixes)
+make fix && make check
+
+
 ```
 
 ## Plans
