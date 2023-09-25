@@ -643,29 +643,29 @@ class Config:
     @property
     def l1_keystore_dir(self):
         """Keystore directory for devnet L1 node (each file stores an encrypted signer key)."""
-        return f"{self.l1_data_dir}/keystore"
+        return os.path.join(self.l1_data_dir, "keystore")
 
     @property
     def l1_chaindata_dir(self):
         """Directory storing chain data."""
-        return f"{self.l1_data_dir}/geth/chaindata"
+        return os.path.join(self.l1_data_dir, "geth", "chaindata")
 
     @property
     def l1_password_path(self):
         """Path to file storing the password for the signer key."""
-        return f"{self.l1_data_dir}/password"
+        return os.path.join(self.l1_data_dir, "password")
 
     @property
     def l1_tmp_signer_key_path(self):
         """Path to file storing the signer key during the initial import."""
-        return f"{self.l1_data_dir}/block-signer-key"
+        return os.path.join(self.l1_data_dir, "block-signer-key")
 
     # ----------------------------------------------------------------------------------------------
 
     @property
     def l2_engine_chaindata_dir(self):
         """Directory storing chain data for the L2 engine."""
-        return f"{self.l2_engine_data_dir}/geth/chaindata"
+        return os.path.join(self.l2_engine_data_dir, "geth", "chaindata")
 
 # ==============================================================================================
 
