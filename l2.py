@@ -236,7 +236,7 @@ def deploy_l1_contracts(config: Config):
         # Note: this is probably not required since we do not actually deploy anything here,
         # but I figure it doesn't hurt?
         f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
-        f"--sig 'sync()' --rpc-url {config.l1_rpc} --broadcast",
+        f"--sig 'sync()' --rpc-url {config.l1_rpc}",
         cwd=config.paths.contracts_dir,
         env=env,
         log_file=log_file)
