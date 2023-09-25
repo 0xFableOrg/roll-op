@@ -230,7 +230,7 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "clean":
-            l1.clean(config.paths)
+            l1.clean(config)
             l2.clean(config)
 
         elif lib.args.command == "l1":
@@ -280,7 +280,7 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "clean-l1":
-            l1.clean(config.paths)
+            l1.clean(config)
 
         elif lib.args.command == "clean-l2":
             l2.clean(config)
