@@ -66,7 +66,7 @@ def start_devnet_l1_node(config: Config):
     """
 
     lib.ensure_port_unoccupied(
-        "L1 node", config.l1_rpc_listen_addr, config.l1_rpc_port)
+        "L1 node", config.l1_rpc_listen_addr, config.l1_rpc_listen_port)
 
     # Create geth db if it doesn't exist.
     os.makedirs(DEVNET_L1_DATA_DIR, exist_ok=True)
@@ -132,13 +132,13 @@ def start_devnet_l1_node(config: Config):
             "--http.corsdomain=*",
             "--http.vhosts=*",
             f"--http.addr={config.l1_rpc_listen_addr}",
-            f"--http.port={config.l1_rpc_port}",
+            f"--http.port={config.l1_rpc_listen_port}",
             "--http.api=web3,debug,eth,txpool,net,engine",
 
             # WebSocket JSON-RPC server config
             "--ws",
             f"--ws.addr={config.l1_rpc_ws_listen_addr}",
-            f"--ws.port={config.l1_rpc_ws_port}",
+            f"--ws.port={config.l1_rpc_ws_listen_port}",
             "--ws.origins=*",
             "--ws.api=debug,eth,txpool,net,engine",
 
@@ -151,7 +151,7 @@ def start_devnet_l1_node(config: Config):
 
             # Authenticated RPC config
             f"--authrpc.addr={config.l1_authrpc_listen_addr}",
-            f"--authrpc.port={config.l1_authrpc_port}",
+            f"--authrpc.port={config.l1_authrpc_listen_port}",
             # NOTE: The Optimism monorepo accepts connections from any host, and specifies the JWT
             # secret to be the same used on L2. We don't see any reason to do that (we never use
             # authenticated RPC), so we restrict access to localhost only (authrpc can't be turned
@@ -165,7 +165,7 @@ def start_devnet_l1_node(config: Config):
             "--metrics.port=6060"
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
-    lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_port)
+    lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_listen_port)
 
 
 ####################################################################################################

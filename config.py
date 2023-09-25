@@ -299,19 +299,19 @@ class Config:
         self.l1_rpc_listen_addr = "0.0.0.0"
         """Address the devnet L1 http RPC server should bind to ("0.0.0.0" by default)."""
 
-        self.l1_rpc_port = 8545
+        self.l1_rpc_listen_port = 8545
         """Port to use for the devnet L1 http RPC server (9545 by default)."""
 
         self.l1_rpc_ws_listen_addr = "0.0.0.0"
         """Address the devnet L1 WebSocket RPC server should bind to ("0.0.0.0" by default)."""
 
-        self.l1_rpc_ws_port = 8546
+        self.l1_rpc_ws_listen_port = 8546
         """Port to use for the WebSocket JSON_RPC server (8546 by default)."""
 
         self.l1_authrpc_listen_addr = "0.0.0.0"
         """Address the devnet L1 authRPC server should bind to ("0.0.0.0" by default)."""
 
-        self.l1_authrpc_port = 8551
+        self.l1_authrpc_listen_port = 8551
         """Port to use for the devnet L1 authRPC server (8551 by default)."""
 
         self.l1_password = "l1_devnet_password"
@@ -338,19 +338,19 @@ class Config:
         self.l2_engine_rpc_listen_addr = "0.0.0.0"
         """Address the L2 engine http RPC server should bind to ("0.0.0.0" by default)."""
 
-        self.l2_engine_rpc_port = 9545
+        self.l2_engine_rpc_listen_port = 9545
         """Port to use for the L2 engine http JSON-RPC server."""
 
         self.l2_engine_rpc_ws_listen_addr = "0.0.0.0"
         """Address the L2 engine WebSocket RPC server should bind to ("0.0.0.0" by default)."""
 
-        self.l2_engine_rpc_ws_port = 9546
+        self.l2_engine_rpc_ws_listen_port = 9546
         """Port to use for the WebSocket JSON_RPC server."""
 
         self.l2_engine_authrpc_listen_addr = "0.0.0.0"
         """Address the L2 engine authRPC server should bind to ("0.0.0.0" by default)."""
 
-        self.l2_engine_authrpc_port = 9551
+        self.l2_engine_authrpc_listen_port = 9551
         """Port to use for the L2 engine authRPC server (9551 by default)."""
 
         self.l2_engine_history_transactions = 2350000
@@ -742,16 +742,16 @@ class Config:
 
         # === Devnet L1 ===
 
-        self.l1_rpc_port = 9545
-        self.l1_rpc_ws_port = 9546
-        self.l1_authrpc_port = 9551
+        self.l1_rpc_listen_port = 9545
+        self.l1_rpc_ws_listen_port = 9546
+        self.l1_authrpc_listen_port = 9551
         self.l1_p2p_port = 30313
 
         # === Engine ===
 
-        self.l2_engine_rpc_port = 8545
-        self.l2_engine_rpc_ws_port = 8546
-        self.l2_engine_authrpc_port = 8551
+        self.l2_engine_rpc_listen_port = 8545
+        self.l2_engine_rpc_ws_listen_port = 8546
+        self.l2_engine_authrpc_listen_port = 8551
         self.l2_engine_p2p_port = 30303
 
         # === Node ===
