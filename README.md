@@ -31,7 +31,7 @@ The current version of simple-op-stack-rollup deploys software pinned to the fol
 
 The following dependencies will be checked by `roll.py`:
 
-- Some common command line utilities: `make`, `curl`, `tar` and `awk`.
+- Some common command line utilities: `make`, `curl`, `tar`, `awk` and `grep`.
 - Git
 - Go 1.19
 

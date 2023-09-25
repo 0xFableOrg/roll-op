@@ -74,6 +74,16 @@ def _check_basic_prerequisites():
             "tar is not installed. Please install it from your package manager.\n"
             "e.g. `sudo apt install tar`")
 
+    if shutil.which("awk") is None:
+        raise Exception(
+            "awk is not installed. Please install it from your package manager.\n"
+            "e.g. `sudo apt install awk`")
+
+    if shutil.which("grep") is None:
+        raise Exception(
+            "grep is not installed. Please install it from your package manager.\n"
+            "e.g. `sudo apt install grep`")
+
 
 ####################################################################################################
 
