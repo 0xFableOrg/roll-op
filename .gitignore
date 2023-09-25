@@ -1,15 +1,23 @@
+.DS_Store
+
+# Forked repositories
 /optimism
+/op-geth
 /account-abstraction
+/blockscout
+
+# Dev Tooling
 /__pycache__
 /.idea
-/venv
 /.ruff_cache
+/venv
+
+# Build & runtime outputs
 /bin
-/logs
 /db
-/op-geth
+/deployments
+/logs
+
+# Private configuration
 /.env
 /config.toml
-/deployments
-/blockscout
-.DS_Store
