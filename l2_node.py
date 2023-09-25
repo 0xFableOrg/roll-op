@@ -40,6 +40,7 @@ def start(config: Config, sequencer: bool = True):
             f"--l2.jwt-secret={config.jwt_secret_path}",
             f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
             f"--rollup.config={config.paths.rollup_config_path}",
+            f"--l1.rpckind={config.l2_node_l1_rpc_kind}",
 
             # Sequencer Options
 

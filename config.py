@@ -460,6 +460,15 @@ class Config:
         Ignored if :py:attribute:`node_metrics` is False.
         """
 
+        self.l2_node_l1_rpc_kind = "basic"
+        """
+        The kind of RPC provider for L1 access, used to inform optimal transactions receipts
+        fetching, and thus reduce costs. Valid options: alchemy, quicknode, infura, parity,
+        nethermind, debug_geth, erigon, basic, any. Default: basic.
+        
+        "Basic" only tries basic methods, while "any" tries any available method.
+        """
+
         # ==========================================================================================
         # Proposer Configuration
 
