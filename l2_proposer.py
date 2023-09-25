@@ -4,6 +4,8 @@ import sys
 from config import Config
 from processes import PROCESS_MGR
 
+import libroll as lib
+
 
 ####################################################################################################
 
@@ -12,13 +14,16 @@ def start(config: Config):
     Starts the OP proposer, which proposes L2 output roots.
     """
 
+    if config.deployments is None:
+        raise Exception("Deployments not set!")
+
+    lib.ensure_port_unoccupied(
+        "L2 proposer", config.proposer_rpc_listen_addr, config.proposer_rpc_listen_port)
+
     log_file_path = "logs/l2_proposer.log"
     print(f"Starting L2 proposer. Logging to {log_file_path}")
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
-
-    if config.deployments is None:
-        raise "Deployments not set!"
 
     PROCESS_MGR.start(
         "starting L2 proposer",

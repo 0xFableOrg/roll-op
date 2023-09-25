@@ -14,6 +14,9 @@ def start(config: Config, sequencer: bool = True):
     blocks, then waits for it to be reasy.
     """
 
+    lib.ensure_port_unoccupied(
+        "L2 node", config.node_rpc_listen_addr, config.node_rpc_listen_port)
+
     log_file_path = "logs/l2_node.log"
     print(f"Starting L2 node. Logging to {log_file_path}")
     log_file = open(log_file_path, "w")
