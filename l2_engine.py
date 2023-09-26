@@ -84,10 +84,8 @@ def start(config: Config):
             f"--authrpc.jwtsecret={config.jwt_secret_path}",
 
             # Metrics Options
-            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
-
             *([] if not config.l2_engine_metrics else [
-                "--metrics.enabled",
+                "--metrics",
                 f"--metrics.port={config.l2_engine_metrics_listen_port}",
                 f"--metrics.addr={config.l2_engine_metrics_listen_addr}"]),
 

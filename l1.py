@@ -152,10 +152,11 @@ def start_devnet_l1_node(config: Config):
             # causes a random secret to be created in `config.l1_data_dir/geth/jwtsecret`.
             "--authrpc.vhosts=127.0.0.1",
 
-            # Configuration for the metrics server (we currently don't use this)
-            "--metrics",
-            "--metrics.addr=0.0.0.0",
-            "--metrics.port=6060"
+            # Metrics options
+            *([] if not config.l1_metrics else [
+                "--metrics",
+                f"--metrics.port={config.l1_metrics_listen_port}",
+                f"--metrics.addr={config.l1_metrics_listen_addr}"]),
         ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_listen_port)
