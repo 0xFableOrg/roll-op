@@ -1,6 +1,7 @@
 import os.path
 
 from paths import OPPaths
+import libroll as lib
 
 # Summary on default port mapping:
 #
@@ -45,7 +46,6 @@ from paths import OPPaths
 class Config:
 
     def __init__(self, paths: OPPaths = None):
-
         # ==========================================================================================
         # Paths (General)
 
@@ -186,6 +186,15 @@ class Config:
         """
         Percent-based multiplier to gas estimations during contract deployment on L1 (130 by
         default, which is the Foundry default).
+        """
+
+        self.deploy_slowly = lib.args.preset == "prod"
+        """
+        Whether to deploy contracts "slowly", i.e. wait for each transaction to succeed before
+        submitting the next one. This is recommended for production deployments, since RPC nodes
+        can be capricious and don't react kindly to getting 30+ transactions at once.
+        
+        Defaults to True when the `--preset=prod` is passed, False otherwise.
         """
 
         # ==========================================================================================
@@ -736,7 +745,7 @@ class Config:
         """Directory storing chain data for the L2 engine."""
         return os.path.join(self.l2_engine_data_dir, "geth", "chaindata")
 
-# ==============================================================================================
+    # ==============================================================================================
 
     def validate(self):
         """
@@ -902,6 +911,5 @@ def production_config(paths: OPPaths):
     config = Config(paths)
     config.use_production_config()
     return config
-
 
 ####################################################################################################
