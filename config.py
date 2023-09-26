@@ -390,6 +390,25 @@ class Config:
         flags.
         """
 
+        # === Metrics ===
+
+        self.l2_engine_metrics = False
+        """
+        Whether to record metrics in the L2 engine (False by default).
+        """
+
+        self.l2_engine_metrics_listen_port = 7304
+        """
+        Port to the L2 engine metrics server should bind to (7304 by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
+        self.l2_engine_metrics_listen_addr = "0.0.0.0"
+        """
+        Address the L2 engine metrics server should bind to ("0.0.0.0" by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
         # ==========================================================================================
         # Node Configuration
 
@@ -466,18 +485,18 @@ class Config:
 
         self.l2_node_metrics = False
         """
-        Whether to record metrics in the proposer (False by default).
+        Whether to record metrics in the L2 node (False by default).
         """
 
-        self.l2_node_metrics_listen_port = 7302
+        self.l2_node_metrics_listen_port = 7303
         """
-        Port to the node metrics server should bind to (7302 by default).
+        Port to the l2 node metrics server should bind to (7303 by default).
         Ignored if :py:attribute:`node_metrics` is False.
         """
 
         self.l2_node_metrics_listen_addr = "0.0.0.0"
         """
-        Address the node metrics server should bind to ("0.0.0.0" by default).
+        Address the L2 node metrics server should bind to ("0.0.0.0" by default).
         Ignored if :py:attribute:`node_metrics` is False.
         """
 

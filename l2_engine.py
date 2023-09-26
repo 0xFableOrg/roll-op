@@ -83,10 +83,13 @@ def start(config: Config):
             "--authrpc.vhosts=*",
             f"--authrpc.jwtsecret={config.jwt_secret_path}",
 
-            # Configuration for the metrics server (we currently don't use this)
-            "--metrics",
-            "--metrics.addr=0.0.0.0",
-            "--metrics.port=9060",
+            # Metrics Options
+            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
+
+            *([] if not config.l2_engine_metrics else [
+                "--metrics.enabled",
+                f"--metrics.port={config.l2_engine_metrics_listen_port}",
+                f"--metrics.addr={config.l2_engine_metrics_listen_addr}"]),
 
             # Configuration for the rollup engine
             f"--rollup.disabletxpoolgossip={config.l2_engine_disable_tx_gossip}",
