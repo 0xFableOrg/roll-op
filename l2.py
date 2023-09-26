@@ -100,7 +100,7 @@ def generate_deploy_config(config: Config):
     # Get base config, default is the devnet config, but can overriden to production config via
     # the --preset flag.
 
-    if lib.args.preset == "production":
+    if lib.args.preset == "prod":
         deploy_config = PRODUCTION_CONFIG.copy()
     else:
         deploy_config = DEVNET_CONFIG.copy()

@@ -8,6 +8,7 @@ invoking the appropriate commands.
 import argparse
 import os
 
+import argparsext
 import block_explorer
 import deps
 import l1
@@ -20,78 +21,133 @@ import libroll as lib
 from config import devnet_config, production_config, Config
 from paths import OPPaths
 from processes import PROCESS_MGR
-from setup import setup
+import setup
 
 ####################################################################################################
 
 parser = argparse.ArgumentParser(
-    description="Helps you spin up an op-stack rollup.")
+    description="R|Helps you spin up an op-stack rollup.\n"
+                "Use `roll.py <command> --help` to get more detailed help for a command.",
+    formatter_class=argparsext.SmartFormatter)
 
 subparsers = parser.add_subparsers(
     title="commands",
     dest="command",
     metavar="<command>")
 
-subparsers.add_parser(
+
+def command(*args, **kwargs):
+    return argparsext.add_subparser(subparsers, *args, **kwargs)
+
+
+def delimiter(*args, **kwargs):
+    return argparsext.add_subparser_delimiter(subparsers, *args, **kwargs)
+
+
+# --------------------------------------------------------------------------------------------------
+delimiter("MAIN COMMANDS")
+
+command(
+    "help",
+    help="show this help message and exit")
+
+cmd_setup = command(
     "setup",
     help="installs prerequisites and builds the optimism repository")
 
-# Devnet parser
-subparsers.add_parser(
+cmd_devnet = command(
     "devnet",
-    help="spins up a local devnet, comprising an L1 node and all L2 components")
+    help="starts a local devnet, comprising an L1 node and all L2 components")
 
-subparsers.add_parser(
+command(
     "clean",
     help="cleans up deployment outputs and databases")
 
-subparsers.add_parser(
-    "l1",
-    help="spins up a local L1 node")
-
-subparsers.add_parser(
+cmd_l2 = command(
     "l2",
-    help="deploys and starts local L2 blockchain")
+    help="deploys and starts a local L2 blockchain")
 
-subparsers.add_parser(
+# --------------------------------------------------------------------------------------------------
+delimiter("GRANULAR COMMANDS")
+
+command(
+    "l1",
+    help="starts a local L1 node",
+    description="Starts a local L1 node, initializing it if needed.")
+
+command(
     "deploy-l2",
-    help="deploys an L2 blockchain (creates the genesis and deploys the contracts to L1)")
+    help="deploys but does not start an L2 chain",
+    description="Deploys but does not start an L2 chain: "
+                "creates the genesis and deploys the contracts to L1.")
 
-subparsers.add_parser(
+command(
     "start-l2",
-    help="start all components of the rollup system "
-         "(L2 engine, L2 node, L2 batcher, and L2 proposer)")
+    help="start all components of the rollup system (see below)")
 
-subparsers.add_parser(
+command(
     "l2-engine",
-    help="spins up a local l2 execution engine (op-geth) node")
+    help="starts a local L2 execution engine (op-geth) node",
+    description="Starts a local L2 execution engine (op-geth) node, initializing it if needed.")
 
-subparsers.add_parser(
+command(
     "l2-sequencer",
-    help="spins up a local l2 node (op-node) in sequencer mode")
+    help="starts a local L2 node (op-node) in sequencer mode")
 
-subparsers.add_parser(
+command(
     "l2-batcher",
-    help="spins up a local l2 transaction batcher")
+    help="starts a local L2 transaction batcher")
 
-subparsers.add_parser(
+command(
     "l2-proposer",
-    help="spins up a local l2 outpur roots proposer")
+    help="starts a local L2 output roots proposer")
 
-subparsers.add_parser(
+# --------------------------------------------------------------------------------------------------
+delimiter("CLEANUP")
+
+command(
+    "clean-build",
+    help="cleans up build outputs (but not deployment outputs or databases)",
+    description="Cleans up build outputs — leaves deployment outputs and databases intact, "
+         "as well as anything that was downloaded. "
+         "Mostly used to get the Optimism monorepo to rebuild.")
+
+command(
     "clean-l1",
     help="cleans up deployment outputs & databases for L1")
 
-subparsers.add_parser(
+command(
     "clean-l2",
     help="cleans up deployment outputs & databases for L2")
 
+# --------------------------------------------------------------------------------------------------
+# Global Flags
+
 parser.add_argument(
-    "--no-ansi-esc",
-    help="disable ANSI escape codes for terminal manipulation",
-    default=True,
-    dest="use_ansi_esc",
-    action="store_false")
+    "--name",
+    help="name of the rollup deployment",
+    default=None,
+    dest="name")
+
+parser.add_argument(
+    "--preset",
+    help="use a preset rollup configuration",
+    choices=["dev", "prod"],
+    default=None,
+    dest="preset")
+
+parser.add_argument(
+    "--config",
+    help="path to the config file",
+    default=None,
+    dest="config_path")
+
+parser.add_argument(
+    "--clean",
+    help="run the 'clean' command before running the specified command",
+    default=False,
+    dest="clean_first",
+    action="store_true")
 
 parser.add_argument(
     "--stack-trace",
@@ -101,44 +157,30 @@ parser.add_argument(
     action="store_true")
 
 parser.add_argument(
-    "--preset",
-    help="use a preset rollup configuration",
-    default=None,
-    dest="preset")
+    "--no-ansi-esc",
+    help="disable ANSI escape codes for terminal manipulation",
+    default=True,
+    dest="use_ansi_esc",
+    action="store_false")
 
-parser.add_argument(
-    "--name",
-    help="name of the rollup deployment",
-    default=None,
-    dest="name")
+# --------------------------------------------------------------------------------------------------
+# Command-Specific Flags
 
-# Devnet arguments
-parser.add_argument(
-    "--config",
-    help="path to the config file",
-    default=None,
-    dest="config_path")
-
-parser.add_argument(
-    "--explorer",
-    help="deploy a blockscout explorer for the L2 chain (NOT FUNCTIONAL)",
-    default=False,
-    dest="explorer",
-    action="store_true")
-
-parser.add_argument(
+cmd_setup.add_argument(
     "--yes",
     help="answer yes to all prompts (install all requested dependencies)",
     default=False,
     dest="always_yes",
     action="store_true")
 
-parser.add_argument(
-    "--clean",
-    help="run the 'clean' command before running the specified command",
-    default=False,
-    dest="clean_first",
-    action="store_true")
+for cmd in [cmd_l2, cmd_devnet]:
+    # NOTE: When functional, might want to add to other commands (e.g. `start-l2`).
+    cmd.add_argument(
+        "--explorer",
+        help="deploy a blockscout explorer for the L2 chain (NOT FUNCTIONAL)",
+        default=False,
+        dest="explorer",
+        action="store_true")
 
 
 ####################################################################################################
@@ -156,12 +198,13 @@ def load_config() -> Config:
     paths = OPPaths(gen_dir=os.path.join("deployments", f"{deployment_name}"))
 
     # Define config preset
-    if lib.args.preset is None or lib.args.preset == "devnet":
+    if lib.args.preset is None or lib.args.preset == "dev":
         config = devnet_config(paths)
-    elif lib.args.preset == "production":
+    elif lib.args.preset == "prod":
         config = production_config(paths)
     else:
-        raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'devnet', 'production'.")
+        # Should never happen, as correct preset is validated by argparse.
+        raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'dev', 'prod'.")
 
     config.deployment_name = deployment_name
 
@@ -212,7 +255,7 @@ def load_config() -> Config:
         except KeyError as e:
             raise Exception(f"Missing config file value: {e}")
 
-    if lib.args.explorer:
+    if hasattr(lib.args, "explorer") and lib.args.explorer:
         # Invert defaults, because it was hard to make blockscout work if the L2 engine wasn't
         # on the 8545 port.
         if config.l1_rpc == "http://127.0.0.1:8545":
@@ -241,7 +284,7 @@ def clean(config: Config):
 def main():
     lib.args = parser.parse_args()
     try:
-        if lib.args.command is None:
+        if lib.args.command is None or lib.args.command == "help":
             parser.print_help()
             exit()
 
@@ -252,7 +295,7 @@ def main():
             clean(config)
 
         if lib.args.command == "setup":
-            setup(config)
+            setup.setup(config)
             return
 
         deps.post_setup()
@@ -271,19 +314,19 @@ def main():
         elif lib.args.command == "clean":
             clean(config)
 
-        elif lib.args.command == "l1":
-            deps.check_or_install_geth()
-            deps.check_or_install_foundry()
-
-            l1.deploy_devnet_l1(config)
-            PROCESS_MGR.wait_all()
-
         elif lib.args.command == "l2":
             deps.check_or_install_foundry()
 
             l2.deploy_and_start(config)
             if lib.args.explorer:
                 block_explorer.launch_blockscout()
+            PROCESS_MGR.wait_all()
+
+        elif lib.args.command == "l1":
+            deps.check_or_install_geth()
+            deps.check_or_install_foundry()
+
+            l1.deploy_devnet_l1(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "deploy-l2":
@@ -317,6 +360,9 @@ def main():
             l2_proposer.start(config)
             PROCESS_MGR.wait_all()
 
+        elif lib.args.command == "clean-build":
+            setup.clean_build()
+
         elif lib.args.command == "clean-l1":
             l1.clean(config)
 
@@ -339,6 +385,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 ####################################################################################################
