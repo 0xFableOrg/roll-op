@@ -121,7 +121,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--explorer",
-    help="deploy a blockscout explorer for the L2 chain",
+    help="deploy a blockscout explorer for the L2 chain (NOT FUNCTIONAL)",
     default=False,
     dest="explorer",
     action="store_true")
