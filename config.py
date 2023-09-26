@@ -404,6 +404,15 @@ class Config:
         before the L1 head. (While L1 reorgs are supported, they are slow to perform.)
         """
 
+        self.l2_node_l1_rpc_kind = "basic"
+        """
+        The kind of RPC provider for L1 access, used to inform optimal transactions receipts
+        fetching, and thus reduce costs. Valid options: alchemy, quicknode, infura, parity,
+        nethermind, debug_geth, erigon, basic, any. Default: basic.
+        
+        "Basic" only tries basic methods, while "any" tries any available method.
+        """
+
         # === RPC ===
 
         self.l2_node_enable_admin = False
@@ -470,15 +479,6 @@ class Config:
         """
         Address the node metrics server should bind to ("0.0.0.0" by default).
         Ignored if :py:attribute:`node_metrics` is False.
-        """
-
-        self.l2_node_l1_rpc_kind = "basic"
-        """
-        The kind of RPC provider for L1 access, used to inform optimal transactions receipts
-        fetching, and thus reduce costs. Valid options: alchemy, quicknode, infura, parity,
-        nethermind, debug_geth, erigon, basic, any. Default: basic.
-        
-        "Basic" only tries basic methods, while "any" tries any available method.
         """
 
         # ==========================================================================================
