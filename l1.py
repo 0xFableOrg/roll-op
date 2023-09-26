@@ -166,8 +166,8 @@ def start_devnet_l1_node(config: Config):
 
 def clean(config: Config):
     """
-    Cleans up build outputs, such that trying to deploy the devnet L1 node will proceed as though it
-    was the first invocation.
+    Cleans up deployment files and databases, such that trying to start the devnet L1 node will
+    proceed as though it had never been started before.
     """
     if os.path.exists(config.paths.gen_dir):
         path = os.path.join(config.paths.gen_dir, "genesis-l1.json")

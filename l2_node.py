@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 
@@ -83,5 +84,16 @@ def start(config: Config, sequencer: bool = True):
         stderr=subprocess.STDOUT)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_node_rpc_listen_port)
+
+
+####################################################################################################
+
+def clean():
+    """
+    Delete the L2 node's p2p databases.
+    """
+    shutil.rmtree("opnode_discovery_db", ignore_errors=True)
+    shutil.rmtree("opnode_peerstore_db", ignore_errors=True)
+
 
 ####################################################################################################
