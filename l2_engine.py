@@ -104,8 +104,9 @@ def start(config: Config):
 
 def clean(config: Config):
     """
-    Cleans up build outputs, such that trying to deploy the L2 execution engine (op-geth) will
-    proceed as though it was the first invocation.
+    Cleans up L2 execution engine's databases, such that trying to start the L2 execution engine
+    (op-geth) will proceed as though it had never been started before (this might cause problems
+    if the rest of the system hasn't been similarly reset).
     """
     if os.path.exists(config.l2_engine_data_dir):
         print(f"Cleaning up {config.l2_engine_data_dir}")
