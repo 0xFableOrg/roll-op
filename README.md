@@ -27,7 +27,9 @@ The current version of simple-op-stack-rollup deploys software pinned to the fol
 
 ## Prerequisites
 
-- Python >= 3.10 (to run the `roll.py` script)
+- Python >= 3.10 (to run the `roll.py` script) with pip
+  - `sudo apt install python3-pip` on Debian-based systems
+  - `brew install python` on macOS with Homebrew
 
 The following dependencies will be checked by `roll.py`:
 
