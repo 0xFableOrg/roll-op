@@ -11,7 +11,6 @@ import sys
 
 import libroll as lib
 from config import Config
-from paths import OPPaths
 from processes import PROCESS_MGR
 
 

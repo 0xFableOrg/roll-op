@@ -50,6 +50,7 @@ def post_setup():
 
 ####################################################################################################
 
+
 def _setup_python_deps():
     """
     Install required Python dependencies.
@@ -122,8 +123,8 @@ def check_or_install_go():
         print(version)
         if version < GO_MIN_VERSION and not install_go():
             raise Exception(
-                f"Go version is too low. "
-                "Please update to Go **version {GO_MIN_VERSION}** or higher.\n"
+                "Go version is too low. "
+                f"Please update to Go **version {GO_MIN_VERSION}** or higher.\n"
                 "Go is backwards compatible, so your old projects will continue to build.")
         if version > GO_MAX_VERSION and not install_go():
             raise Exception(
@@ -169,6 +170,7 @@ def install_go() -> bool:
 
     print(f"Successfully installed go {GO_INSTALL_VERSION} as ./bin/go")
     return True
+
 
 ####################################################################################################
 
