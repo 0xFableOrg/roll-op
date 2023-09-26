@@ -1,17 +1,24 @@
-# Devnet
+## Devnet
+
+# (same as defaults)
 
 l1_chain_id = 900
 l2_chain_id = 42069
 l1_rpc = "http://127.0.0.1:8545"
 
-# For Goerli
+## For Goerli
 
 #l1_chain_id = 5 # Goerli
 #l2_chain_id = 42069
 #l1_rpc = "https://eth-goerli.g.alchemy.com/v2/demo"
 
-# 0th "test junk" (Anvil) mnemonic account
-deployer_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+## Keys
+
+# We just use the 0th "test junk" (Anvil) mnemonic account for everything.
+# This is ifferent from defaults, which use different accounts,
+# following after the Optimism monorepo devnet defaults.
+
+contract_deployer_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 batcher_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 batcher_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 proposer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"

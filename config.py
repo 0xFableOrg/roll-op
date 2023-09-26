@@ -122,7 +122,7 @@ class Config:
 
         self.p2p_sequencer_key = "8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba"
         """
-        If provided, private key used by the sequencer to sign blocks gossiped over p2p.
+        If provided (not None), private key used by the sequencer to sign blocks gossiped over p2p.
         Uses the 5th (0-based!) "test junk" mnemonic key by default.
         Do not prefix the key with 0x.
         """
