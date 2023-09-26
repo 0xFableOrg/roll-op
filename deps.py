@@ -149,6 +149,8 @@ def install_go() -> bool:
             "Please install go manually, make sure it is executable and in $PATH or in ./bin/")
 
     machine = platform.machine().lower()
+    machine = "arm64" if machine == "aarch64" else machine
+    machine = "amd64" if machine == "x86_64" else machine
     if machine not in ("amd64", "arm64"):
         raise Exception(
             f"Unsupported architecture for automatic go installation: {machine}.\n"
