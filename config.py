@@ -4,17 +4,25 @@ from paths import OPPaths
 
 # Summary on default port mapping:
 #
+# The default port mapping uses the same port as the devnet configuration in the Optimism monorepo,
+# whenever possible.
+#
 # - L1 http RPC: 8545
 # - L1 WebSocket RPC: 8546
 # - L1 authRPC: 8551 (authenticated APIs)
 # - L1 p2p: 30303 (block & tx gossip)
+# - L1 metrics: 7060
 # - L2 engine http RPC: 9545 (like L1 http RPC but for L2)
 # - L2 engine Websocket RPC: 9546 (like L1 Websocket RPC but for L2)
 # - L2 engine authRPC: 9551 (like L1 authRPC but for L2 — op-node <> engine communication)
 # - L2 engine p2p: 30313 (like L1 p2p but for L2)
+# - L2 engine metrics: 8060
 # - L2 node RPC: 7545 (optimism_ and admin_ namespaces)
+# - L2 node metrics: 7300
 # - L2 proposer RPC: 5545 (no namespaces)
+# - L2 proposer metrics: 7302
 # - L2 batcher RPC: 6545 (admin_ namespace)
+# - L2 batcher metrics: 7301
 
 # When following the OP stack "Getting Started" document, the following ports are used:
 # (The L1 and L2 engine ports are inverted, and the other components are numbered differently.)
@@ -30,6 +38,8 @@ from paths import OPPaths
 # - L2 node RPC: 8547
 # - L2 proposer RPC: 8560 (no namespaces)
 # - L2 batcher RPC: 8548 (admin_ namespace)
+#
+# The document does not configure metrics, so the defaults from above are used.
 
 
 class Config:
@@ -329,6 +339,25 @@ class Config:
         self.l1_password = "l1_devnet_password"
         """Password to use to secure the signer key."""
 
+        # === Metrics ===
+
+        self.l1_metrics = False
+        """
+        Whether to record metrics in the L1 node (False by default).
+        """
+
+        self.l1_metrics_listen_port = 7060
+        """
+        Port to the L1 node metrics server should bind to (7060 by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
+        self.l1_metrics_listen_addr = "0.0.0.0"
+        """
+        Address the L1 node metrics server should bind to ("0.0.0.0" by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
         # ==========================================================================================
         # L2 Execution Engine Configuration
 
@@ -397,9 +426,9 @@ class Config:
         Whether to record metrics in the L2 engine (False by default).
         """
 
-        self.l2_engine_metrics_listen_port = 7304
+        self.l2_engine_metrics_listen_port = 8060
         """
-        Port to the L2 engine metrics server should bind to (7304 by default).
+        Port to the L2 engine metrics server should bind to (8060 by default).
         Ignored if :py:attribute:`node_metrics` is False.
         """
 
@@ -488,9 +517,9 @@ class Config:
         Whether to record metrics in the L2 node (False by default).
         """
 
-        self.l2_node_metrics_listen_port = 7303
+        self.l2_node_metrics_listen_port = 7300
         """
-        Port to the l2 node metrics server should bind to (7303 by default).
+        Port to the l2 node metrics server should bind to (7300 by default).
         Ignored if :py:attribute:`node_metrics` is False.
         """
 
