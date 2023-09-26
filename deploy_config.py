@@ -17,7 +17,7 @@ PRODUCTION_CONFIG = {
     "portalGuardian": "REPLACE_THIS (ADMIN)",
     "controller": "REPLACE_THIS (ADMIN)",
 
-    "l2BlockTime": 12,  # TODO for testing blockscout
+    "l2BlockTime": 2,
     "maxSequencerDrift": 600,
     "sequencerWindowSize": 3600,
     "channelTimeout": 300,
