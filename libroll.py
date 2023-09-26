@@ -209,7 +209,7 @@ def ask_yes_no(question: str) -> bool:
     Prompts the user with a yes/no question and returns the results as a boolean.
     """
     # noinspection PyUnresolvedReferences
-    if args.always_yes:
+    if hasattr(args, "always_yes") and args.always_yes:
         return True
     while True:
         response = input(f"{question} (yes/no): ").strip().lower()
@@ -331,7 +331,8 @@ def clone_repo(url: str, descr: str):
     run_roll_log(
         descr=descr,
         command=f"git clone --progress {url}",
-        log_file=None)
+        log_file=None,
+        max_lines=1)
 
 
 ####################################################################################################
