@@ -17,6 +17,7 @@ from config import Config
 
 def setup(config: Config):
     deps.check_or_install_go()
+    deps.go_path_setup()
     deps.check_or_install_jq()
     deps.check_or_install_node()
     deps.check_or_install_yarn()
@@ -121,6 +122,29 @@ def setup_blockscout_repo():
             lib.replace_in_file(
                 "blockscout/docker-compose/docker-compose-no-build-hardhat-network.yml",
                 {anchor_line: f"{anchor_line}\nplatform: linux/arm64"})
+
+
+####################################################################################################
+
+def clean_build():
+    """
+    Clean the build outputs (from the Optimism monorepo and the op-geth repo).
+    """
+    lib.run(
+        descr="clean optimism repo",
+        # This encompases `make clean` and `make clean-node-modules` and avoids erroring on `make
+        # nuke` because Docker is not running.
+        command="git clean -Xdf",
+        cwd="optimism",
+        forward="self")
+
+    lib.run(
+        descr="clean op-geth repo",
+        command="make clean",
+        cwd="op-geth",
+        forward="self")
+
+    # NOTE: Need to cleanup blockscout when properly integrated.
 
 
 ####################################################################################################

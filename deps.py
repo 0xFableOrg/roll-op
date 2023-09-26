@@ -34,22 +34,17 @@ def basic_setup():
     _setup_python_deps()
 
 
+####################################################################################################
+
 def post_setup():
     """
     Does some setup, but is dependent on the dependencies installed by :py:func:`setup.setup`, so
     cannot be rolled into :py:func:`basic_setup`.
     """
+    go_path_setup()
 
-    # If bin/go exists (and is thus used), we don't want to use GOROOT.
-    if os.path.isfile("bin/go"):
-        os.environ.pop("GOROOT", None)  # works if GOROOT isn't set
-
-    # make sure that GOPATH is set in PATH (this is needed for 4337 bundler)
-    gopath = lib.run("get GOPATH", "go env GOPATH")
-    lib.prepend_to_path(gopath)
 
 ####################################################################################################
-
 
 def _setup_python_deps():
     """
@@ -112,6 +107,8 @@ GO_INSTALL_VERSION = "1.20.8"
 """Version of Go to install if not found."""
 
 
+# --------------------------------------------------------------------------------------------------
+
 def check_or_install_go():
     if shutil.which("go") is None:
         if not install_go():
@@ -120,7 +117,6 @@ def check_or_install_go():
     else:
         version = lib.run("get go version", "go version")
         version = re.search(r"go version go(\d+\.\d+\.\d+)", version).group(1)
-        print(version)
         if version < GO_MIN_VERSION and not install_go():
             raise Exception(
                 "Go version is too low. "
@@ -132,6 +128,8 @@ def check_or_install_go():
                 f"Please use to Go version {GO_MIN_VERSION} to {GO_MAX_VERSION}.\n",
                 "(Or let us install a local Go!)")
 
+
+# --------------------------------------------------------------------------------------------------
 
 def install_go() -> bool:
     """
@@ -170,6 +168,22 @@ def install_go() -> bool:
 
     print(f"Successfully installed go {GO_INSTALL_VERSION} as ./bin/go")
     return True
+
+
+# --------------------------------------------------------------------------------------------------
+
+def go_path_setup():
+    """
+    Updates path to work with Go, including with the local Go installation if we have one.
+    """
+
+    # If bin/go exists (and is thus used), we don't want to use GOROOT.
+    if os.path.isfile("bin/go"):
+        os.environ.pop("GOROOT", None)  # works if GOROOT isn't set
+
+    # make sure that GOPATH is set in PATH (this is needed for 4337 bundler)
+    gopath = lib.run("get GOPATH", "go env GOPATH")
+    lib.prepend_to_path(gopath)
 
 
 ####################################################################################################
@@ -441,5 +455,6 @@ def install_geth():
         raise lib.extend_exception(err, prefix="Failed to install geth: ")
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
+
 
 ####################################################################################################
