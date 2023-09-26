@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# switch to directory containing this script
+# source: https://stackoverflow.com/a/17744637
+cd "$(cd -P -- "$(dirname -- "$0")" && pwd -P)" || exit 1
+python3 roll.py "$@"
