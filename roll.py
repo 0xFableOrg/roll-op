@@ -165,26 +165,35 @@ def load_config() -> Config:
             raise Exception(f"Cannot find config file at {lib.args.config_path}")
 
         try:
-            config.l1_chain_id = devnet_config_file["l1_chain_id"]
-            config.l2_chain_id = devnet_config_file["l2_chain_id"]
-            config.l1_rpc = devnet_config_file["l1_rpc"]
-            config.contract_deployer_key = devnet_config_file["deployer_key"]
-            config.batcher_account = devnet_config_file["batcher_account"]
-            config.batcher_key = devnet_config_file["batcher_key"]
-            config.proposer_account = devnet_config_file["proposer_account"]
-            config.proposer_key = devnet_config_file["proposer_key"]
-            config.admin_account = devnet_config_file["admin_account"]
-            config.admin_key = devnet_config_file["admin_key"]
-            config.p2p_sequencer_account = devnet_config_file["p2p_sequencer_account"]
-            config.p2p_sequencer_key = devnet_config_file["p2p_sequencer_key"]
-
-            if devnet_config_file.get("batching_inbox_address") is not None:
-                config.batching_inbox_address = devnet_config_file["batching_inbox_address"]
-            else:
+            for key, value in devnet_config_file.items():
+                if hasattr(config, key):
+                    setattr(config, key, value)
+            if devnet_config_file.get("batching_inbox_address") is None:
                 # Derive a unique batch inbox address from the chain id.
                 addr = "0xff69000000000000000000000000000000000000"
                 str_id = str(config.l2_chain_id)
                 config.batching_inbox_address = addr[:-len(str_id)] + str_id
+
+            recommended_options = [
+                "l1_chain_id",
+                "l2_chain_id",
+                "l1_rpc",
+                "contract_deployer_key",
+                "batcher_account",
+                "batcher_key",
+                "proposer_account",
+                "proposer_key",
+                "admin_account",
+                "admin_key",
+                "p2p_sequencer_account",
+                "p2p_sequencer_key",
+            ]
+
+            for option in recommended_options:
+                if devnet_config_file.get(option) is None:
+                    print(f"Warning: config file does not specify `{option}`.\n"
+                          "It is highly recommended to specify this option, "
+                          "especially for non-local deployments.")
 
         except KeyError as e:
             raise Exception(f"Missing config file value: {e}")
