@@ -70,8 +70,10 @@ def setup_4337_contracts(config: Config):
         )
         # set private key for deployment
         if config.deployer_key is None:
-            config.deployer_key = input("Enter private key that you would like to deploy contracts with: ")
-        lib.run("set deployment key", f"echo PRIVATE_KEY={config.deployer_key} > account-abstraction/.env")
+            config.deployer_key = input(
+                "Enter private key that you would like to deploy contracts with: ")
+        lib.run("set deployment key",
+                f"echo PRIVATE_KEY={config.deployer_key} > account-abstraction/.env")
         # set private key for paymaster
         if config.paymaster_key is None:
             config.paymaster_key = input("Enter private key for paymaster signer: ")
