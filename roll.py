@@ -43,7 +43,7 @@ subparsers.add_parser(
 
 subparsers.add_parser(
     "clean",
-    help="cleans up build outputs and databases")
+    help="cleans up deployment outputs and databases")
 
 subparsers.add_parser(
     "l1",
@@ -131,6 +131,13 @@ parser.add_argument(
     help="answer yes to all prompts (install all requested dependencies)",
     default=False,
     dest="always_yes",
+    action="store_true")
+
+parser.add_argument(
+    "--clean",
+    help="run the 'clean' command before running the specified command",
+    default=False,
+    dest="clean_first",
     action="store_true")
 
 
@@ -221,6 +228,16 @@ def load_config() -> Config:
 
 ####################################################################################################
 
+def clean(config: Config):
+    """
+    Cleans up deployment outputs and databases.
+    """
+    l1.clean(config)
+    l2.clean(config)
+
+
+####################################################################################################
+
 def main():
     lib.args = parser.parse_args()
     try:
@@ -230,6 +247,9 @@ def main():
 
         deps.basic_setup()
         config = load_config()
+
+        if lib.args.clean_first:
+            clean(config)
 
         if lib.args.command == "setup":
             setup(config)
@@ -249,8 +269,7 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "clean":
-            l1.clean(config)
-            l2.clean(config)
+            clean(config)
 
         elif lib.args.command == "l1":
             deps.check_or_install_geth()
