@@ -72,7 +72,7 @@ def start(config: Config, sequencer: bool = True):
             # Metrics Options
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
 
-            *([] if not config.proposer_metrics else [
+            *([] if not config.l2_node_metrics else [
                 "--metrics.enabled",
                 f"--metrics.port={config.l2_node_metrics_listen_port}",
                 f"--metrics.addr={config.l2_node_metrics_listen_addr}"]),
