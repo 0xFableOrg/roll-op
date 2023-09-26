@@ -208,6 +208,9 @@ def ask_yes_no(question: str) -> bool:
     """
     Prompts the user with a yes/no question and returns the results as a boolean.
     """
+    # noinspection PyUnresolvedReferences
+    if args.always_yes:
+        return True
     while True:
         response = input(f"{question} (yes/no): ").strip().lower()
         if response in ("yes", "y"):

@@ -126,6 +126,13 @@ parser.add_argument(
     dest="explorer",
     action="store_true")
 
+parser.add_argument(
+    "--yes",
+    help="answer yes to all prompts (install all requested dependencies)",
+    default=False,
+    dest="always_yes",
+    action="store_true")
+
 
 ####################################################################################################
 
