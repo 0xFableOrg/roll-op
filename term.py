@@ -133,7 +133,7 @@ class FixedTermSizeStream:
         # escape out of our reach (out of the screen) and won't be erasable afterwards.
         # We also have to do this every time, because the terminal can be resized.
         if self.max_lines > 0:
-            return max(self.max_lines, get_terminal_lines())
+            return min(self.max_lines, get_terminal_lines())
         else:
             return get_terminal_lines() + self.max_lines
 

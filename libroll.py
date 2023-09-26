@@ -332,7 +332,7 @@ def clone_repo(url: str, descr: str):
         descr=descr,
         command=f"git clone --progress {url}",
         log_file=None,
-        max_lines=1)
+        max_lines=2)
 
 
 ####################################################################################################
