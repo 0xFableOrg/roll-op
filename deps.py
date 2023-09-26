@@ -97,6 +97,48 @@ def _check_basic_prerequisites():
 
 ####################################################################################################
 
+def get_arch() -> str:
+    """
+    Returns the architecture of the current machine.
+    """
+    machine = platform.machine().lower()
+    machine = "arm64" if machine == "aarch64" else machine
+    machine = "amd64" if machine == "x86_64" else machine
+    return machine
+
+
+# --------------------------------------------------------------------------------------------------
+
+def get_valid_arch(program: str) -> str:
+    """
+    Returns the architecture of the current machine if supported, or raises an exception otherwise
+    that mention the program we were trying to install.
+    """
+    arch = get_arch()
+    if arch not in ("amd64", "arm64"):
+        raise Exception(
+            f"Unsupported architecture for automatic {program} installation: {arch}.\n"
+            f"Please install {program} manually, make sure it is executable "
+            "and in $PATH or in ./bin/")
+    return arch
+
+
+# --------------------------------------------------------------------------------------------------
+
+def get_valid_os(program: str) -> str:
+    """
+    Returns the OS of the current machine if supported, or raises an exception otherwise.
+    """
+    if sys.platform not in ("linux", "darwin"):
+        raise Exception(
+            f"Unsupported OS for automatic {program} installation: {sys.platform}.\n"
+            f"Please install {program} manually, make sure it is executable "
+            "and in $PATH or in ./bin/")
+    return sys.platform
+
+
+####################################################################################################
+
 GO_MIN_VERSION = "1.19"
 """Minimum Go version required by the Optimism repository."""
 
@@ -142,25 +184,14 @@ def install_go() -> bool:
         return False
 
     os.makedirs("bin", exist_ok=True)
-
-    if sys.platform not in ("linux", "darwin"):
-        raise Exception(
-            f"Unsupported OS for automatic go installation: {sys.platform}.\n"
-            "Please install go manually, make sure it is executable and in $PATH or in ./bin/")
-
-    machine = platform.machine().lower()
-    machine = "arm64" if machine == "aarch64" else machine
-    machine = "amd64" if machine == "x86_64" else machine
-    if machine not in ("amd64", "arm64"):
-        raise Exception(
-            f"Unsupported architecture for automatic go installation: {machine}.\n"
-            "Please install go manually, make sure it is executable and in $PATH or in ./bin/")
+    osys = get_valid_os("go")
+    arch = get_valid_arch("go")
 
     try:
         print(f"Downloading go {GO_INSTALL_VERSION} ...")
         os.makedirs("bin/go_install", exist_ok=True)
         descr = "install go"
-        url = f"https://go.dev/dl/go{GO_INSTALL_VERSION}.{sys.platform}-{machine}.tar.gz"
+        url = f"https://go.dev/dl/go{GO_INSTALL_VERSION}.{osys}-{arch}.tar.gz"
         lib.run(descr, f"curl -L {url}  | tar xz -C bin/go_install --strip-components=1")
         lib.run("symlink go to bin/go", "ln -sf go_install/bin/go bin/go")
         lib.chmodx("bin/go")
@@ -190,13 +221,6 @@ def go_path_setup():
 
 ####################################################################################################
 
-JQ_URL_LINUX = "https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64"
-"""Link to the jq binary for Linux."""
-
-JQ_URL_MACOS = "https://github.com/jqlang/jq/releases/download/jq-1.6/jq-osx-amd64"
-"""Link to the jq binary for macOS."""
-
-
 def check_or_install_jq():
     """
     Checks if jq is installed (either globally or in ./bin), and if not, installs it in ./bin.
@@ -208,18 +232,13 @@ def check_or_install_jq():
 
     descr = "install jq"
     os.makedirs("bin", exist_ok=True)
-    if sys.platform not in ("linux", "darwin"):
-        raise Exception(
-            f"Unsupported OS for automatic jq installation: {sys.platform}.\n"
-            "Please install jq manually, make sure it is executable and in $PATH or in ./bin/")
-
-    print("Installing jq in bin/jq")
+    osys = get_valid_os("jq")
+    arch = get_valid_arch("jq")
 
     try:
-        if sys.platform == "linux":
-            lib.run(descr, f"curl -L {JQ_URL_LINUX} -o bin/jq")
-        elif sys.platform == "darwin":
-            lib.run(descr, f"curl -L {JQ_URL_MACOS} -o bin/jq")
+        print("Installing jq in bin/jq")
+        url = f"https://github.com/jqlang/jq/releases/download/jq-1.7/jq-{osys}-{arch}"
+        lib.run(descr, f"curl -L {url} -o bin/jq")
         lib.chmodx("bin/jq")
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to install jq: ")
@@ -396,17 +415,11 @@ def install_foundry():
 MIN_GETH_VERSION = "1.12.0"
 """Minimum supported geth version."""
 
-INSTALL_GETH_VERSION = "1.12.0"
+INSTALL_GETH_VERSION = "1.12.2"
 """Version of geth to install if not found."""
 
-GETH_URL_LINUX = \
-    "https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.12.0-e501b3b0.tar.gz"
-"""Link to geth binary for Linux."""
 
-GETH_URL_MACOS = \
-    "https://gethstore.blob.core.windows.net/builds/geth-darwin-amd64-1.12.0-e501b3b0.tar.gz"
-"""Link to geth binary for MacOS."""
-
+# --------------------------------------------------------------------------------------------------
 
 def check_or_install_geth():
     """
@@ -428,14 +441,15 @@ def check_or_install_geth():
                 lib.debug(f"Found {abspath} (version: {version})")
 
     if lib.ask_yes_no(
-            f"Geth {MIN_GETH_VERSION} is required. Install in ./bin?\n"
+            f"Geth >= {MIN_GETH_VERSION} is required. "
+            f"Install Geth {INSTALL_GETH_VERSION} in ./bin?\n"
             "This will overwrite any version of geth that might be in that directory."):
         install_geth()
     else:
         raise Exception(f"Geth missing or wrong version (expected: > {MIN_GETH_VERSION}).")
 
 
-####################################################################################################
+# --------------------------------------------------------------------------------------------------
 
 def install_geth():
     """
@@ -443,20 +457,18 @@ def install_geth():
     """
     descr = "install geth"
     os.makedirs("bin", exist_ok=True)
-    if sys.platform not in ("linux", "darwin"):
-        raise Exception(
-            f"Unsupported OS for automatic geth installation: {sys.platform}.\n"
-            "Please install geth manually and have it in $PATH or in ./bin/")
+    osys = get_valid_os("geth")
+    arch = get_valid_arch("geth")
+    if osys == "darwin" and arch == "arm64":
+        arch = "amd64"  # only version available, and is compatible via Rosetta
 
     try:
-        if sys.platform == "linux":
-            lib.run(descr, f"curl -L {GETH_URL_LINUX} | tar xz -C bin --strip-components=1")
-        elif sys.platform == "darwin":
-            lib.run(descr, f"curl -L {GETH_URL_MACOS} | tar xz -C bin --strip-components=1")
+        host = "https://gethstore.blob.core.windows.net"
+        url = f"{host}/builds/geth-{osys}-{arch}-1.12.2-bed84606.tar.gz"
+        lib.run(descr, f"curl -L {url} | tar xz -C bin --strip-components=1")
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to install geth: ")
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
-
 
 ####################################################################################################
