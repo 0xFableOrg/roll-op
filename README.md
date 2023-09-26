@@ -1,22 +1,20 @@
-# simple-op-stack-rollup
+# roll-op
 
 Under development!
 
 This work is support by an
 [Optimism governance grant](https://app.charmverse.io/op-grants/proposals?id=a6e6bfb8-75bd-41bd-acb1-618c3c62e667).
 
-simple-op-stack rollup is open-source package that makes it trivial for any
-developer to spin up an OP stack rollup, both for development and production
-use.
+roll-op (formerly simple-op-stack-rollup) is an open-source script that makes it trivial for any
+developer to spin up an OP stack rollup, both for development and production use.
 
-The package enables you to configure and run your own rollup infrastructure by
-running only two or three commands. It uses a single well-documented
-configuration file, and helps you fill it via a command line wizard.
+The script enables you to configure and run your own rollup infrastructure by running only two or
+three commands. It uses a single well-documented configuration file, and helps you fill it via a
+command line wizard.
 
-Additionally, the package supports spinning EIP-4337 account abstraction
-infrastructure (a bundler and a paymaster) and helps you configure them so that
-you can automatically subsidize gas for transactions that match certain criteria
-(e.g. transactions to specific whitelisted contracts).
+Additionally, the package supports spinning EIP-4337 account abstraction infrastructure (a bundler
+and a paymaster) and helps you configure them so that you can automatically subsidize gas for
+transactions that match certain criteria (e.g. transactions to specific whitelisted contracts).
 
 ## Versioning
 
@@ -53,12 +51,10 @@ always for your permission before installing anything outside the current direct
 ## Usage
 
 ```
-./roll.py [-h] [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean]
-               [--stack-trace] [--no-ansi-esc]
-               <command> ...
+usage: rollop [-h] [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--stack-trace] [--no-ansi-esc] <command> ...
 
 Helps you spin up an op-stack rollup.
-Use `./roll.py <command> --help` to get more detailed help for a command.
+Use `rollop <command> --help` to get more detailed help for a command.
 
 options:
   -h, --help            show this help message and exit
@@ -71,10 +67,10 @@ options:
 
 commands:
   <command>
-    
+
     -- MAIN COMMANDS --
 
-    help                show this help message and exit
+    help                show this help message and exit~~~~
     setup               installs prerequisites and builds the optimism repository
     devnet              starts a local devnet, comprising an L1 node and all L2 components
     clean               cleans up deployment outputs and databases
@@ -95,31 +91,31 @@ commands:
     clean-build         cleans up build outputs (but not deployment outputs or databases)
     clean-l1            cleans up deployment outputs & databases for L1
     clean-l2            cleans up deployment outputs & databases for L2
-
 ```
 
-You can also use the `rollop` script as an alternative to `roll.py` (you can also symlink it into
-you `PATH`) and it will work.
+You can also use the `roll.py` script directly as `./roll.py` or `python3 roll.py`  as an
+alternative. However `rollop` is recommended, as it will guarantee it is run from the rollop
+repository and can be symlinked if required.
 
 ### Examples
 
 ```bash
-./roll.py setup
-./roll.py setup --yes # auto-install all dependencies
-./roll.py --clean devnet
+./rollop setup
+./rollop setup --yes # auto-install all dependencies
+./rollop --clean devnet
 
 # equivalent with a different deployment name
-./roll.py --clean --name=testing --preset=dev --config=config.toml.example devnet
+./rollop --clean --name=testing --preset=dev --config=config.toml.example devnet
 
 # to deploy & run on an existing L1 (after setting up a config.toml)
-./roll.py --clean --name=my-prod-rollup --preset=prod --config=config.toml l2
+./rollop --clean --name=my-prod-rollup --preset=prod --config=config.toml l2
 
 # resume previously create rollup (e.g. after killing previous command)
-./roll.py --name=my-prod-rollup preset=prod --config=config.toml start-l2
+./rollop --name=my-prod-rollup preset=prod --config=config.toml start-l2
 
 # deploy rollup on existing L1, then start it
-./roll.py --name=my-prod-rollup preset=prod --config=config.toml deploy-l2
-./roll.py --name=my-prod-rollup preset=prod --config=config.toml start-l2
+./rollop --name=my-prod-rollup preset=prod --config=config.toml deploy-l2
+./rollop --name=my-prod-rollup preset=prod --config=config.toml start-l2
 ```
 
 ## Contributing (for developers building simple-op-stack rollup)

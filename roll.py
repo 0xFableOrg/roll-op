@@ -26,8 +26,9 @@ import setup
 ####################################################################################################
 
 parser = argparse.ArgumentParser(
+    prog="rollop",
     description="R|Helps you spin up an op-stack rollup.\n"
-                "Use `roll.py <command> --help` to get more detailed help for a command.",
+                "Use `rollop <command> --help` to get more detailed help for a command.",
     formatter_class=argparsext.SmartFormatter)
 
 subparsers = parser.add_subparsers(
