@@ -71,13 +71,13 @@ class Config:
             "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
         """
         Private key used to deploy contracts to L1.
-        Use the 0th "test junk" mnemonnic key by default.
+        Uses the 0th "test junk" mnemonnic key by default.
         """
 
         self.batcher_account = "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         """
         Account used to submit batches.
-        By default, use the 2nd (0-based!) "test junk" mnemonic account.
+        By default, uses the 2nd (0-based!) "test junk" mnemonic account.
         """
 
         self.batcher_key = None
@@ -95,14 +95,14 @@ class Config:
         self.batcher_hd_path = "m/44'/60'/0'/0/2"
         """
         HD derivation path to use to derive the batcher key.
-        Use the 2nd (0-based!) "test junk" mnemonnic key by default.
+        Uses the 2nd (0-based!) "test junk" mnemonnic key by default.
         Ignored if :py:attribute:`proposer_key` is set.
         """
 
         self.proposer_account = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         """
         Account used to propose output roots
-        By default, use the 0th "test junk" mnemonic account.
+        By default, uses the 0th "test junk" mnemonic account.
         """
 
         self.proposer_key = None
@@ -120,14 +120,14 @@ class Config:
         self.proposer_hd_path = "m/44'/60'/0'/0/1"
         """
         HD derivation path to use to derive the proposer key.
-        Use the 1th (0-based!) "test junk" mnemonnic key by default.
+        Uses the 1th (0-based!) "test junk" mnemonnic key by default.
         Ignored if :py:attribute:`proposer_key` is set.
         """
 
         self.p2p_sequencer_account = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"
         """
         If provided, account used by the sequencer to sign blocks gossiped over p2p.
-        Use the 5th (0-based!) "test junk" mnemonic account by default.
+        Uses the 5th (0-based!) "test junk" mnemonic account by default.
         """
 
         self.p2p_sequencer_key = "8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba"
@@ -147,7 +147,7 @@ class Config:
                 - TODO: figure out what these do
         - It is the recipient for all fees (basefees, l1 fees, sequencer fees).
         
-        By default, use the 0th "test junk" account.
+        By default, uses the 0th "test junk" account.
         
         Later, we should split this to granular roles.
         """
@@ -156,7 +156,7 @@ class Config:
         """
         Private key corresponding to :py:attribute:`admin_account`, see its documentation for
         more details.
-        By default, use the 0th "test junk" account key.
+        By default, uses the 0th "test junk" account key.
         Do not prefix the key with 0x.
         """
 
