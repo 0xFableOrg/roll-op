@@ -157,7 +157,7 @@ def start_devnet_l1_node(config: Config):
                 "--metrics",
                 f"--metrics.port={config.l1_metrics_listen_port}",
                 f"--metrics.addr={config.l1_metrics_listen_addr}"]),
-        ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+        ], forward="fd", stdout=log_file)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_listen_port)
 

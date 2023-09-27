@@ -61,6 +61,6 @@ def start(config: Config):
             f"--rpc.addr={config.batcher_rpc_listen_addr}",
             f"--rpc.port={config.batcher_rpc_listen_port}"
         ],
-        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+        forward="fd", stdout=log_file)
 
 ####################################################################################################

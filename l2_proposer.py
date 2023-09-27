@@ -63,7 +63,7 @@ def start(config: Config):
                 f"--metrics.port={config.proposer_metrics_listen_port}",
                 f"--metrics.addr={config.proposer_metrics_listen_addr}"])
         ],
-        forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+        forward="fd", stdout=log_file)
 
 
 ####################################################################################################

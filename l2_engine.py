@@ -95,7 +95,7 @@ def start(config: Config):
             # Other geth options
             f"--txlookuplimit={config.l2_engine_history_transactions}",
 
-        ], forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
+        ], forward="fd", stdout=log_file)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_engine_rpc_listen_port)
 

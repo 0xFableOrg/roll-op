@@ -46,15 +46,16 @@ def setup_optimism_repo():
     lib.run("checkout stable version", f"git checkout --detach {git_tag}",
             cwd="optimism")
 
+    log_file = "logs/build_optimism.log"
     print(
-        "Starting to build the optimism repository. Logging to logs/build_optimism.log\n"
+        f"Starting to build the optimism repository. Logging to {log_file}\n"
         "This may take a while...")
 
     lib.run_roll_log(
         descr="build optimism",
         command=deps.cmd_with_node("make build"),
         cwd="optimism",
-        log_file="logs/build_optimism.log")
+        log_file=log_file)
 
     shutil.copyfile("optimism/op-proposer/bin/op-proposer", "bin/op-proposer")
     lib.chmodx("bin/op-proposer")

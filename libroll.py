@@ -36,7 +36,8 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
       implements the `write(self, text)` and `flush(self)` methods.
     - "discard": the output is discarded.
     - "fd" (for "file descriptor"): the output is redirected to the provided `stdout` and `stderr`.
-      If those aren't provided, this will behave similarly to "self".
+      If those aren't provided, this will behave similarly to "self". If only `stdout` is provided,
+      `stderr` is redirected to it.
 
     The default is "stream" if the `stream` option is specified, "self" if `wait=False` and
     "capture" otherwise.
@@ -75,7 +76,7 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
         stderr = subprocess.DEVNULL
     elif forward == "fd":
         stdout = kwargs.pop("stdout", None)
-        stderr = kwargs.pop("stderr", None)
+        stderr = kwargs.pop("stderr", stdout)
     else:
         raise AssertionError(f"Invalid run_mode: {forward}")
 

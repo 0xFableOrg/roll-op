@@ -80,8 +80,7 @@ def start(config: Config, sequencer: bool = True):
         ],
         cwd=config.db_path,  # so that `opnode_*_db` directories get created under the db directory
         forward="fd",
-        stdout=log_file,
-        stderr=subprocess.STDOUT)
+        stdout=log_file)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_node_rpc_listen_port)
 
