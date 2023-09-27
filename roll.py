@@ -10,6 +10,7 @@ import os
 
 import argparsext
 import block_explorer
+import account_abstraction
 import deps
 import l1
 import l2
@@ -68,6 +69,10 @@ cmd_l2 = command(
     "l2",
     help="deploys and starts a local L2 blockchain")
 
+command(
+    "aa",
+    help="starts an ERC-4337 bundler and a paymaster signer service")
+
 # --------------------------------------------------------------------------------------------------
 delimiter("GRANULAR COMMANDS")
 
@@ -112,6 +117,11 @@ command(
     description="Cleans up build outputs — leaves deployment outputs and databases intact, "
          "as well as anything that was downloaded. "
          "Mostly used to get the Optimism monorepo to rebuild.")
+
+command(
+    "clean-aa",
+    help="cleans up deployment outputs for account abstraction",
+)
 
 command(
     "clean-l1",
@@ -178,9 +188,16 @@ for cmd in [cmd_l2, cmd_devnet]:
     # NOTE: When functional, might want to add to other commands (e.g. `start-l2`).
     cmd.add_argument(
         "--explorer",
-        help="deploy a blockscout explorer for the L2 chain (NOT FUNCTIONAL)",
+        help="deploys a blockscout explorer for the L2 chain (NOT FUNCTIONAL)",
         default=False,
         dest="explorer",
+        action="store_true")
+
+    cmd.add_argument(
+        "--aa",
+        help="starts an ERC4337 bundler and a paymaster signer service",
+        default=False,
+        dest="aa",
         action="store_true")
 
 
@@ -272,6 +289,20 @@ def load_config() -> Config:
 
 ####################################################################################################
 
+def start_addons(config: Config):
+    """
+    Starts a block explorer and/or an ERC4337 bundler and paymaster, if configured to do so.
+    """
+    if hasattr(lib.args, "explorer") and lib.args.explorer:
+        block_explorer.launch_blockscout()
+    if hasattr(lib.args, "aa") and lib.args.aa:
+        account_abstraction.setup()
+        account_abstraction.deploy(config)
+        account_abstraction.start(config)
+
+
+####################################################################################################
+
 def clean(config: Config):
     """
     Cleans up deployment outputs and databases.
@@ -308,8 +339,7 @@ def main():
             if config.deploy_devnet_l1:
                 l1.deploy_devnet_l1(config)
             l2.deploy_and_start(config)
-            if lib.args.explorer:
-                block_explorer.launch_blockscout()
+            start_addons(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "clean":
@@ -319,8 +349,13 @@ def main():
             deps.check_or_install_foundry()
 
             l2.deploy_and_start(config)
-            if lib.args.explorer:
-                block_explorer.launch_blockscout()
+            start_addons(config)
+            PROCESS_MGR.wait_all()
+
+        elif lib.args.command == "aa":
+            account_abstraction.setup()
+            account_abstraction.deploy(config)
+            account_abstraction.start(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l1":
@@ -369,6 +404,9 @@ def main():
 
         elif lib.args.command == "clean-l2":
             l2.clean(config)
+
+        elif lib.args.command == "clean-aa":
+            account_abstraction.clean()
 
         print("Done.")
     except KeyboardInterrupt:
