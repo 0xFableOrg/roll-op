@@ -6,7 +6,6 @@ on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 import os
 import pathlib
 import shutil
-import subprocess
 import sys
 
 import libroll as lib

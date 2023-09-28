@@ -1,4 +1,3 @@
-import subprocess
 import sys
 
 from config import Config

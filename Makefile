@@ -6,12 +6,15 @@ lint-fix:
 	@ruff check . --fix
 .PHONY: lint-fix
 
+AUTOPEP8_EXCLUDES=optimism,op-geth,venv,account-abstraction
+AUTOPEP8_OPTIONS=--recursive . --exclude $(AUTOPEP8_EXCLUDES) --max-line-length 100
+
 format-check:
-	@autopep8 --diff --recursive . --exclude optimism,op-geth,venv --max-line-length 100 --exit-code
+	@autopep8 --diff --exit-code $(AUTOPEP8_OPTIONS)
 .PHONY: format-check
 
 format:
-	@autopep8 --in-place --recursive . --exclude optimism,op-geth,venv --max-line-length 100
+	@autopep8 --in-place $(AUTOPEP8_OPTIONS)
 .PHONY: format
 
 check: lint format-check
