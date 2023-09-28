@@ -158,7 +158,8 @@ def check_or_install_go():
                 f"go is not installed. Please install Go version {GO_MIN_VERSION} or higher.")
     else:
         version = lib.run("get go version", "go version")
-        version = re.search(r"go version go(\d+\.\d+\.\d+)", version).group(1)
+        version = re.search(r"go version go(\d+\.\d+(\.\d+)?)", version)
+        version = "0" if version is None else version.group(1)
         if version < GO_MIN_VERSION and not install_go():
             raise Exception(
                 "Go version is too low. "
