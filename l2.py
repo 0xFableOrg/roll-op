@@ -211,8 +211,6 @@ def deploy_l1_contracts(config: Config):
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
-    print(config.l1_rpc)
-
     env = {**os.environ,
            "DEPLOYMENT_CONTEXT": config.deployment_name,
            "ETH_RPC_URL": config.l1_rpc}
