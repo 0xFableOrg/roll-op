@@ -216,8 +216,8 @@ def go_path_setup():
         os.environ.pop("GOROOT", None)  # works if GOROOT isn't set
 
     # make sure that GOPATH is set in PATH (this is needed for 4337 bundler)
-    gopath = lib.run("get GOPATH", "go env GOPATH")
-    lib.prepend_to_path(gopath)
+    gopath = lib.run("get GOPATH", "go env GOPATH").strip()
+    lib.prepend_to_path(gopath + "/bin")
 
 
 ####################################################################################################
