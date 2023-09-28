@@ -1,16 +1,15 @@
+l2_chain_id = 42069
+
 ## Devnet
 
 # (same as defaults)
-
 l1_chain_id = 900
-l2_chain_id = 42069
 l1_rpc = "http://127.0.0.1:8545"
 
 ## For Goerli
 
-#l1_chain_id = 5 # Goerli
-#l2_chain_id = 42069
-#l1_rpc = "https://eth-goerli.g.alchemy.com/v2/demo"
+#l1_chain_id = 5
+#l1_rpc = "https://ethereum-goerli.publicnode.com"
 
 ## Keys
 
