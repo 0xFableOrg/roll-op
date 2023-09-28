@@ -218,15 +218,15 @@ def load_config() -> Config:
                 "Missing dependencies. Try running python roll.py setup first.")
         if os.path.exists(lib.args.config_path):
             with open(lib.args.config_path, mode="rb") as f:
-                devnet_config_file = tomli.load(f)
+                config_file = tomli.load(f)
         else:
             raise Exception(f"Cannot find config file at {lib.args.config_path}")
 
         try:
-            for key, value in devnet_config_file.items():
+            for key, value in config_file.items():
                 if hasattr(config, key):
                     setattr(config, key, value)
-            if devnet_config_file.get("batching_inbox_address") is None:
+            if config_file.get("batching_inbox_address") is None:
                 # Derive a unique batch inbox address from the chain id.
                 addr = "0xff69000000000000000000000000000000000000"
                 str_id = str(config.l2_chain_id)
@@ -248,7 +248,7 @@ def load_config() -> Config:
             ]
 
             for option in recommended_options:
-                if devnet_config_file.get(option) is None:
+                if config_file.get(option) is None:
                     print(f"Warning: config file does not specify `{option}`.\n"
                           "It is highly recommended to specify this option, "
                           "especially for non-local deployments.")
