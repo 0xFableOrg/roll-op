@@ -61,9 +61,12 @@ def setup():
     log_file = "logs/install_bundler.log"
     print(f"Installing stackup bundler. Logging to {log_file}")
 
+    env = {**os.environ, "GOBIN": os.path.abspath("bin")}
+
     lib.run_roll_log(
         "install stackup bundler",
         f"go install {github_url}@{version}",
+        env=env,
         log_file=log_file)
 
     # === build paymaster dependencies ===
