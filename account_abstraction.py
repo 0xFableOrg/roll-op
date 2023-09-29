@@ -118,9 +118,13 @@ def start_bundler(config: Config):
     Start the stackup bundler.
     """
 
+    bundler_key = config.bundler_key
+    if bundler_key.startswith("0x"):
+        bundler_key = bundler_key[2:]
+
     env = {**os.environ,
            "ERC4337_BUNDLER_ETH_CLIENT_URL": config.l2_engine_rpc,
-           "ERC4337_BUNDLER_PRIVATE_KEY": config.bundler_key}
+           "ERC4337_BUNDLER_PRIVATE_KEY": bundler_key}
 
     log_file_path = "logs/stackup_bundler.log"
     log_file = open(log_file_path, "w")
