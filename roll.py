@@ -373,13 +373,13 @@ def main():
         elif lib.args.command == "start-l2":
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
             l2.start(config)
-            if lib.args.explorer:
+            if hasattr(lib.args, "explorer") and lib.args.explorer:
                 block_explorer.launch_blockscout()
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-engine":
             l2_engine.start(config)
-            if lib.args.explorer:
+            if hasattr(lib.args, "explorer") and lib.args.explorer:
                 block_explorer.launch_blockscout()
             PROCESS_MGR.wait_all()
 
