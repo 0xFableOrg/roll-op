@@ -122,7 +122,7 @@ def setup_op_geth_repo():
 
 def setup_blockscout_repo():
     github_url = "https://github.com/blockscout/blockscout.git"
-    git_tag = "49eee16ee1078a975a060b1564e6ea5b1ad70f39"
+    git_tag = "b6136977051730a7acd47b35b6bdcf9a74e39be9"
 
     if os.path.isfile("blockscout"):
         raise Exception("Error: 'blockscout' exists as a file and not a directory.")
@@ -130,15 +130,20 @@ def setup_blockscout_repo():
         print("Cloning the blockscout repository. This may take a while...")
         lib.clone_repo(github_url, "clone the blockscout repository")
 
-        lib.run("checkout stable version", f"git checkout --detach {git_tag}",
+        lib.run("checkout optimism stable version", f"git checkout --detach {git_tag}",
                 cwd="blockscout")
 
         # TODO make this not replace multiple times if run multiple times
+        anchor_line = "image: blockscout/blockscout:${DOCKER_TAG:-latest}"
+        optimism_line = "image: blockscout/blockscout-optimism:5.2.3-postrelease-9b25b63f"
         if sys.platform == "darwin" and platform.processor() == "arm":
-            anchor_line = "image: blockscout/blockscout:${DOCKER_TAG:-latest}"
             lib.replace_in_file(
-                "blockscout/docker-compose/docker-compose-no-build-hardhat-network.yml",
-                {anchor_line: f"{anchor_line}\nplatform: linux/arm64"})
+                "blockscout/docker-compose/services/docker-compose-backend.yml",
+                {anchor_line: f"{optimism_line}\n    platform: linux/arm64"})
+        else:
+            lib.replace_in_file(
+                "blockscout/docker-compose/services/docker-compose-backend.yml",
+                {anchor_line: optimism_line})
 
 
 ####################################################################################################
