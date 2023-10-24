@@ -135,7 +135,7 @@ def setup_blockscout_repo():
 
         # TODO make this not replace multiple times if run multiple times
         anchor_line = "image: blockscout/blockscout:${DOCKER_TAG:-latest}"
-        optimism_line = "image: blockscout/blockscout-optimism:5.2.3-postrelease-9b25b63f"
+        optimism_line = "image: blockscout/blockscout-optimism:5.2.2-postrelease-3c670710"
         if sys.platform == "darwin" and platform.processor() == "arm":
             lib.replace_in_file(
                 "blockscout/docker-compose/services/docker-compose-backend.yml",
