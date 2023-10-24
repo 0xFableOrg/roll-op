@@ -27,7 +27,7 @@ def launch_blockscout():
 
     PROCESS_MGR.start(
         "spin up block explorer",
-        "DOCKER_TAG=5.1.0 docker compose -f "
+        "DOCKER_TAG=5.1.0 FRONTEND_DOCKER_TAG=v1.15.0 docker compose -f "
         "docker-compose-no-build-geth.yml up",
         cwd="blockscout/docker-compose",
         forward="fd", stdout=log_file, stderr=subprocess.STDOUT)
