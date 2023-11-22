@@ -69,5 +69,4 @@ def run_playbook(config: Config, descr, log_file, playbook, extra_vars=None, tag
 
     if tags is not None:
         command = f"{command} --tags {','.join(tags)}"
-    print(command)
     lib.run(descr, command, cwd=ansible_dir, forward="fd", stdout=log_file)
