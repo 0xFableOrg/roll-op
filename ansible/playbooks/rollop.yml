@@ -1,0 +1,7 @@
+---
+- name: Setup rollop
+  hosts: unique_hosts, l1, l2
+  become: true
+  roles:
+    - role: rollop
+      become: true
