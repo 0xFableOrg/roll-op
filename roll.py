@@ -8,6 +8,7 @@ invoking the appropriate commands.
 import argparse
 import os
 
+import ansible
 import argparsext
 import block_explorer
 import account_abstraction
@@ -130,6 +131,11 @@ command(
 command(
     "clean-l2",
     help="cleans up deployment outputs & databases for L2")
+
+command(
+    "remote",
+    help="deploy to remote hosts using ansible"
+)
 
 # --------------------------------------------------------------------------------------------------
 # Global Flags
@@ -282,6 +288,36 @@ def load_config() -> Config:
         config.l2_engine_rpc = "http://127.0.0.1:8545"
         config.l2_engine_rpc_listen_port = 8545
 
+    # Update endpoints if remote deployment
+    if config.l1_node_remote_ip is not None:
+        setattr(
+            config,
+            "l1_rpc",
+            config.l1_rpc.replace("127.0.0.1", config.l1_node_remote_ip)
+        )
+        setattr(
+            config,
+            "l1_rpc_for_node",
+            config.l1_rpc_for_node.replace("127.0.0.1", config.l1_node_remote_ip)
+        )
+    if config.l2_engine_remote_ip is not None:
+        setattr(
+            config,
+            "l2_engine_rpc",
+            config.l2_engine_rpc.replace("127.0.0.1", config.l2_engine_remote_ip)
+        )
+        setattr(
+            config,
+            "l2_engine_authrpc",
+            config.l2_engine_authrpc.replace("127.0.0.1", config.l2_engine_remote_ip)
+        )
+    if config.l2_sequencer_remote_ip is not None:
+        setattr(
+            config,
+            "l2_node_rpc",
+            config.l2_node_rpc.replace("127.0.0.1", config.l2_sequencer_remote_ip)
+        )
+
     config.validate()
 
     return config
@@ -407,6 +443,17 @@ def main():
 
         elif lib.args.command == "clean-aa":
             account_abstraction.clean()
+
+        if lib.args.command == "remote":
+            ansible.generate_inventory(config)
+            log_file = open("logs/ansible.log", "w")
+            ansible.run_playbook(
+                config,
+                "setup and start remote deployment",
+                log_file=log_file,
+                playbook="rollop.yml",
+                tags=["setup", "l1", "l2", "restart"]
+            )
 
         print("Done.")
     except KeyboardInterrupt:

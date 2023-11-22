@@ -10,7 +10,7 @@ class OPPaths:
     monorepo and inside the generated files directory (which by default is `optimism/.devnet`).
     """
 
-    def __init__(self, monorepo_dir="optimism", gen_dir=pjoin("optimism", ".devnet")):
+    def __init__(self, ansible_dir="ansible", monorepo_dir="optimism", gen_dir=pjoin("optimism", ".devnet")):
         # === Source Directories ===
 
         self.monorepo_dir = os.path.abspath(monorepo_dir)
@@ -89,5 +89,9 @@ class OPPaths:
 
         self.rollup_config_path = pjoin(self.gen_dir, "rollup.json")
         """L2 rollup config file path."""
+
+        # === Ansible ===
+
+        self.ansible_dir = os.path.abspath(ansible_dir)
 
 ####################################################################################################

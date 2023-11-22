@@ -28,7 +28,7 @@
     force: true
     repo: https://github.com/0xFableOrg/roll-op.git
     dest: /roll-op
-    version: master
+    version: feature/ansible
   tags:
     - setup
 

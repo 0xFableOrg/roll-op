@@ -21,3 +21,7 @@
 # Private configuration
 /.env
 /config.toml
+
+# Ansible
+.facts
+inventory.yml

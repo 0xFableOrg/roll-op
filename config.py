@@ -245,6 +245,31 @@ class Config:
         Chain ID of the L1 to use. If spinning an L1 devnet, it will use this chain ID.
         """
 
+        self.l1_node_remote_ip = None
+        """
+        Remote IP address of a server to run the l1 node.
+        """
+
+        self.l2_engine_remote_ip = None
+        """
+        Remote IP address of a server to run the l2 engine.
+        """
+
+        self.l2_sequencer_remote_ip = None
+        """
+        Remote IP address of a server to run the l2 node (sequencer).
+        """
+
+        self.l2_proposer_remote_ip = None
+        """
+        Remote IP address of a server to run the l2 proposer.
+        """
+
+        self.l2_batcher_remote_ip = None
+        """
+        Remote IP address of a server to run the l2 batcher.
+        """
+
         self.l1_rpc = "http://127.0.0.1:8545"
         """
         Protocol + address + port to use to connect to the L1 RPC server
@@ -703,6 +728,12 @@ class Config:
         in different locations, so it helps to maintain a single source of truth.
         """
 
+        # ==========================================================================================
+        # Ansible Configuration
+
+        self.ansible_ssh_user = None
+        self.ansible_ssh_key = None
+
     # ==============================================================================================
 
     @property
@@ -813,6 +844,12 @@ class Config:
         """
 
         # === Network ===
+
+        self.l1_node_remote_ip = None
+        self.l2_engine_remote_ip = None
+        self.l2_sequencer_remote_ip = None
+        self.l2_proposer_remote_ip = None
+        self.l2_batcher_remote_ip = None
 
         # We need to do this because the documentation assigns 8545 to the L2 engine RPC.
         self.l1_rpc = "http://127.0.0.1:9545"
