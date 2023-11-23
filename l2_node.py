@@ -30,7 +30,8 @@ def start(config: Config, sequencer: bool = True):
         l1_rpc = config.l1_rpc
 
     if config.l2_engine_remote_ip == config.l2_sequencer_remote_ip:
-        l2_engine_authrpc = config.l2_engine_authrpc.replace(config.l2_engine_remote_ip, "127.0.0.1")
+        l2_engine_authrpc = config.l2_engine_authrpc.replace(
+            config.l2_engine_remote_ip, "127.0.0.1")
     else:
         l2_engine_authrpc = config.l2_engine_authrpc
 

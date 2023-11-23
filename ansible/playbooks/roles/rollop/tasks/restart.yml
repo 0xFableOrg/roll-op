@@ -17,7 +17,7 @@
     - l1
     - restart
 
-- name: Deploy l2
+- name: Deploy l2 contracts + create genesis
   ansible.builtin.shell:
     chdir: /roll-op
     cmd: ./rollop --no-ansi-esc --config /roll-op/config.toml deploy-l2
