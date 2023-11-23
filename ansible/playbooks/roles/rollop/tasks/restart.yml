@@ -12,6 +12,7 @@
   ansible.builtin.wait_for:
     port: "{{ l1_geth_port }}"
     delay: 10
+  when: "'l1' in group_names"
   tags:
     - l1
     - restart
