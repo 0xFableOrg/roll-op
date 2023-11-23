@@ -8,16 +8,19 @@
     - l1
     - restart
 
-- name: Iterate over l2 client types
-  ansible.builtin.debug:
-    msg: "Restarting l2-{{ l2_service }} service"
-  loop:
-    - engine
-    - sequencer
-    - proposer
-    - batcher
-  loop_control:
-    loop_var: l2_service
+- name: Wait for geth port
+  ansible.builtin.wait_for:
+    port: "{{ l1_geth_port }}"
+    delay: 10
+  tags:
+    - l1
+    - restart
+
+- name: Deploy l2
+  ansible.builtin.shell:
+    chdir: /roll-op
+    cmd: ./rollop --no-ansi-esc --config /roll-op/config.toml deploy-l2
+  when: "'l2_engine' in group_names"
   tags:
     - l2
     - restart
@@ -26,6 +29,20 @@
   ansible.builtin.systemd:
     name: "l2-{{ item }}"
     state: restarted
+  loop:
+    - engine
+    - sequencer
+    - proposer
+    - batcher
+  when: "'l2_' + item in group_names"
+  tags:
+    - l2
+    - restart
+
+- name: Wait for l2 service port
+  ansible.builtin.wait_for:
+    port: "{{ l2_service_ports[item] }}"
+    delay: 10
   loop:
     - engine
     - sequencer

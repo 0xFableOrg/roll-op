@@ -1,6 +1,7 @@
 ---
 - name: setup roll-op
   include_tasks: setup.yml
+  when: "'unique_hosts' in group_names"
   tags:
     - setup
 

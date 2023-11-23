@@ -63,6 +63,11 @@ cmd_devnet = command(
     help="starts a local devnet, comprising an L1 node and all L2 components")
 
 command(
+    "remote",
+    help="deploy to remote hosts using ansible"
+)
+
+command(
     "clean",
     help="cleans up deployment outputs and databases")
 
@@ -131,11 +136,6 @@ command(
 command(
     "clean-l2",
     help="cleans up deployment outputs & databases for L2")
-
-command(
-    "remote",
-    help="deploy to remote hosts using ansible"
-)
 
 # --------------------------------------------------------------------------------------------------
 # Global Flags
