@@ -111,11 +111,11 @@ repository and can be symlinked if required.
 ./rollop --clean --name=my-prod-rollup --preset=prod --config=config.toml l2
 
 # resume previously create rollup (e.g. after killing previous command)
-./rollop --name=my-prod-rollup preset=prod --config=config.toml start-l2
+./rollop --name=my-prod-rollup --preset=prod --config=config.toml start-l2
 
 # deploy rollup on existing L1, then start it
-./rollop --name=my-prod-rollup preset=prod --config=config.toml deploy-l2
-./rollop --name=my-prod-rollup preset=prod --config=config.toml start-l2
+./rollop --name=my-prod-rollup --preset=prod --config=config.toml deploy-l2
+./rollop --name=my-prod-rollup --preset=prod --config=config.toml start-l2
 ```
 
 ## Contributing (for developers building simple-op-stack rollup)
