@@ -43,7 +43,7 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     "capture" otherwise.
 
     You can only specify `stdout` and `stderr` when using `forward='fd'` (the other modes will set
-    it explicitly according to their purpose).
+    them explicitly according to their purpose).
 
     Examples of possible values for `stream` options are :py:class:`libroll.Tee`. and
     :py:class:`term.FixedTermSizeStream`.
