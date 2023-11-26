@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 
+import l2
 from config import Config
 import libroll as lib
 from processes import PROCESS_MGR
@@ -17,6 +18,8 @@ def start(config: Config, sequencer: bool = True):
 
     lib.ensure_port_unoccupied(
         "L2 node", config.l2_node_rpc_listen_addr, config.l2_node_rpc_listen_port)
+
+    l2.generate_jwt_secret(config)
 
     log_file_path = "logs/l2_node.log"
     print(f"Starting L2 node. Logging to {log_file_path}")

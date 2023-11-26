@@ -301,6 +301,14 @@ def generate_l2_genesis(config: Config):
 ####################################################################################################
 
 def generate_jwt_secret(config: Config):
+    """
+    Generate the JWT secret if it doesn't already exist. This enables secure communication
+    between the L2 node and the L2 execution engine.
+
+    This is called both by the L2 node and the L2 engine when they start. If deploying them on
+    separate machines, it is necessary to generate this in advance and transmit them to both
+    machines.
+    """
     if os.path.isfile(config.jwt_secret_path) and os.path.getsize(config.jwt_secret_path) >= 64:
         return
 
