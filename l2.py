@@ -311,7 +311,7 @@ def generate_jwt_secret(config: Config):
         with open(config.jwt_secret_path, "w") as file:
             file.write(random_hex)
     except Exception as e:
-        raise lib.extend_exception(e, "Failed to write JWT secret to file")
+        raise lib.extend_exception(e, "Failed to write JWT secret to file") from None
 
 
 ####################################################################################################

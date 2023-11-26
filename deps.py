@@ -198,7 +198,7 @@ def install_go() -> bool:
         lib.chmodx("bin/go")
     except Exception as err:
         shutil.rmtree("bin/go_install", ignore_errors=True)
-        raise lib.extend_exception(err, prefix="Failed to install go: ")
+        raise lib.extend_exception(err, prefix="Failed to install go: ") from None
 
     print(f"Successfully installed go {GO_INSTALL_VERSION} as ./bin/go")
     return True
@@ -238,7 +238,7 @@ def check_or_install_jq():
         lib.run(descr, f"curl -L {url} -o bin/jq")
         lib.chmodx("bin/jq")
     except Exception as err:
-        raise lib.extend_exception(err, prefix="Failed to install jq: ")
+        raise lib.extend_exception(err, prefix="Failed to install jq: ") from None
 
     print("Successfully installed jq as ./bin/jq")
 
@@ -467,7 +467,7 @@ def install_geth():
         url = f"{host}/builds/{geth_id}.tar.gz"
         lib.run(descr, f"curl -L {url} | tar xz -C bin --strip-components=1")
     except Exception as err:
-        raise lib.extend_exception(err, prefix="Failed to install geth: ")
+        raise lib.extend_exception(err, prefix="Failed to install geth: ") from None
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
 

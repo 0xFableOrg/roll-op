@@ -138,12 +138,12 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
             raise extend_exception(
                 subprocess.CalledProcessError(returncode, command),
                 prefix=f"Failed to {descr}: ",
-                suffix=f"\nProcess output:\n> {output}" if output is not None else "")
+                suffix=f"\nProcess output:\n> {output}" if output is not None else "") from None
 
         return output
 
     except OSError as e:
-        raise extend_exception(e, prefix=f"Failed to {descr}: ")
+        raise extend_exception(e, prefix=f"Failed to {descr}: ") from None
 
 
 ####################################################################################################
@@ -301,6 +301,10 @@ def extend_exception(e: Exception, prefix: str, suffix: str = ""):
     Extends the given exception with the given prefix and suffix added to the message, by wrapping
     it into a instance of :py:class:`ExtendedException`. These exceptions are not meant to be caught
     but to bubble up to the top level, where they will be printed.
+
+    Note that to avoid "During handling of the above exception, another exception occurred" messages
+    and double stack printing, you should use `raise lib.extend_exception(...) from None` to raise
+    (the `from None` part suppresses the original exception).
     """
     return ExtendedException(e, prefix, suffix)
 
