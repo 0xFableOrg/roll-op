@@ -15,6 +15,7 @@ import deps
 import l1
 import l2
 import l2_batcher
+import l2_deploy
 import l2_engine
 import l2_node
 import l2_proposer
@@ -116,7 +117,8 @@ command(
     help="cleans up build outputs (but not deployment outputs or databases)",
     description="Cleans up build outputs — leaves deployment outputs and databases intact, "
          "as well as anything that was downloaded. "
-         "Mostly used to get the Optimism monorepo to rebuild.")
+         "Mostly used to get the the download repos to rebuild. "
+         "Requires rerunning make setup after running!")
 
 command(
     "clean-aa",
@@ -125,11 +127,11 @@ command(
 
 command(
     "clean-l1",
-    help="cleans up deployment outputs & databases for L1")
+    help="cleans up deployment outputs & databases for L1, deploy config is preserved")
 
 command(
     "clean-l2",
-    help="cleans up deployment outputs & databases for L2")
+    help="cleans up deployment outputs & databases for L2, deploy config is preserved")
 
 # --------------------------------------------------------------------------------------------------
 # Global Flags
@@ -307,6 +309,9 @@ def clean(config: Config):
     """
     Cleans up deployment outputs and databases.
     """
+    if os.path.exists(config.deploy_config_path):
+        print(f"Removing {config.deploy_config_path}")
+        os.remove(config.deploy_config_path)
     l1.clean(config)
     l2.clean(config)
 
@@ -343,6 +348,10 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "clean":
+            if lib.args.aa:
+                account_abstraction.clean()
+            if lib.args.explorer:
+                block_explorer.clean()
             clean(config)
 
         elif lib.args.command == "l2":

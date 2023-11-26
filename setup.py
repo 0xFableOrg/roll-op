@@ -137,6 +137,7 @@ def setup_blockscout_repo():
 def clean_build():
     """
     Clean the build outputs (from the Optimism monorepo and the op-geth repo).
+    Running this will require re-running the setup!
     """
     lib.run(
         descr="clean optimism repo",
@@ -150,6 +151,12 @@ def clean_build():
         descr="clean op-geth repo",
         command="make clean",
         cwd="op-geth",
+        forward="self")
+
+    lib.run(
+        descr="clean account-abstraction repo",
+        command="npm run clean && rm -rf node_modules",
+        cwd="account-abstraction",
         forward="self")
 
     # NOTE: Need to cleanup blockscout when properly integrated.
