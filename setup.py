@@ -33,9 +33,10 @@ def setup(config: Config):
 
 def setup_optimism_repo():
     github_url = "https://github.com/ethereum-optimism/optimism.git"
-    # This is the earliest commit with functional devnet scripts
-    # on top of "op-node/v1.1.1" tag release.
-    git_tag = "7168db67c5b421975fef2a090aa6e6ee4e3ff298"
+
+    git_tag = "op-node/v1.3.0"
+    git_fix1_tag = "2e57472890f9fea39cde72537935393b068d3e0f"
+    git_fix2_tag = "5252c82f607af81f6cb741a370425eaf26280892"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
@@ -45,6 +46,9 @@ def setup_optimism_repo():
 
     lib.run("checkout stable version", f"git checkout --detach {git_tag}",
             cwd="optimism")
+
+    lib.run("install devnet fix", f"git cherry-pick {git_fix1_tag}", cwd="optimism")
+    lib.run("install submodules fix", f"git cherry-pick {git_fix2_tag}", cwd="optimism")
 
     log_file = "logs/build_optimism.log"
     print(
@@ -65,6 +69,9 @@ def setup_optimism_repo():
 
     shutil.copyfile("optimism/op-node/bin/op-node", "bin/op-node")
     lib.chmodx("bin/op-node")
+
+    print("Building the Cannon pre-state")
+    lib.run("building the Cannon pre-state", "make cannon-prestate", cwd="optimism")
 
     print("Successfully built the optimism repository.")
 
