@@ -428,4 +428,23 @@ def wait_for_rpc_server(address: str, port: int, retries: int = 5, wait_secs=3):
 
     raise Exception(f"Timed out waiting for {url}")
 
+
+####################################################################################################
+
+def send_json_rpc_request(url: str, nonce: int, method: str, params: list):
+    """
+    Sends a JSON-RPC request to the given JSON_RPC server URL, with the given nonce, method and
+    params, returns the decoded JSON data from the response.
+    """
+    conn = http.client.HTTPConnection(url)
+    headers = {"Content-type": "application/json"}
+    body = f'{{"id":{nonce}, "jsonrpc":"2.0", "method": "{method}", "params":{params}}}'
+    body = body.replace("'", '"') # JSON requires double quotes
+    conn.request("POST", "/", body, headers)
+    response = conn.getresponse()
+    data = response.read().decode()
+    conn.close()
+    return data
+
+
 ####################################################################################################
