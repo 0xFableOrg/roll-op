@@ -70,25 +70,25 @@ def start_devnet_l1_node(config: Config):
             f.write(config.l1_password)
         with open(config.l1_tmp_signer_key_path, "w") as f:
             f.write(config.l1_signer_private_key.replace("0x", ""))
-        lib.run(
-            "importing signing keys",
-            ["geth", "account", "import",
-             f"--datadir={config.l1_data_dir}",
-             f"--password={config.l1_password_path}",
-             config.l1_tmp_signer_key_path])
+        lib.run("importing signing keys", [
+            "geth account import",
+            f"--datadir={config.l1_data_dir}",
+            f"--password={config.l1_password_path}",
+            config.l1_tmp_signer_key_path
+        ])
         os.remove(f"{config.l1_data_dir}/block-signer-key")
 
     if not os.path.exists(config.l1_chaindata_dir):
         log_file = "logs/init_l1_genesis.log"
         print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node."
               f"Logging to {log_file}")
-        lib.run(
-            "initializing genesis",
-            ["geth",
-             f"--verbosity={config.l1_verbosity}",
-             "init",
-             f"--datadir={config.l1_data_dir}",
-             config.paths.l1_genesis_path])
+        lib.run("initializing genesis", [
+            "geth",
+            f"--verbosity={config.l1_verbosity}",
+            "init",
+            f"--datadir={config.l1_data_dir}",
+            config.paths.l1_genesis_path
+        ])
 
     log_file_path = "logs/l1_node.log"
     print(f"Starting L1 node. Logging to {log_file_path}")
@@ -99,9 +99,7 @@ def start_devnet_l1_node(config: Config):
     # starting the node. This could be an issue if the op-node is brought down or restarted later,
     # or if the sequencing window is larger than the time-to-prune.
 
-    PROCESS_MGR.start(
-        "starting geth",
-        [
+    PROCESS_MGR.start("starting geth", [
             "geth",
 
             f"--datadir={config.l1_data_dir}",
@@ -156,7 +154,9 @@ def start_devnet_l1_node(config: Config):
                 "--metrics",
                 f"--metrics.port={config.l1_metrics_listen_port}",
                 f"--metrics.addr={config.l1_metrics_listen_addr}"]),
-        ], forward="fd", stdout=log_file)
+        ],
+        forward="fd",
+        stdout=log_file)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_listen_port)
 
