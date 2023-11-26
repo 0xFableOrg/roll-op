@@ -307,6 +307,12 @@ class Config:
         default).
         """
 
+        self.deploy_create2_deployer = False
+        """
+        Whether to deploy the CREATE2 deployer contract on the L1 before deploying the L2 contracts.
+        (False by default).
+        """
+
         # ==========================================================================================
         # Devnet L1 Configuration
 
@@ -355,6 +361,12 @@ class Config:
 
         self.l1_password = "l1_devnet_password"
         """Password to use to secure the signer key."""
+
+        self.temp_l1_rpc_listen_port = 8545
+        """
+        Port for the temporary L1 RPC server, which is used to deploy then dump the L2 contracts,
+        to be included in the devnet L1 genesis. (8545 by default)
+        """
 
         # === Metrics ===
 
