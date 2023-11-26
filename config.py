@@ -312,9 +312,12 @@ class Config:
 
         self.deploy_devnet_l1 = True
         """
-        Whether to deploy a local L1 devnet (True by default).
+        When using the "devnet" command, whether to deploy a local L1 devnet (True by default).
         If false, it means deploying on an existing L1 blockchain, specified by
         :py:attribute:`l1_rpc`.
+        
+        Note that you can/should stil set :py:attribute:`l1_rpc` when this is True, if you want to
+        deploy the the devnet L1 on another IP or port.
         """
 
         # Any attribute defined in this section are only meaningful (used) if
@@ -713,7 +716,9 @@ class Config:
     @property
     def deploy_config_path(self):
         """
-        Returns the path to the deploy configuration file.
+        Returns the path to the deploy configuration file. This file to the deploy script, and also
+        used to generated the L2 genesis, the devnet L1 genesis if required, and the rollup config
+        passed to the L2 node.
         """
         return os.path.join(self.paths.deploy_config_dir, f"{self.deployment_name}.json")
 
