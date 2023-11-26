@@ -376,7 +376,7 @@ class Config:
         # See also the properties starting with `l2_engine` below which are paths derived from
         # :py:attribute:`l2_engine_data_dir`.
 
-        self.l2_chain_id = 42069
+        self.l2_chain_id = 902
         """Chain ID of the local L2."""
 
         self.l2_engine_verbosity = 3
