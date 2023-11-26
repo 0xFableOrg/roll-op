@@ -3,13 +3,17 @@ This module defines functions related to spinning a devnet L1 node, and deployin
 on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 """
 
+import json
 import os
 import pathlib
 import shutil
 import sys
+from subprocess import Popen
 
+import l2_deploy
 import libroll as lib
 from config import Config
+import deploy_config
 from processes import PROCESS_MGR
 
 
@@ -17,44 +21,105 @@ from processes import PROCESS_MGR
 
 def deploy_devnet_l1(config: Config):
     """
-    Spin the devnet L1 node, doing whatever tasks are necessary, including installing geth,
-    generating the genesis file and config files, and deploying the L1 contracts.
+    Spin the devnet L1 node, doing whatever tasks are necessary, including generating the genesis
+    file and config files, and deploying the L1 contracts.
     """
     os.makedirs(config.paths.gen_dir, exist_ok=True)
-
-    generate_devnet_l1_genesis(config)
-    start_devnet_l1_node(config)
+    _generate_devnet_l1_genesis(config)
+    _start_devnet_l1_node(config)
     print("Devnet L1 deployment is complete! L1 node is running.")
 
 
 ####################################################################################################
 
-GENESIS_TMPL = {}
-
-
-def generate_devnet_l1_genesis(config: Config):
+def _generate_devnet_l1_genesis(config: Config):
     """
-    Generate the L1 genesis file (simply copies the template).
+    Generates the L1 genesis file. The genesis file will include the L2 pre-deployed contracts, so
+    it's not necessary to redeploy them to the devnet L1 later.
     """
     if os.path.exists(config.paths.l1_genesis_path):
         print("L1 genesis already generated.")
-    else:
-        print("Generating L1 genesis.")
-        try:
-            global GENESIS_TMPL  # overriden by exec below
-            with open("optimism/bedrock-devnet/devnet/genesis.py") as f:
-                exec(f.read(), globals(), globals())
-            GENESIS_TMPL["config"]["chainId"] = config.l1_chain_id
-            lib.write_json_file(config.paths.l1_genesis_path, GENESIS_TMPL)
-        except Exception as err:
-            raise lib.extend_exception(err, prefix="Failed to generate L1 genesis: ")
+        return
+
+    print("Generating L1 genesis.")
+
+    deploy_config.generate_deploy_config(config, pre_l1_genesis=True)
+
+    if not os.path.exists(config.paths.l1_allocs_path):
+        _create_devnet_l1_genesis_allocs(config)
+
+    lib.run("generate l1 genesis", [
+        "go run cmd/main.go genesis l1",
+        f"--deploy-config {config.deploy_config_path}",
+        f"--l1-allocs {config.paths.l1_allocs_path}",
+        f"--l1-deployments {config.paths.addresses_json_path}",
+        f"--outfile.l1 {config.paths.l1_genesis_path}"
+    ], cwd=config.paths.op_node_dir)
 
 
 ####################################################################################################
 
-def start_devnet_l1_node(config: Config):
+def _create_devnet_l1_genesis_allocs(config: Config):
     """
-    Spin the devnet L1 node (currently: via `docker compose`), then wait for it to be ready.
+    Create the "allocs" for the L1 genesis, i.e. the pre-existing state, in this case the
+    pre-deployed L2 contracts.
+    """
+
+    geth = _start_temporary_geth_node(config)
+    try:
+        l2_deploy.deploy_contracts_on_l1(config, tmp_l1=True)
+
+        # dump latest block to get the allocs
+        url = f"127.0.0.1:{config.temp_l1_rpc_listen_port}"
+        print(f"Fetch debug_dumpBlock from {url}")
+        res = lib.send_json_rpc_request(url, 3, "debug_dumpBlock", ["latest"])
+        response = json.loads(res)
+        allocs = response['result']
+        lib.write_json_file(config.paths.l1_allocs_path, allocs)
+    finally:
+        PROCESS_MGR.kill(geth, ensure=True)
+
+
+####################################################################################################
+
+def _start_temporary_geth_node(config: Config) -> Popen:
+    """
+    Spin a temporary geth node, which will used to deploy the L2 contracts then dump them
+    so they can be included in the devnet L1 genesis file.
+    """
+
+    lib.ensure_port_unoccupied("temporary geth", "127.0.0.1", config.temp_l1_rpc_listen_port)
+
+    log_file_path = "logs/temp_geth.log"
+    log_file = open(log_file_path, "w")
+    print(f"Starting temporary geth node. Logging to {log_file_path}")
+
+    def early_exit_handler():
+        print(f"Temporary geth node exited early. Check {log_file_path} for details.")
+        # noinspection PyUnresolvedReferences,PyProtectedMember
+        os._exit(1)  # we have to use this one to exit from a thread
+
+    return PROCESS_MGR.start("run temporary geth instance", [
+            "geth",
+            "--dev",
+            "--http",
+            "--http.api eth,debug",
+            f"--http.port={config.temp_l1_rpc_listen_port}",
+            "--verbosity 4",
+            "--gcmode archive",
+            "--dev.gaslimit 30000000",
+            "--rpc.allow-unprotected-txs"
+        ],
+        forward="fd",
+        stdout=log_file,
+        on_exit=early_exit_handler)
+
+
+####################################################################################################
+
+def _start_devnet_l1_node(config: Config):
+    """
+    Spin the devnet L1 node, then wait for it to be ready.
     """
 
     lib.ensure_port_unoccupied(

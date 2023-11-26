@@ -27,20 +27,6 @@ class OPPaths:
 
         # === Existing Files ===
 
-        self.deploy_config_template_path = pjoin(
-            self.contracts_dir, "deploy-config", "devnetL1.json.tmpl")
-        """Template for the deploy configuration file."""
-        # Note: this was added compared to the original Optimism logic, which edited the
-        # devnetL1.json file in place. Instead, we create this template from the original the first
-        # time we run the script (when it does not exist), and then use it a source to be modified
-        # ever after.
-
-        self.deploy_config_template_path_source = pjoin(
-            self.contracts_dir, "deploy-config", "devnetL1.json")
-        """
-        The source to create the deploy config template path from if it doesn't exist yet.
-        """
-
         self.p2p_key_path = pjoin(self.ops_bedrock_dir, "p2p-node-key.txt")
         """
         Paths to a file containing a private key used for the peer identity for the L2 node.
@@ -68,6 +54,13 @@ class OPPaths:
 
         self.l1_genesis_path = pjoin(self.gen_dir, "genesis-l1.json")
         """Devnet L1 genesis file path."""
+
+        self.l1_allocs_path = pjoin(self.gen_dir, "allocs-l1.json")
+        """
+        Devnet L1 account pre-allocations file path. This includes ETH pre-allocation to test
+        accounts, and possibly the pre-deployed L2 contracts if
+        :py:attr`Config.contracts_in_l1_genesis` is true.
+        """
 
         # === Generated Files — L2 ===
 
