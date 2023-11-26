@@ -70,11 +70,12 @@ commands:
 
     -- MAIN COMMANDS --
 
-    help                show this help message and exit~~~~
+    help                show this help message and exit
     setup               installs prerequisites and builds the optimism repository
     devnet              starts a local devnet, comprising an L1 node and all L2 components
     clean               cleans up deployment outputs and databases
     l2                  deploys and starts a local L2 blockchain
+    aa                  starts an ERC-4337 bundler and a paymaster signer service
     
     -- GRANULAR COMMANDS --
 
@@ -89,8 +90,9 @@ commands:
     -- CLEANUP --
 
     clean-build         cleans up build outputs (but not deployment outputs or databases)
-    clean-l1            cleans up deployment outputs & databases for L1
-    clean-l2            cleans up deployment outputs & databases for L2
+    clean-aa            cleans up deployment outputs for account abstraction
+    clean-l1            cleans up deployment outputs & databases for L1, deploy config is preserved
+    clean-l2            cleans up deployment outputs & databases for L2, deploy config is preserved
 ```
 
 You can also use the `roll.py` script directly as `./roll.py` or `python3 roll.py`  as an
