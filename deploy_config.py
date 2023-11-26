@@ -1,4 +1,22 @@
 PRODUCTION_CONFIG = {
+    # Values copied from optimism/packages/contracts-bedrock/deploy-config/goerli.json
+    # With some edit mades for values that encode specific Goerli blockhashes and timestamps.
+    # These need to be overriden depending on the target L1:
+    # - l1StartingBlockTag — earliest L1 block that may contain L2 data
+    # - l1GenesisBlockTimestamp — timestamp of the L1 genesis block (to generate devnet L1 genesis)
+    # - l2OutputOracleStartingTimestamp — timestamp of the first L2 block
+
+    # TODO describe the above
+
+    # The documentation for all values in this file can be found here:
+    # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-chain-ops/genesis/config.go
+
+    # All fields between "start overriden" and "end overriden" are overriden by the global Config.
+    # See l2_deploy.py::generate_deploy_config() for details on how the global Config overrides
+    # these.
+
+    # start overriden
+
     "l1ChainID": "REPLACE THIS",
     "l2ChainID": "REPLACE THIS",
 
@@ -10,12 +28,19 @@ PRODUCTION_CONFIG = {
     "l2OutputOracleChallenger": "REPLACE THIS (ADMIN)",
 
     "proxyAdminOwner": "REPLACE THIS (ADMIN)",
+    "finalSystemOwner": "REPLACE_THIS (ADMIN)",
+    "portalGuardian": "REPLACE_THIS (ADMIN)",
+
     "baseFeeVaultRecipient": "REPLACE THIS (ADMIN)",
     "l1FeeVaultRecipient": "REPLACE THIS (ADMIN)",
     "sequencerFeeVaultRecipient": "REPLACE THIS (ADMIN)",
-    "finalSystemOwner": "REPLACE_THIS (ADMIN)",
-    "portalGuardian": "REPLACE_THIS (ADMIN)",
-    "controller": "REPLACE_THIS (ADMIN)",
+
+    "enableGovernance": True,
+    "governanceTokenSymbol": "REPLACE THIS",
+    "governanceTokenName": "REPLACE THIS",
+    "governanceTokenOwner": "REPLACE THIS (ADMIN)",
+
+    # end overriden
 
     "l2BlockTime": 2,
     "maxSequencerDrift": 600,
@@ -25,15 +50,11 @@ PRODUCTION_CONFIG = {
 
     "l2OutputOracleSubmissionInterval": 120,
     "l2OutputOracleStartingBlockNumber": 0,
+    "l2GenesisBlockGasLimit": "0x2faf080",
 
-    "l1StartingBlockTag": "REPLACE THIS (BLOCKHASH or TAG)",
-
-    # Setting this to negative value causes the deploy script to use l1StartingBlockTag's timestamp.
+    # This is the timestamp of the first L2 block. Setting this to a negative value causes the
+    # deploy script to use l1StartingBlockTag's timestamp.
     "l2OutputOracleStartingTimestamp": -1,
-
-    "l2GenesisBlockGasLimit": "0x1c9c380",
-    "l2GenesisBlockBaseFeePerGas": "0x3b9aca00",
-    "l2GenesisRegolithTimeOffset": "0x0",
 
     "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
@@ -42,74 +63,123 @@ PRODUCTION_CONFIG = {
     "l1FeeVaultWithdrawalNetwork": 0,
     "sequencerFeeVaultWithdrawalNetwork": 0,
 
+    "fundDevAccounts": False,
+
+    "l2GenesisBlockBaseFeePerGas": "0x3b9aca00",
     "gasPriceOracleOverhead": 2100,
     "gasPriceOracleScalar": 1000000,
-
-    "enableGovernance": True,
-    "governanceTokenSymbol": "REPLACE THIS",
-    "governanceTokenName": "REPLACE THIS",
-    "governanceTokenOwner": "REPLACE THIS (ADMIN)",
-
     "eip1559Denominator": 50,
+    "eip1559DenominatorCanyon": 250,
     "eip1559Elasticity": 10,
 
-    # NOTE: The devnetL1.json deploy config includes additional fields, which are relevant for
-    #       deploying a devnet L1 chain. However, these are not even used by the Optimism repo
-    #       at the commit we're using (not sure about later). Here is the list
+    "l2GenesisRegolithTimeOffset": "0x0",
+    "l2GenesisSpanBatchTimeOffset": "0x0",
+    "l2GenesisCanyonTimeOffset": "0x40",
 
-    # "l1BlockTime": 3,
-    # "cliqueSignerAddress": "0xca062b0fd91172d89bcd4bb084ac4e21972cc467",
-    # "fundDevAccounts": True,
-    # "l1GenesisBlockTimestamp": "0x64f34f83"
+    "faultGameAbsolutePrestate":
+        "0x03c7ae758795765c6664a5d39bf63841c71ff191e9189522bad8ebff5d4eca98",
+    "faultGameMaxDepth": 30,
+    "faultGameMaxDuration": 1200,
+
+    "systemConfigStartBlock": 0,
+    "requiredProtocolVersion":
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "recommendedProtocolVersion":
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+
+    # L1 Settings
+    "l1UseClique": False,
+    "l1StartingBlockTag": "REPLACE THIS (BLOCKHASH or TAG)",
+    "l1GenesisBlockTimestamp": "0x64c811bf",  # TOOD investigate this
+    "l1BlockTime": 12
 }
 
 DEVNET_CONFIG = {
-    # Copied directly from patched devnetL1.json
-    # TODO test this works
-    # TODO reformat to look like production config
-    "l1ChainID": 900,
-    "l2ChainID": 42069,
-    "l2BlockTime": 2,
-    "maxSequencerDrift": 300,
-    "sequencerWindowSize": 200,
-    "channelTimeout": 120,
+    # Values copied from optimism/packages/contracts-bedrock/deploy-config/devnetL1-template.json
+
+    # The documentation for all values in this file can be found here:
+    # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-chain-ops/genesis/config.go
+
+    # All fields between "start overriden" and "end overriden" are overriden by the global Config.
+    # See l2_deploy.py::generate_deploy_config() for details on how the global Config overrides
+    # these.
+
+    # start overriden
+
+    "l1ChainID": 900,  # config default
+    "l2ChainID": 901,  # config default
+
     "p2pSequencerAddress": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
     "batchInboxAddress": "0xff00000000000000000000000000000000000000",
     "batchSenderAddress": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-    "l2OutputOracleSubmissionInterval": 20,
-    "l2OutputOracleStartingTimestamp": -1,
-    "l2OutputOracleStartingBlockNumber": 0,
+
     "l2OutputOracleProposer": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
     "l2OutputOracleChallenger": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
-    "l2GenesisBlockGasLimit": "0x1c9c380",
-    "l1BlockTime": 3,
-    "cliqueSignerAddress": "0xca062b0fd91172d89bcd4bb084ac4e21972cc467",
-    "baseFeeVaultRecipient": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
-    "l1FeeVaultRecipient": "0x71bE63f3384f5fb98995898A86B02Fb2426c5788",
-    "sequencerFeeVaultRecipient": "0xfabb0ac9d68b0b445fb7357272ff202c5651694a",
-    "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
-    "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
-    "sequencerFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
-    "baseFeeVaultWithdrawalNetwork": 0,
-    "l1FeeVaultWithdrawalNetwork": 0,
-    "sequencerFeeVaultWithdrawalNetwork": 0,
-    "proxyAdminOwner": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
-    "finalSystemOwner": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
-    "portalGuardian": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
-    "controller": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-    "finalizationPeriodSeconds": 2,
-    "deploymentWaitConfirmations": 1,
-    "fundDevAccounts": True,
-    "l2GenesisBlockBaseFeePerGas": "0x3B9ACA00",
-    "gasPriceOracleOverhead": 2100,
-    "gasPriceOracleScalar": 1000000,
+
+    "proxyAdminOwner": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+    "finalSystemOwner": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+    "portalGuardian": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+
+    "baseFeeVaultRecipient": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+    "l1FeeVaultRecipient": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+    "sequencerFeeVaultRecipient": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
+
     "enableGovernance": True,
     "governanceTokenSymbol": "OP",
     "governanceTokenName": "Optimism",
     "governanceTokenOwner": "0xBcd4042DE499D14e55001CcbB24a551F3b954096",
-    "eip1559Denominator": 8,
-    "eip1559Elasticity": 2,
-    "l1GenesisBlockTimestamp": "0x64f3b814",
+
+    # end overriden
+
+    "l2BlockTime": 2,
+    "maxSequencerDrift": 300,
+    "sequencerWindowSize": 200,
+    "channelTimeout": 120,
+    "finalizationPeriodSeconds": 2,
+
+    "l2OutputOracleSubmissionInterval": 10,
+    "l2OutputOracleStartingBlockNumber": 0,
+    "l2GenesisBlockGasLimit": "0x1c9c380",
+
+    # This is the timestamp of the first L2 block. Setting this to a negative value causes the
+    # deploy script to use l1StartingBlockTag's timestamp. Changed from 0 in the template.
+    "l2OutputOracleStartingTimestamp": -1,
+
+    "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
+    "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
+    "sequencerFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
+    "baseFeeVaultWithdrawalNetwork": "remote",
+    "l1FeeVaultWithdrawalNetwork": "remote",
+    "sequencerFeeVaultWithdrawalNetwork": "remote",
+
+    "fundDevAccounts": True,
+
+    "l2GenesisBlockBaseFeePerGas": "0x1",
+    "gasPriceOracleOverhead": 2100,
+    "gasPriceOracleScalar": 1000000,
+    "eip1559Denominator": 50,
+    "eip1559DenominatorCanyon": 250,
+    "eip1559Elasticity": 6,
+
+    "l2GenesisRegolithTimeOffset": "0x0",
+    "l2GenesisSpanBatchTimeOffset": "0x0",
+    "l2GenesisCanyonTimeOffset": "0x40",
+
+    "faultGameAbsolutePrestate":
+        "0x03c7ae758795765c6664a5d39bf63841c71ff191e9189522bad8ebff5d4eca98",
+    "faultGameMaxDepth": 30,
+    "faultGameMaxDuration": 1200,
+
+    "systemConfigStartBlock": 0,
+    "requiredProtocolVersion":
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "recommendedProtocolVersion":
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+
+    # L1 Settings
+    "l1UseClique": True,
+    "cliqueSignerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     "l1StartingBlockTag": "earliest",
-    "l2GenesisRegolithTimeOffset": "0x0"
+    "l1GenesisBlockTimestamp": "0x64c811bf",  # TOOD investigate this
+    "l1BlockTime": 3,
 }
