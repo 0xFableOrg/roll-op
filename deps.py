@@ -409,12 +409,14 @@ def install_foundry():
 
 ####################################################################################################
 
-MIN_GETH_VERSION = "1.12.0"
+MIN_GETH_VERSION = "1.13.4"
 """Minimum supported geth version."""
 
-INSTALL_GETH_VERSION = "1.12.2"
+INSTALL_GETH_VERSION = "1.13.4"
 """Version of geth to install if not found."""
 
+INSTALL_GETH_COMMIT_SLUG = "3f907d6a"
+"""The commit prefix that must added to the version to download the correct geth version."""
 
 # --------------------------------------------------------------------------------------------------
 
@@ -461,7 +463,8 @@ def install_geth():
 
     try:
         host = "https://gethstore.blob.core.windows.net"
-        url = f"{host}/builds/geth-{osys}-{arch}-1.12.2-bed84606.tar.gz"
+        geth_id = f"geth-{osys}-{arch}-{INSTALL_GETH_VERSION}-{INSTALL_GETH_COMMIT_SLUG}"
+        url = f"{host}/builds/{geth_id}.tar.gz"
         lib.run(descr, f"curl -L {url} | tar xz -C bin --strip-components=1")
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to install geth: ")
