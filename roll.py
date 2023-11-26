@@ -368,7 +368,7 @@ def main():
         elif lib.args.command == "deploy-l2":
             deps.check_or_install_foundry()
 
-            l2.deploy(config)
+            l2_deploy.deploy(config)
 
         elif lib.args.command == "start-l2":
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
