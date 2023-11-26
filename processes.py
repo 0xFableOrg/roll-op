@@ -150,7 +150,8 @@ class BackgroundProcessManager:
             if self.is_alive(process):
                 print(f"Failed to promptly terminate {process.name}")
         finally:
-            self.processes.remove(process)
+            if process in self.processes:
+                self.processes.remove(process)
 
     ################################################################################################
 
