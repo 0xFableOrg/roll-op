@@ -77,7 +77,7 @@ command(
 # --------------------------------------------------------------------------------------------------
 delimiter("GRANULAR COMMANDS")
 
-command(
+cmd_l1 = command(
     "l1",
     help="starts a local L1 node",
     description="Starts a local L1 node, initializing it if needed.")
@@ -179,12 +179,13 @@ parser.add_argument(
 # --------------------------------------------------------------------------------------------------
 # Command-Specific Flags
 
-cmd_setup.add_argument(
-    "--yes",
-    help="answer yes to all prompts (install all requested dependencies)",
-    default=False,
-    dest="always_yes",
-    action="store_true")
+for cmd in [cmd_setup, cmd_l1, cmd_devnet]:
+    cmd.add_argument(
+        "--yes",
+        help="answer yes to all prompts (install all requested dependencies)",
+        default=False,
+        dest="always_yes",
+        action="store_true")
 
 for cmd in [cmd_l2, cmd_devnet]:
     # NOTE: When functional, might want to add to other commands (e.g. `start-l2`).
