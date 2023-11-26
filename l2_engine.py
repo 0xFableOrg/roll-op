@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 
+import l2
 from config import Config
 from processes import PROCESS_MGR
 
@@ -17,6 +18,8 @@ def start(config: Config):
 
     lib.ensure_port_unoccupied(
         "op-geth", config.l2_engine_rpc_listen_addr, config.l2_engine_rpc_listen_port)
+
+    l2.generate_jwt_secret(config)
 
     # Create geth db if it doesn't exist.
     os.makedirs(config.l2_engine_data_dir, exist_ok=True)
