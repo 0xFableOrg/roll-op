@@ -51,7 +51,7 @@ always for your permission before installing anything outside the current direct
 ## Usage
 
 ```
-usage: rollop [-h] [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--stack-trace] [--no-ansi-esc] <command> ...
+usage: rollop <options> <command> <command_options> ...
 
 Helps you spin up an op-stack rollup.
 Use `rollop <command> --help` to get more detailed help for a command.
