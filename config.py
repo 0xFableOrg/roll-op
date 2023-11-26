@@ -177,11 +177,11 @@ class Config:
         Uses `{paths.gen_dir}/opnode_p2p_priv.txt` by default.
         """
 
-        self.l1_signer_account = "0xca062b0fd91172d89bcd4bb084ac4e21972cc467"
+        self.l1_signer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
         """Address of the devnet L1 block signer."""
 
         self.l1_signer_private_key = \
-            "3e4bde571b86929bf08e2aaad9a6a1882664cd5e65b96fff7d03e1c4e6dfa15c"
+            "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
         """Private key of the devnet L1 block signer."""
 
         # ==========================================================================================
