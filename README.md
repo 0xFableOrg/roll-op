@@ -102,7 +102,7 @@ repository and can be symlinked if required.
 ```bash
 ./rollop setup
 ./rollop setup --yes # auto-install all dependencies
-./rollop --clean devnet
+./rollop --clean devnet # default deployment name is "rollup"
 
 # equivalent with a different deployment name
 ./rollop --clean --name=testing --preset=dev --config=config.toml.example devnet
