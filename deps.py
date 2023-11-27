@@ -139,13 +139,13 @@ def get_valid_os(program: str) -> str:
 
 ####################################################################################################
 
-GO_MIN_VERSION = "1.19"
+GO_MIN_VERSION = "1.21"
 """Minimum Go version required by the Optimism repository."""
 
-GO_MAX_VERSION = "1.20.8"
+GO_MAX_VERSION = "1.21.4"
 """Maximum Go version found to work."""
 
-GO_INSTALL_VERSION = "1.20.8"
+GO_INSTALL_VERSION = "1.21.4"
 """Version of Go to install if not found."""
 
 
@@ -160,16 +160,11 @@ def check_or_install_go():
         version = lib.run("get go version", "go version")
         version = re.search(r"go version go(\d+\.\d+(\.\d+)?)", version)
         version = "0" if version is None else version.group(1)
-        if version < GO_MIN_VERSION and not install_go():
+        if (version < GO_MIN_VERSION or version > GO_MAX_VERSION) and not install_go():
             raise Exception(
-                "Go version is too low. "
-                f"Please update to Go **version {GO_MIN_VERSION}** or higher.\n"
-                "Go is backwards compatible, so your old projects will continue to build.")
-        if version > GO_MAX_VERSION and not install_go():
-            raise Exception(
-                f"Go version is too high. "
-                f"Please use to Go version {GO_MIN_VERSION} to {GO_MAX_VERSION}.\n",
-                "(Or let us install a local Go!)")
+                f"Invalid go version: {version}\n"
+                f"Please upgrade Go a version >= {GO_MIN_VERSION} and <= {GO_MAX_VERSION}.\n"
+                "(Or let us install a local Go that won't conflict with existing installations!)")
 
 
 # --------------------------------------------------------------------------------------------------
@@ -181,7 +176,8 @@ def install_go() -> bool:
 
     if not lib.ask_yes_no(
             f"Go >= {GO_MIN_VERSION} is required. "
-            f"Install Go {GO_INSTALL_VERSION} in ./bin?"):
+            f"Install Go {GO_INSTALL_VERSION} in ./bin?\n"
+            "This won't conflict with your existing Go installations."):
         return False
 
     os.makedirs("bin", exist_ok=True)
@@ -189,6 +185,9 @@ def install_go() -> bool:
     arch = get_valid_arch("go")
 
     try:
+        # Remove old installation if present.
+        shutil.rmtree("bin/go_install", ignore_errors=True)
+
         print(f"Downloading go {GO_INSTALL_VERSION} ...")
         os.makedirs("bin/go_install", exist_ok=True)
         descr = "install go"
@@ -211,9 +210,9 @@ def go_path_setup():
     Updates path to work with Go, including with the local Go installation if we have one.
     """
 
-    # If bin/go exists (and is thus used), we don't want to use GOROOT.
+    # If bin/go exists (and is thus used), set correct GOROOT
     if os.path.isfile("bin/go"):
-        os.environ.pop("GOROOT", None)  # works if GOROOT isn't set
+        os.environ["GOROOT"] = os.path.abspath("bin/go_install")
 
 
 ####################################################################################################
