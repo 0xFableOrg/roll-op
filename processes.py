@@ -105,7 +105,8 @@ class BackgroundProcessManager:
 
     def monitor_process_exit(self, process: Process, on_exit: Callable):
         """
-        Monitors the given process and calls the given function when the process exits.
+        Monitors the given process and calls the given function when the process exits for other
+        reasons than being explicitly killed by :py:func:`kill` or :py:func:`kill_all`.
         """
         while True:
             self._wait(process)
@@ -127,31 +128,30 @@ class BackgroundProcessManager:
 
         The process is removed from the list of background processes no matter what.
         """
-        try:
-            # Terminate process if alive
-            if not self.is_alive(process):
-                return
-            process.terminate()
+        if process in self.processes:
+            self.processes.remove(process)
 
-            if not ensure:
-                return
+        # Terminate process if alive
+        if not self.is_alive(process):
+            return
+        process.terminate()
 
-            # Only printing now because it causes waiting
-            lib.debug(f"Terminating {process.name}...")
+        if not ensure:
+            return
 
-            # Sleep then kill process if still alive
-            time.sleep(1)
-            if not self.is_alive(process):
-                return
-            process.kill()
-            time.sleep(1)
+        # Only printing now because it causes waiting
+        lib.debug(f"Terminating {process.name}...")
 
-            # Log if process is still alive
-            if self.is_alive(process):
-                print(f"Failed to promptly terminate {process.name}")
-        finally:
-            if process in self.processes:
-                self.processes.remove(process)
+        # Sleep then kill process if still alive
+        time.sleep(1)
+        if not self.is_alive(process):
+            return
+        process.kill()
+        time.sleep(1)
+
+        # Log if process is still alive
+        if self.is_alive(process):
+            print(f"Failed to promptly terminate {process.name}")
 
     ################################################################################################
 
@@ -195,41 +195,40 @@ class BackgroundProcessManager:
 
         Clears the list of background processes before returning.
         """
-        try:
-            # Try terminating all processes
-            alive_count = 0
-            for process in self.processes:
-                if self.is_alive(process):
-                    alive_count += 1
-                    lib.debug(f"Terminating {process.name}")
-                    process.terminate()
+        # Try terminating all processes
+        alive_count = 0
+        processes = self.processes.copy()
+        self.processes.clear()
+        for process in processes:
+            if self.is_alive(process):
+                alive_count += 1
+                lib.debug(f"Terminating {process.name}")
+                process.terminate()
 
-            # There was no process to terminate
-            if alive_count == 0:
-                return
+        # There was no process to terminate
+        if alive_count == 0:
+            return
 
-            print("Terminating background processes...")
+        print("Terminating background processes...")
 
-            # Give them a second to terminate, then try to kill processes that are left
-            time.sleep(1)
-            alive_count = 0
-            for process in self.processes:
-                if self.is_alive(process):
-                    alive_count += 1
-                    lib.debug(f"Killing {process.name}")
-                    process.kill()
+        # Give them a second to terminate, then try to kill processes that are left
+        time.sleep(1)
+        alive_count = 0
+        for process in processes:
+            if self.is_alive(process):
+                alive_count += 1
+                lib.debug(f"Killing {process.name}")
+                process.kill()
 
-            # There was no process to kill
-            if alive_count == 0:
-                return
+        # There was no process to kill
+        if alive_count == 0:
+            return
 
-            # Give killed processes a second to terminate, then log if they are still alive
-            time.sleep(1)
-            for process in self.processes:
-                if self.is_alive(process):
-                    print(f"Failed to promptly kill {process.name}")
-        finally:
-            self.processes.clear()
+        # Give killed processes a second to terminate, then log if they are still alive
+        time.sleep(1)
+        for process in processes:
+            if self.is_alive(process):
+                print(f"Failed to promptly kill {process.name}")
 
     ################################################################################################
 
