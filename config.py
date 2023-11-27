@@ -909,6 +909,11 @@ class Config:
 
         Currently, all values are similar to that used for the monorepo devnet, except that
         we don't enable metric servers, pprof servers, and admin APIs.
+
+        The source of truth for these values can be found here:
+        https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/ops-bedrock/docker-compose.yml
+        Or in Go defaults, e.g.
+        https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-service/txmgr/cli.go
         """
 
         # === Network ===
@@ -922,7 +927,7 @@ class Config:
 
         # === Proposer ===
 
-        self.proposer_poll_interval = 1
+        self.proposer_poll_interval = "1s"
         self.proposer_num_confirmations = 1
 
         # Will not work if this is false. Why?
@@ -931,7 +936,7 @@ class Config:
         #  === Batcher ===
 
         self.batcher_num_confirmations = 1
-        self.batcher_poll_interval = 1
+        self.batcher_poll_interval = "1s"
         self.max_channel_duration = 1
 
         # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
