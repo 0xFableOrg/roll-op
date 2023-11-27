@@ -133,7 +133,7 @@ def setup_hildr_repo():
     github_url = "https://github.com/optimism-java/hildr.git"
     # This is the earliest commit with functional devnet scripts
     # on top of "hildr-node/v0.1.1" tag release.
-    git_tag = "c8a9ede403cb1b1792250ae571b398a66356497e"
+    git_tag = "ad413039a1735055fbf250a60eb1551528b6494b"
 
     if os.path.isfile("hildr"):
         raise Exception("Error: 'hildr' exists as a file and not a directory.")
