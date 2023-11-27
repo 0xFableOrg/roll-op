@@ -5,6 +5,7 @@ import urllib.parse
 from paths import OPPaths
 import libroll as lib
 
+####################################################################################################
 # Summary on default port mapping:
 #
 # The default port mapping uses the same port as the devnet configuration in the Optimism monorepo,
@@ -43,8 +44,27 @@ import libroll as lib
 # - L2 proposer RPC: 8560 (no namespaces)
 # - L2 batcher RPC: 8548 (admin_ namespace)
 #
-# The document does not configure metrics, so the defaults from above are used.
-
+# The guide does not configure metrics, so the defaults from above are used.
+####################################################################################################
+# NOTE
+#
+# The default config is a DEVNET config, which makes it suitable for testing, but not production.
+# It is based on the config from the Optimism monorepo devnet as far as the tuning parameters and
+# the port mappings are concerned.
+#
+# We provide various ways to customize it via the following methods:
+# - `use_production_config()` — a configurable more suitable for production environment
+# - `use_devnet_config()` — same config as the Optimism monorepo devnet
+#   (in practice, just changes some paths)
+# - `use_doc_config()` — same config as the OP Stack "Getting Started" guide
+#
+# The `production` config is inspired by the `doc` config for the performance parameters, but uses
+# the port mappings, paths, etc... from the default config.
+#
+# The `production` config is automatically enabled when using the `--preset=prod` flag, otherwise
+# the default config is used.
+#
+####################################################################################################
 
 class Config:
 
