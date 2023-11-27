@@ -12,6 +12,7 @@ import argparsext
 import block_explorer
 import account_abstraction
 import deps
+import hildr_engine
 import hildr_node
 import l1
 import l2
@@ -395,6 +396,10 @@ def main():
         elif lib.args.command == "l2-proposer":
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
             l2_proposer.start(config)
+            PROCESS_MGR.wait_all()
+
+        elif lib.args.command == "hildr-engine":
+            hildr_engine.start(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "hildr-node":

@@ -6,6 +6,7 @@ import os
 import pathlib
 import shutil
 
+import hildr_engine
 import hildr_node
 import l2_batcher
 import l2_engine
@@ -65,6 +66,7 @@ def start(config: Config):
     l2_batcher.start(config)
 
     if config.l2_hildr_enabled:
+        hildr_engine.start(config)
         hildr_node.start(config)
 
     print("All L2 components are running.")
@@ -334,6 +336,8 @@ def clean(config: Config):
 
     l2_engine.clean(config)
     l2_node.clean()
+
+    hildr_engine.clean(config)
 
     lib.debug(f"Cleaning up {config.deployments_dir}")
     shutil.rmtree(config.deployments_dir, ignore_errors=True)
