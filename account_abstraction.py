@@ -126,7 +126,7 @@ def start_bundler(config: Config):
         bundler_key = bundler_key[2:]
 
     env = {**os.environ,
-           "ERC4337_BUNDLER_ETH_CLIENT_URL": config.l2_engine_rpc,
+           "ERC4337_BUNDLER_ETH_CLIENT_URL": config.l2_engine_rpc_url,
            "ERC4337_BUNDLER_PRIVATE_KEY": bundler_key}
 
     log_file_path = "logs/stackup_bundler.log"
@@ -163,7 +163,7 @@ def start_paymaster(config: Config):
     ).strip().split(' ')[-1]
 
     env = {**os.environ,
-           "RPC_URL": config.l2_engine_rpc,
+           "RPC_URL": config.l2_engine_rpc_url,
            "PAYMASTER_RPC_URL": "http://localhost:3000",
            "ENTRYPOINT_ADDRESS": entrypoint_address,
            "SIMPLE_ACCOUNT_FACTORY_ADDRESS": simple_account_factory_address,

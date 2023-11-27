@@ -48,11 +48,11 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     if tmp_l1:
         l1_address = "127.0.0.1"
         l1_rpc_port = config.temp_l1_rpc_listen_port
-        rpc_url = f"http://{l1_address}:{l1_rpc_port}"
+        l1_rpc_url = f"http://{l1_address}:{l1_rpc_port}"
     else:
-        rpc_url = config.l1_rpc
-        l1_address = rpc_url.split(":")[1].replace("//", "")
-        l1_rpc_port = rpc_url.split(":")[2]
+        l1_address = config.l1_rpc_host
+        l1_rpc_port = config.l1_rpc_port
+        l1_rpc_url = config.l1_rpc_url
 
     # wait for l1
     lib.wait_for_port(l1_address, l1_rpc_port)
@@ -76,7 +76,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             "cast send",
             f"--from {deployer_account}",
             private_key_arg,
-            f"--rpc-url {rpc_url}",
+            f"--rpc-url {l1_rpc_url}",
             "--unlocked",
             "--value 1ether",
             "0x3fAB184622Dc19b6109349B94811493BF2a45362"  # create2 deployer account
@@ -91,7 +91,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
 
         lib.run("deploy the create2 deployer", [
             "cast publish",
-            f"--rpc-url {rpc_url}",
+            f"--rpc-url {l1_rpc_url}",
             create2_deployer_deploy_tx
         ], cwd=config.paths.contracts_dir)
 
@@ -102,7 +102,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
 
     env = {**os.environ,
            "DEPLOYMENT_CONTEXT": config.deployment_name,
-           "ETH_RPC_URL": config.l1_rpc}
+           "ETH_RPC_URL": config.l1_rpc_url}
 
     slow_arg = "--slow" if config.deploy_slowly else ""
 
@@ -112,7 +112,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             "--sender", deployer_account,
             private_key_arg,
             f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
-            f"--rpc-url {rpc_url}",
+            f"--rpc-url {l1_rpc_url}",
             "--broadcast",
             slow_arg,
             "--unlocked"
@@ -129,7 +129,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             "forge script",
             deploy_script,
             "--sig 'sync()'",
-            f"--rpc-url {rpc_url}",
+            f"--rpc-url {l1_rpc_url}",
         ],
         cwd=config.paths.contracts_dir,
         env=env,
@@ -149,7 +149,7 @@ def _generate_l2_genesis(config: Config):
         try:
             lib.run("generate L2 genesis and rollup configs", [
                 "go run cmd/main.go genesis l2",
-                f"--l1-rpc={config.l1_rpc}",
+                f"--l1-rpc={config.l1_rpc_url}",
                 f"--deploy-config={config.deploy_config_path}",
                 f"--deployment-dir={config.deployments_dir}",
                 f"--outfile.l2={config.paths.l2_genesis_path}",

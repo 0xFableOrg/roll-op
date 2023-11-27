@@ -1,5 +1,7 @@
 import os.path
 
+import urllib.parse
+
 from paths import OPPaths
 import libroll as lib
 
@@ -224,9 +226,9 @@ class Config:
         # ==========================================================================================
         #  Network Configuration
 
-        # NOTE: All URLs in this section are used to instruct various services/nodes on how to
-        # reach the other services. This configuration mirrors the configuration of each of the
-        # individual services, which must specify on which port/address they listen.
+        # NOTE: All URL configured in this section are used to instruct various services/nodes on
+        # how to reach the other services. This configuration mirrors the configuration of each of
+        # the individual services, which must specify on which port/address they listen.
         #
         # The reasons the configuration is not unique is that:
         # - The actual software deployment might involve port mapping.
@@ -251,40 +253,44 @@ class Config:
         Chain ID of the L1 to use. If spinning an L1 devnet, it will use this chain ID.
         """
 
-        self.l1_rpc = "http://127.0.0.1:8545"
+        self.own_address = "127.0.0.1"
         """
-        Protocol + address + port to use to connect to the L1 RPC server
-        ("http://127.0.0.1:8545" by default).
-        
-        The L2 node will use :py:attribute:`l1_rpc_for_node` instead!
-        """
-
-        self.l1_rpc_for_node = "ws://127.0.0.1:8546"
-        """
-        Protocol + address + port for use *by the L2 node* to connect to the L1 RPC server
-        ("ws://127.0.0.1:8546" by default).
-        
-        The reason for this override is to enable the L2 node to use a more performant RPC, or a
-        WebSocket connection to get L1 data.
+        Remote address of the local machine. This is used to determine if multiple components are
+        running on the same machine, so they might reach each other via 127.0.0.1 instead of going
+        out to the internet and then back into them machine.
+        (Defaults to "127.0.0.1" — assuming a local-only setup.)
         """
 
-        self.l2_engine_rpc = "http://127.0.0.1:9545"
-        """
-        Protocol + address + port to use to connect to the L2 RPC server attached to the execution
-        engine ("http://127.0.0.1:9545" by default).
-        """
+        # I'm not going to document all of these individually, but refer to their respective
+        # properties which string them together in a usable URL.
+        #
+        # These properties also have setters that allow setting the URL as a whole, which will
+        # then be split and assign the protocol, host and port parts.
 
-        self.l2_engine_authrpc = "http://127.0.0.1:9551"
-        """
-        Protocol + address + port to use to connect to the authenticated RPC (authrpc) server
-        attached to the execution engine, which serves the engine API ("http://127.0.0.1:9551" by
-        default).
-        """
+        # See :py:attribute:`l1_rpc_url` for more details.
+        self.l1_rpc_protocol = "http"
+        self.l1_rpc_host = "127.0.0.1"
+        self.l1_rpc_port = 8545
 
-        self.l2_node_rpc = "http://127.0.0.1:7545"
-        """
-        Address to use to connect to the op-node RPC server ("http://127.0.0.1:7545" by default).
-        """
+        # See :py:attribute:`l1_rpc_for_node_url` for more details.
+        self.l1_rpc_for_node_protocol = "ws"
+        self.l1_rpc_for_node_host = "127.0.0.1"
+        self.l1_rpc_for_node_port = 8546
+
+        # See :py:attribute:`l2_engine_rpc_url` for more details.
+        self.l2_engine_rpc_protocol = "http"
+        self.l2_engine_rpc_host = "127.0.0.1"
+        self.l2_engine_rpc_port = 9545
+
+        # See :py:attribute:`l2_engine_authrpc_url` for more details.
+        self.l2_engine_authrpc_protocol = "http"
+        self.l2_engine_authrpc_host = "127.0.0.1"
+        self.l2_engine_authrpc_port = 9551
+
+        # See :py:attribute:`l2_node_rpc_url` for more details.
+        self.l2_node_rpc_protocol = "http"
+        self.l2_node_rpc_host = "127.0.0.1"
+        self.l2_node_rpc_port = 7545
 
         self.jwt_secret_path = os.path.join(paths.gen_dir, "jwt-secret.txt")
         """
@@ -720,8 +726,8 @@ class Config:
         """
         File name for the log file that will be created when deploying the AA contracts.
         
-        It's recommended not to mess with this, it's only in the config because it's written and read
-        in different locations, so it helps to maintain a single source of truth.
+        It's recommended not to mess with this, it's only in the config because it's written and
+        read in different locations, so it helps to maintain a single source of truth.
         """
 
     # ==============================================================================================
@@ -773,6 +779,113 @@ class Config:
     def l2_engine_chaindata_dir(self):
         """Directory storing chain data for the L2 engine."""
         return os.path.join(self.l2_engine_data_dir, "geth", "chaindata")
+
+    # ----------------------------------------------------------------------------------------------
+    # These are the URLs that other components use to reach the specified components, which are
+    # distinct form the addresses / ports that the components bind to.
+    # Refer to the "Network Configuration" section for more details.
+
+    def maybe_local_url(self, protocol: str, host: str, port: int, own_address: str = None):
+        """
+        Returns a URL made from protocol, host and port, but substitute 127.0.0.1 to the host
+        if the host is the same as `own_address`.
+        """
+        if own_address is None:
+            own_address = self.own_address
+        if own_address and own_address == host:
+            host = "127.0.0.1"
+        return f"{protocol}://{host}:{port}"
+
+    @property
+    def l1_rpc_url(self, own_address: str = None):
+        """
+        Protocol + address + port to use to connect to the L1 RPC server
+        ("http://127.0.0.1:8545" by default).
+        Host is substituted by 127.0.0.1 if it matches `own_address`.
+
+        The L2 node will use :py:attribute:`l1_rpc_for_node` instead!
+        """
+        return self.maybe_local_url(
+            self.l1_rpc_protocol, self.l1_rpc_host, self.l1_rpc_port, own_address)
+
+    @l1_rpc_url.setter
+    def l1_rpc_url(self, url: str):
+        parsed = urllib.parse.urlparse(url)
+        self.l1_rpc_protocol = parsed.scheme
+        self.l1_rpc_host = parsed.hostname
+        self.l1_rpc_port = parsed.port
+
+    @property
+    def l1_rpc_for_node_url(self, own_address: str = None):
+        """
+        Protocol + address + port for use *by the L2 node* to connect to the L1 RPC server
+        ("ws://127.0.0.1:8546" by default).
+
+        The reason for this override is to enable the L2 node to use a more performant RPC, or a
+        WebSocket connection to get L1 data.
+        """
+        return self.maybe_local_url(
+            self.l1_rpc_for_node_protocol, self.l1_rpc_for_node_host, self.l1_rpc_for_node_port,
+            own_address)
+
+    @l1_rpc_for_node_url.setter
+    def l1_rpc_for_node_url(self, url: str):
+        parsed = urllib.parse.urlparse(url)
+        self.l1_rpc_for_node_protocol = parsed.scheme
+        self.l1_rpc_for_node_host = parsed.hostname
+        self.l1_rpc_for_node_port = parsed.port
+
+    @property
+    def l2_engine_rpc_url(self, own_address: str = None):
+        """
+        Protocol + address + port to use to connect to the L2 RPC server attached to the execution
+        engine ("http://127.0.0.1:9545" by default).
+        Host is substituted by 127.0.0.1 if it matches `own_address`.
+        """
+        return self.maybe_local_url(
+            self.l2_engine_rpc_protocol, self.l2_engine_rpc_host, self.l2_engine_rpc_port,
+            own_address)
+
+    @l2_engine_rpc_url.setter
+    def l2_engine_rpc_url(self, url: str):
+        parsed = urllib.parse.urlparse(url)
+        self.l2_engine_rpc_protocol = parsed.scheme
+        self.l2_engine_rpc_host = parsed.hostname
+        self.l2_engine_rpc_port = parsed.port
+
+    @property
+    def l2_engine_authrpc_url(self, own_address: str = None):
+        """
+        Protocol + address + port to use to connect to the authenticated RPC (authrpc) server
+        attached to the execution engine, which serves the engine API ("http://127.0.0.1:9551" by
+        default). Host is substituted by 127.0.0.1 if it matches `own_address`.
+        """
+        return self.maybe_local_url(
+            self.l2_engine_authrpc_protocol, self.l2_engine_authrpc_host,
+            self.l2_engine_authrpc_port, own_address)
+
+    @l2_engine_authrpc_url.setter
+    def l2_engine_authrpc_url(self, url: str):
+        parsed = urllib.parse.urlparse(url)
+        self.l2_engine_authrpc_protocol = parsed.scheme
+        self.l2_engine_authrpc_host = parsed.hostname
+        self.l2_engine_authrpc_port = parsed.port
+
+    @property
+    def l2_node_rpc_url(self, own_address: str = None):
+        """
+        Address to use to connect to the op-node RPC server ("http://127.0.0.1:7545" by default).
+        Host is substituted by 127.0.0.1 if it matches `own_address`.
+        """
+        return self.maybe_local_url(
+            self.l2_node_rpc_protocol, self.l2_node_rpc_host, self.l2_node_rpc_port, own_address)
+
+    @l2_node_rpc_url.setter
+    def l2_node_rpc_url(self, url: str):
+        parsed = urllib.parse.urlparse(url)
+        self.l2_node_rpc_protocol = parsed.scheme
+        self.l2_node_rpc_host = parsed.hostname
+        self.l2_node_rpc_port = parsed.port
 
     # ==============================================================================================
 
@@ -838,12 +951,12 @@ class Config:
         # === Network ===
 
         # We need to do this because the documentation assigns 8545 to the L2 engine RPC.
-        self.l1_rpc = "http://127.0.0.1:9545"
-        self.l1_rpc_for_node = "ws://127.0.0.1:9546"
+        self.l1_rpc_url = "http://127.0.0.1:9545"
+        self.l1_rpc_for_node_url = "ws://127.0.0.1:9546"
 
-        self.l2_engine_rpc = "http://127.0.0.1:8545"
-        self.l2_engine_authrpc = "http://127.0.0.1:8551"
-        self.l2_node_rpc = "http://127.0.0.1:8547"
+        self.l2_engine_rpc_url = "http://127.0.0.1:8545"
+        self.l2_engine_authrpc_url = "http://127.0.0.1:8551"
+        self.l2_node_rpc_url = "http://127.0.0.1:8547"
 
         self.jwt_secret_path = "jwt.txt"
 
