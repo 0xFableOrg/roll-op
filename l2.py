@@ -284,7 +284,8 @@ def generate_l2_genesis(config: Config):
     else:
         print("Generating L2 genesis and rollup configs.")
         try:
-            lib.run(
+            log_file = "logs/generate_l2_genesis.log"
+            lib.run_roll_log(
                 "generating L2 genesis and rollup configs",
                 ["go", "run", "cmd/main.go", "genesis", "l2",
                  f"--l1-rpc={config.l1_rpc}",
@@ -292,7 +293,8 @@ def generate_l2_genesis(config: Config):
                  f"--deployment-dir={config.deployments_dir}",
                  f"--outfile.l2={config.paths.l2_genesis_path}",
                  f"--outfile.rollup={config.paths.rollup_config_path}"],
-                cwd=config.paths.op_node_dir)
+                cwd=config.paths.op_node_dir,
+                log_file=log_file)
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ")

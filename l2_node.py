@@ -23,6 +23,18 @@ def start(config: Config, sequencer: bool = True):
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
 
+    # if remote deploy, check if clients are running on the same host and use localhost if true
+    if config.l1_node_remote_ip == config.l2_sequencer_remote_ip:
+        l1_rpc = config.l1_rpc.replace(config.l1_node_remote_ip, "127.0.0.1")
+    else:
+        l1_rpc = config.l1_rpc
+
+    if config.l2_engine_remote_ip == config.l2_sequencer_remote_ip:
+        l2_engine_authrpc = config.l2_engine_authrpc.replace(
+            config.l2_engine_remote_ip, "127.0.0.1")
+    else:
+        l2_engine_authrpc = config.l2_engine_authrpc
+
     PROCESS_MGR.start(
         "starting L2 node",
         [
@@ -36,8 +48,8 @@ def start(config: Config, sequencer: bool = True):
             #       incorrect. This setup works in the devnet though, so we messed something up
             #       somewhere.
             # f"--l1={config.l1_rpc_for_node}",
-            f"--l1={config.l1_rpc}",
-            f"--l2={config.l2_engine_authrpc}",
+            f"--l1={l1_rpc}",
+            f"--l2={l2_engine_authrpc}",
             f"--l2.jwt-secret={os.path.join('..', config.jwt_secret_path)}",
             f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
             f"--rollup.config={os.path.join('..', config.paths.rollup_config_path)}",

@@ -21,6 +21,22 @@ def start(config: Config):
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
 
+    # if remote deploy, check if clients are running on the same host and use localhost if true
+    if config.l1_node_remote_ip == config.l2_batcher_remote_ip:
+        l1_rpc = config.l1_rpc.replace(config.l1_node_remote_ip, "127.0.0.1")
+    else:
+        l1_rpc = config.l1_rpc
+
+    if config.l2_engine_remote_ip == config.l2_batcher_remote_ip:
+        l2_engine_rpc = config.l2_engine_rpc.replace(config.l2_engine_remote_ip, "127.0.0.1")
+    else:
+        l2_engine_rpc = config.l2_engine_rpc
+
+    if config.l2_sequencer_remote_ip == config.l2_batcher_remote_ip:
+        l2_node_rpc = config.l2_node_rpc.replace(config.l2_sequencer_remote_ip, "127.0.0.1")
+    else:
+        l2_node_rpc = config.l2_node_rpc
+
     PROCESS_MGR.start(
         "starting L2 batcher",
         [
@@ -29,9 +45,9 @@ def start(config: Config):
             # Batcher-Specific Options
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-batcher/flags/flags.go
 
-            f"--l1-eth-rpc='{config.l1_rpc}'",
-            f"--l2-eth-rpc='{config.l2_engine_rpc}'",
-            f"--rollup-rpc='{config.l2_node_rpc}'",
+            f"--l1-eth-rpc='{l1_rpc}'",
+            f"--l2-eth-rpc='{l2_engine_rpc}'",
+            f"--rollup-rpc='{l2_node_rpc}'",
             f"--poll-interval={config.batcher_poll_interval}s",
             f"--sub-safety-margin={config.sub_safety_margin}",
             f"--max-channel-duration={config.max_channel_duration}",
