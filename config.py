@@ -589,7 +589,7 @@ class Config:
         # ==========================================================================================
         # Proposer Configuration
 
-        self.proposer_poll_interval = "1s"
+        self.proposer_poll_interval = 1
         """
         Interval in seconds at which the proposer polls the op-node for new blocks.
         (Default: 1s)
@@ -644,7 +644,7 @@ class Config:
         # ==========================================================================================
         # Batcher Configuration
 
-        self.batcher_poll_interval = "1s"
+        self.batcher_poll_interval = 1
         """
         Interval in seconds at which the batcher polls the execution engine for new blocks.
         """
@@ -668,7 +668,7 @@ class Config:
         When set to 0, this enables channels to stay open until they are big enough.
         """
 
-        self.batcher_resubmission_timeout = "30s"
+        self.batcher_resubmission_timeout = 30
         """
         The time after which a batcher will resubmit an L1 transaction that has not been included
         on-chain.
@@ -1004,7 +1004,7 @@ class Config:
 
         # === Proposer ===
 
-        self.proposer_poll_interval = "12s"
+        self.proposer_poll_interval = 12
         self.proposer_num_confirmations = 10
         self.allow_non_finalized = False
         self.proposer_rpc_listen_port = 8560
@@ -1032,7 +1032,7 @@ class Config:
 
         # === Proposer ===
 
-        self.proposer_poll_interval = "12s"
+        self.proposer_poll_interval = 12
         self.proposer_num_confirmations = 10
         self.allow_non_finalized = False
 
@@ -1054,7 +1054,7 @@ class Config:
 
         # === Proposer ===
 
-        self.proposer_poll_interval = "6s"
+        self.proposer_poll_interval = 6
         self.proposer_num_confirmations = 10
         self.allow_non_finalized = False
 
