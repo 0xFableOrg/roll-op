@@ -102,7 +102,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
 
     env = {**os.environ,
            "DEPLOYMENT_CONTEXT": config.deployment_name,
-           "ETH_RPC_URL": config.l1_rpc_url}
+           "ETH_RPC_URL": l1_rpc_url}
 
     slow_arg = "--slow" if config.deploy_slowly else ""
 
