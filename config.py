@@ -27,7 +27,7 @@ import libroll as lib
 # - L2 batcher RPC: 6545 (admin_ namespace)
 # - L2 batcher metrics: 7301
 
-# When following the OP stack "Getting Started" document, the following ports are used:
+# When following the OP stack "Getting Started" guide, the following ports are used:
 # (The L1 and L2 engine ports are inverted, and the other components are numbered differently.)
 # https://stack.optimism.io/docs/build/getting-started
 #
@@ -946,19 +946,24 @@ class Config:
     def use_op_doc_config(self):
         """
         Overrides the configuration values with the values specified in the OP stack "Getting
-        Started" document (https://stack.optimism.io/docs/build/getting-started), wherever they
+        Started" guide (https://stack.optimism.io/docs/build/getting-started), wherever they
         differ from the default values.
 
         One difference is that we don't enable admin APIs.
 
-        Note that the document also uses deploy config values equivalent to the "prod" preset in
+        Note that the guide also uses deploy config values equivalent to the "prod" preset in
         roll-op (see `PRODUCTION_CONFIG` in `deploy_config_templates.py`).
+
+        The guide also uses a batch inbox address of 0xff00000000000000000000000000000000042069,
+        but roll-op automatically overrides this to 0xff69000000000000000000000000000000042069
+        (based on the chain ID) unless configured explicitly in the `config.toml` file.
         """
 
         # === Network ===
 
         self.l1_chain_id = 11155111
         self.l2_chain_id = 42069
+
         # We need to do this because the documentation assigns 8545 to the L2 engine RPC.
         self.l1_rpc_url = "http://127.0.0.1:9545"
         self.l1_rpc_for_node_url = "ws://127.0.0.1:9546"
@@ -1004,7 +1009,7 @@ class Config:
     def use_production_config(self):
         """
         Use a configuration suitable for production, inspired from the OP stack "Getting
-        Started" document (https://stack.optimism.io/docs/build/getting-started), but not identical
+        Started" guide (https://stack.optimism.io/docs/build/getting-started), but not identical
         (e.g. we don't follow their port scheme). If you want an identical configuration, use
         :py:meth:`use_op_doc_config`.
         """
