@@ -11,12 +11,12 @@ import libroll as lib
 # - L1 http RPC: 8545
 # - L1 WebSocket RPC: 8546
 # - L1 authRPC: 8551 (authenticated APIs)
-# - L1 p2p: 30303 (block & tx gossip)
+# - L1 p2p: 30303 (block & tx gossip — geth default, not configured in devnet)
 # - L1 metrics: 7060
 # - L2 engine http RPC: 9545 (like L1 http RPC but for L2)
 # - L2 engine Websocket RPC: 9546 (like L1 Websocket RPC but for L2)
 # - L2 engine authRPC: 9551 (like L1 authRPC but for L2 — op-node <> engine communication)
-# - L2 engine p2p: 30313 (like L1 p2p but for L2)
+# - L2 engine p2p: 30313 (like L1 p2p but for L2 — not configured in devnet)
 # - L2 engine metrics: 8060
 # - L2 node RPC: 7545 (optimism_ and admin_ namespaces)
 # - L2 node metrics: 7300
@@ -27,6 +27,7 @@ import libroll as lib
 
 # When following the OP stack "Getting Started" document, the following ports are used:
 # (The L1 and L2 engine ports are inverted, and the other components are numbered differently.)
+# https://stack.optimism.io/docs/build/getting-started
 #
 # - L1 http RPC: 9545
 # - L1 WebSocket RPC: 9546
@@ -35,7 +36,7 @@ import libroll as lib
 # - L2 engine http RPC: 8545
 # - L2 engine Websocket RPC: 8546 (like L1 Websocket RPC but for L2)
 # - L2 engine authRPC: 8551
-# - L2 engine p2p: 30303 (geth default)
+# - L2 engine p2p: 9003
 # - L2 node RPC: 8547
 # - L2 proposer RPC: 8560 (no namespaces)
 # - L2 batcher RPC: 8548 (admin_ namespace)
@@ -858,7 +859,7 @@ class Config:
         self.l2_engine_rpc_listen_port = 8545
         self.l2_engine_rpc_ws_listen_port = 8546
         self.l2_engine_authrpc_listen_port = 8551
-        self.l2_engine_p2p_port = 30303
+        self.l2_engine_p2p_port = 9003
 
         # === Node ===
 
