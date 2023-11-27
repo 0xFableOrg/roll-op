@@ -16,10 +16,10 @@ def start(config: Config):
     """
 
     lib.ensure_port_unoccupied(
-        "L2 hidlr node", config.l2_hildr_node_rpc_listen_addr, config.l2_hildr_node_rpc_listen_port)
+        "L2 hildr node", config.l2_hildr_node_rpc_listen_addr, config.l2_hildr_node_rpc_listen_port)
 
     log_file_path = "logs/l2_hildr_node.log"
-    print(f"Starting Hildr L2 node. Logging to {log_file_path}")
+    print(f"Starting L2 Hildr node. Logging to {log_file_path}")
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
 

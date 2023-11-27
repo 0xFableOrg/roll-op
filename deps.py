@@ -485,8 +485,8 @@ JDK_INSTALL_VERSION = "21.0.1"
 
 def check_or_install_jdk():
     """
-    Check if Node.js is installed and is the correct version, otherwise prompts the user to install
-    it via NVM.
+    Check if JDK is installed and is the correct version, otherwise prompts the user to install
+    it via SDKMAN.
     """
 
     # Check if Node is installed and is the correct version.

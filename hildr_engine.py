@@ -12,7 +12,7 @@ import libroll as lib
 
 def start(config: Config):
     """
-    Spin the L2 execution engine (op-geth), then wait for it to be ready.
+    Spin the L2 hildr execution engine (op-geth), then wait for it to be ready.
     """
 
     lib.ensure_port_unoccupied(
