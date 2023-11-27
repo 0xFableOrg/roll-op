@@ -21,3 +21,8 @@
 # Private configuration
 /.env
 /config.toml
+
+# Misc
+
+## jwt file path in optimism doc config
+jwt.txt
