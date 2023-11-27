@@ -477,9 +477,10 @@ class Config:
         # ==========================================================================================
         # Node Configuration
 
-        self.l2_node_sequencer_l1_confs = 4
+        self.l2_node_sequencer_l1_confs = 0
         """
-        Minimum number of L1 blocks that the L1 origin of L2 block must be behind the L1 head.
+        Minimum number of L1 blocks that the L1 origin of L2 block must be behind the L1 head (0 by
+        default).
         """
 
         self.l2_node_verifier_l1_confs = 0
@@ -568,18 +569,19 @@ class Config:
         # ==========================================================================================
         # Proposer Configuration
 
-        self.proposer_poll_interval = "6s"
+        self.proposer_poll_interval = "1s"
         """
         Interval in seconds at which the proposer polls the op-node for new blocks.
-        NOTE: devnet config is 1s.
+        (Default: 1s)
         """
 
-        self.proposer_num_confirmations = 10
+        self.proposer_num_confirmations = 1
         """
-        Number of confirmations to wait for before submitting a block to the L1. Defaults to 10.
+        Number of confirmations to wait for before submitting a block to the L1 (10 by default).
         """
 
-        self.allow_non_finalized = False
+        # Will not work if this is false. Why?
+        self.allow_non_finalized = True
         """
         Allows the proposer to submit proposals for L2 blocks derived from non-finalized L1 blocks.
         False by default.
@@ -627,16 +629,17 @@ class Config:
         Interval in seconds at which the batcher polls the execution engine for new blocks.
         """
 
-        self.sub_safety_margin = 10
+        # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
+        self.sub_safety_margin = 4
         """
         The batcher tx submission safety margin (in number of L1-blocks) to subtract from a
         channel's timeout and sequencing window, to guarantee safe inclusion of a channel on
-        L1.
+        L1 (4 by default).
         """
 
-        self.batcher_num_confirmations = 10
+        self.batcher_num_confirmations = 1
         """
-        Number of confirmations to wait for before submitting a block to the L1. Defaults to 10.
+        Number of confirmations to wait for before submitting a block to the L1 (10 by default).
         """
 
         self.max_channel_duration = 1
@@ -905,11 +908,12 @@ class Config:
 
     def use_devnet_config(self, paths: OPPaths):
         """
-        Overrides the configuration values with the defaults for a local devnet deployment (only
-        sets the values that are different from the standard defaults).
+        Overrides the configuration values with those from the Optimism monorepo devnet.
 
-        Currently, all values are similar to that used for the monorepo devnet, except that
-        we don't enable metric servers, pprof servers, and admin APIs.
+        The default config is already based on the devnet, so this only overrides some paths.
+
+        We also don't enable metric servers, pprof servers, and admin APIs, neither here or in the
+        default config.
 
         The source of truth for these values can be found here:
         https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/ops-bedrock/docker-compose.yml
@@ -923,23 +927,7 @@ class Config:
 
         # === Node ===
 
-        self.l2_node_sequencer_l1_confs = 0
         self.p2p_peer_key_path = paths.p2p_key_path
-
-        # === Proposer ===
-
-        self.proposer_poll_interval = "1s"
-        self.proposer_num_confirmations = 1
-
-        # Will not work if this is false. Why?
-        self.allow_non_finalized = True
-
-        #  === Batcher ===
-
-        self.batcher_num_confirmations = 1
-
-        # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
-        self.sub_safety_margin = 4
 
     # ----------------------------------------------------------------------------------------------
 
@@ -997,10 +985,13 @@ class Config:
         # === Proposer ===
 
         self.proposer_poll_interval = "12s"
+        self.proposer_num_confirmations = 10
+        self.allow_non_finalized = False
         self.proposer_rpc_listen_port = 8560
 
         # === Batcher ===
 
+        self.batcher_num_confirmations = 10
         self.sub_safety_margin = 6
         self.batcher_rpc_listen_port = 8548
 
@@ -1014,8 +1005,6 @@ class Config:
         :py:meth:`use_op_doc_config`.
         """
 
-        self.allow_non_finalized = True
-
         # === Node ===
 
         self.l2_node_sequencer_l1_confs = 5
@@ -1024,10 +1013,35 @@ class Config:
         # === Proposer ===
 
         self.proposer_poll_interval = "12s"
+        self.proposer_num_confirmations = 10
+        self.allow_non_finalized = False
 
         # === Batcher ===
 
+        self.batcher_num_confirmations = 10
         self.sub_safety_margin = 6
+
+    # ----------------------------------------------------------------------------------------------
+
+    def use_upnode_config(self):
+        """
+        Config from https://github.com/upnodedev/op-stack-basic-deployment
+        """
+
+        # === Node ===
+
+        self.l2_node_sequencer_l1_confs = 4
+
+        # === Proposer ===
+
+        self.proposer_poll_interval = "6s"
+        self.proposer_num_confirmations = 10
+        self.allow_non_finalized = False
+
+        #  === Batcher ===
+
+        self.batcher_num_confirmations = 10
+        self.sub_safety_margin = 10
 
 
 ####################################################################################################
@@ -1037,7 +1051,6 @@ def devnet_config(paths: OPPaths):
     Get a full devnet configuration.
     """
     config = Config(paths)
-    config.use_devnet_config(paths)
     return config
 
 
