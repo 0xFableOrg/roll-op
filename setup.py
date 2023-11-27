@@ -22,9 +22,11 @@ def setup(config: Config):
     deps.check_or_install_node()
     deps.check_or_install_yarn()
     deps.check_or_install_foundry()
+    deps.check_or_install_jdk()
     setup_optimism_repo()
     setup_op_geth_repo()
     setup_blockscout_repo()
+    setup_hildr_repo()
 
     os.makedirs(config.paths.gen_dir, exist_ok=True)
 
@@ -127,6 +129,39 @@ def setup_blockscout_repo():
 
 ####################################################################################################
 
+def setup_hildr_repo():
+    github_url = "https://github.com/optimism-java/hildr.git"
+    # This is the earliest commit with functional devnet scripts
+    # on top of "hildr-node/v0.1.1" tag release.
+    git_tag = "c8a9ede403cb1b1792250ae571b398a66356497e"
+
+    if os.path.isfile("hildr"):
+        raise Exception("Error: 'hildr' exists as a file and not a directory.")
+    elif not os.path.exists("hildr"):
+        print("Cloning the hildr repository. This may take a while...")
+        lib.clone_repo(github_url, "clone the hildr repository")
+
+    # lib.run("checkout stable version", f"git checkout --detach {git_tag}",
+    #         cwd="hildr")
+    lib.run("checkout branch", f"git checkout --detach {git_tag}", cwd="hildr")
+
+    log_file = "logs/build_hildr.log"
+    print(
+        f"Starting to build the optimism repository. Logging to {log_file}\n"
+        "This may take a while...")
+
+    lib.run_roll_log(
+        descr="build hildr",
+        command=deps.cmd_with_node("./gradlew build -x test"),
+        cwd="hildr",
+        log_file=log_file)
+
+    shutil.copyfile("hildr/hildr-node/build/libs/hildr-node-0.1.0.jar", "bin/hildr-node.jar")
+
+    print("Successfully built the hildr repository.")
+
+####################################################################################################
+
 def clean_build():
     """
     Clean the build outputs (from the Optimism monorepo and the op-geth repo).
@@ -143,6 +178,12 @@ def clean_build():
         descr="clean op-geth repo",
         command="make clean",
         cwd="op-geth",
+        forward="self")
+
+    lib.run(
+        descr="clean hildr repo",
+        command="./gradlew clean",
+        cwd="hildr",
         forward="self")
 
     # NOTE: Need to cleanup blockscout when properly integrated.
