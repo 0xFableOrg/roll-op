@@ -946,10 +946,15 @@ class Config:
         differ from the default values.
 
         One difference is that we don't enable admin APIs.
+
+        Note that the document also uses deploy config values equivalent to the "prod" preset in
+        roll-op (see `PRODUCTION_CONFIG` in `deploy_config_templates.py`).
         """
 
         # === Network ===
 
+        self.l1_chain_id = 11155111
+        self.l2_chain_id = 42069
         # We need to do this because the documentation assigns 8545 to the L2 engine RPC.
         self.l1_rpc_url = "http://127.0.0.1:9545"
         self.l1_rpc_for_node_url = "ws://127.0.0.1:9546"
@@ -1007,18 +1012,18 @@ class Config:
 
         # === Node ===
 
-        self.l2_node_sequencer_l1_confs = 3
-        self.l2_node_verifier_l1_confs = 3
+        self.l2_node_sequencer_l1_confs = 5
+        self.l2_node_verifier_l1_confs = 4
 
         # === Proposer ===
 
-        self.proposer_poll_interval = 12
+        self.proposer_poll_interval = "12s"
 
         # === Batcher ===
 
         self.sub_safety_margin = 6
-        self.batcher_poll_interval = 1
-        self.batcher_resubmission_timeout = 30
+        self.batcher_poll_interval = "1s"
+        self.batcher_resubmission_timeout = "30s"
         self.max_channel_duration = 1
 
 
