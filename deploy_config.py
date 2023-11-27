@@ -63,7 +63,7 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
         try:
             out = lib.run(
                 "get latest block",
-                f"cast block latest --rpc-url {config.l1_rpc} "
+                f"cast block latest --rpc-url {config.l1_rpc_url} "
                 "| grep -E '(hash|number|timestamp)' "
                 "| awk '{print $2}'",
                 forward="capture")

@@ -34,8 +34,8 @@ def start(config: Config):
 
             # TODO check on deployment not being None
 
-            f"--l1-eth-rpc='{config.l1_rpc}'",
-            f"--rollup-rpc='{config.l2_node_rpc}'",
+            f"--l1-eth-rpc='{config.l1_rpc_url}'",
+            f"--rollup-rpc='{config.l2_node_rpc_url}'",
             f"--poll-interval={config.proposer_poll_interval}s",
             f"--l2oo-address={config.deployments['L2OutputOracleProxy']}",
             *(["--allow-non-finalized"] if config.allow_non_finalized else []),

@@ -276,13 +276,17 @@ def load_config() -> Config:
         except KeyError as e:
             raise Exception(f"Missing config file value: {e}")
 
+    # TODO: this isn't very composable
+    #   It would be better to change the default to be blockscout-compatible, then
+    #   add a check when the explorer flag is set to error if the port setup is not compatible.
     if hasattr(lib.args, "explorer") and lib.args.explorer:
         # Invert defaults, because it was hard to make blockscout work if the L2 engine wasn't
         # on the 8545 port.
-        if config.l1_rpc == "http://127.0.0.1:8545":
-            config.l1_rpc = "http://127.0.0.1:9545"
+        if config.l1_rpc_port == 8545:
+            config.l1_rpc_port = 9545
+        if config.l1_rpc_listen_port == 8545:
             config.l1_rpc_listen_port = 9545
-        config.l2_engine_rpc = "http://127.0.0.1:8545"
+        config.l2_engine_rpc_port = 8545
         config.l2_engine_rpc_listen_port = 8545
 
     config.validate()
