@@ -290,6 +290,24 @@ class Config:
         This is also passed to the devnet L1 (if started) currently, but unclear if it's needed.
         """
 
+        self.l2_hildr_engine_rpc = "http://127.0.0.1:10545"
+        """
+        Protocol + address + port to use to connect to the L2 RPC server attached to the hildr execution
+        engine ("http://127.0.0.1:10545" by default).
+        """
+
+        self.l2_hildr_engine_authrpc = "http://127.0.0.1:10551"
+        """
+        Protocol + address + port to use to connect to the authenticated RPC (authrpc) server
+        attached to the hildr execution engine, which serves the hildr engine API ("http://127.0.0.1:10551" by
+        default).
+        """
+
+        self.l2_hildr_node_rpc = "http://127.0.0.1:11545"
+        """
+        Address to use to connect to the hildr-node RPC server ("http://127.0.0.1:11545" by default).
+        """
+
         self.deployments = None
         """
         Dictionary containing a mapping from rollup contract names to the address at which they're
@@ -448,6 +466,86 @@ class Config:
         """
 
         # ==========================================================================================
+        # L2 Hildr Execution Engine Configuration
+
+        self.l2_hildr_engine_data_dir = os.path.join(self.db_path, "l2_hildr_engine")
+        """Geth data directory for the L2 hildr engine."""
+
+        # See also the properties starting with `l2_engine` below which are paths derived from
+        # :py:attribute:`l2_hildr_engine_data_dir`.
+
+        self.l2_hildr_chain_id = 42069
+        """Chain ID of the local L2 hildr."""
+
+        self.l2_hildr_engine_verbosity = 3
+        """Geth verbosity level (from 0 to 5, see op-geth --help)."""
+
+        self.l2_hildr_engine_p2p_port = 40313
+        """Port to use for the p2p server of the L2 hildr engine (30313 by default)."""
+
+        self.l2_hildr_engine_rpc_listen_addr = "0.0.0.0"
+        """Address the L2 hildr engine http RPC server should bind to ("0.0.0.0" by default)."""
+
+        self.l2_hildr_engine_rpc_listen_port = 10545
+        """Port to use for the L2 hildr engine http JSON-RPC server."""
+
+        self.l2_hildr_engine_rpc_ws_listen_addr = "0.0.0.0"
+        """Address the L2 hildr engine WebSocket RPC server should bind to ("0.0.0.0" by default)."""
+
+        self.l2_hildr_engine_rpc_ws_listen_port = 10546
+        """Port to use for the WebSocket JSON_RPC server."""
+
+        self.l2_hildr_engine_authrpc_listen_addr = "0.0.0.0"
+        """Address the L2 hildr engine authRPC server should bind to ("0.0.0.0" by default)."""
+
+        self.l2_hildr_engine_authrpc_listen_port = 10551
+        """Port to use for the L2 hildr engine authRPC server (9551 by default)."""
+
+        self.l2_hildr_engine_history_transactions = 2350000
+        """
+        Number of recent blocks to maintain transactions index for (default = about one
+        year (geth default), 0 = entire chain)
+        
+        This is the `--txlookuplimit` option in geth <= 1.12 and `--history.transactions` in geth >=
+        1.13.
+        """
+
+        self.l2_hildr_engine_disable_tx_gossip = True
+        """
+        Whether to disable transaction pool gossiping (True by default).
+        
+        In a system with a single sequencer, publicizing the mempool holds very little advantage:
+        it can cause spam by MEV searchers trying to frontrun or backrun transactions.
+        On the flip side, if the node crashes, gossiping can help refill the sequencer's mempool.
+        
+        I believe it's possible to set this to False (enable gossip) but restrict the peers in
+        another way, such that "centralized redundancy" (multiple nodes ran by the same entity)
+        can be achieved.
+        
+        This is currently pretty irrelevant, because we hardcode the --maxpeers=0 and --nodiscover
+        flags.
+        """
+
+        # === Metrics ===
+
+        self.l2_hildr_engine_metrics = False
+        """
+        Whether to record metrics in the L2 hildr engine (False by default).
+        """
+
+        self.l2_hildr_engine_metrics_listen_port = 10060
+        """
+        Port to the L2 hildr engine metrics server should bind to (8060 by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
+        self.l2_hildr_engine_metrics_listen_addr = "0.0.0.0"
+        """
+        Address the L2 hildr engine metrics server should bind to ("0.0.0.0" by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
+        # ==========================================================================================
         # Node Configuration
 
         self.l2_node_sequencer_l1_confs = 4
@@ -533,6 +631,53 @@ class Config:
         """
 
         self.l2_node_metrics_listen_addr = "0.0.0.0"
+        """
+        Address the L2 node metrics server should bind to ("0.0.0.0" by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
+        # ==========================================================================================
+        # Hildr Service Start Flag
+        self.l2_hildr_enabled = False
+        """
+        Whether to enable Hildr service (hildr node + hildr engine — False by default).
+        """
+
+        # Hildr Node Configuration
+
+        # === RPC ===
+        self.l2_hildr_node_rpc_listen_addr = "0.0.0.0"
+        """
+        Address the node RPC server should bind to ("0.0.0.0" by default).
+        
+        Used for the "optimism" namespace API
+        (https://community.optimism.io/docs/developers/build/json-rpc/) and the "admin" namespace
+        (cf. :py:attribute:`node_enable_admin`).
+        """
+
+        self.l2_hildr_node_rpc_listen_port = 11545
+        """
+        Port the hildr node RPC server should bind to (11545 by default).
+        
+        Used for the "optimism" namespace API
+        (https://community.optimism.io/docs/developers/build/json-rpc/) and the "admin" namespace
+        (cf. :py:attribute:`node_enable_admin`).
+        """
+
+        # === Metrics ===
+
+        self.l2_hildr_node_metrics = False
+        """
+        Whether to record metrics in the L2 node (False by default).
+        """
+
+        self.l2_hildr_node_metrics_listen_port = 11300
+        """
+        Port to the l2 node metrics server should bind to (7300 by default).
+        Ignored if :py:attribute:`node_metrics` is False.
+        """
+
+        self.l2_hildr_node_metrics_listen_addr = "0.0.0.0"
         """
         Address the L2 node metrics server should bind to ("0.0.0.0" by default).
         Ignored if :py:attribute:`node_metrics` is False.
@@ -751,6 +896,11 @@ class Config:
         """Directory storing chain data for the L2 engine."""
         return os.path.join(self.l2_engine_data_dir, "geth", "chaindata")
 
+    @property
+    def l2_hildr_engine_chaindata_dir(self):
+        """Directory storing chain data for the L2 engine."""
+        return os.path.join(self.l2_hildr_engine_data_dir, "geth", "chaindata")
+
     # ==============================================================================================
 
     def validate(self):
@@ -821,6 +971,10 @@ class Config:
         self.l2_engine_rpc = "http://127.0.0.1:8545"
         self.l2_engine_authrpc = "http://127.0.0.1:8551"
         self.l2_node_rpc = "http://127.0.0.1:8547"
+
+        self.l2_hildr_engine_rpc = "http://127.0.0.1:10545"
+        self.l2_hildr_engine_authrpc = "http://127.0.0.1:10551"
+        self.l2_hildr_node_rpc = "http://127.0.0.1:11545"
 
         self.jwt_secret_path = "jwt.txt"
 

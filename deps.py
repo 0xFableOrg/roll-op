@@ -468,4 +468,58 @@ def install_geth():
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
 
+
+####################################################################################################
+
+JDK_MIN_VERSION = "21"
+"""Version of Jdk to install if not found."""
+
+JDK_MAX_VERSION = "22"
+"""Maximum JDK version found to work."""
+
+JDK_INSTALL_VERSION = "21.0.1"
+"""Version of JDK to install if not found."""
+
+# --------------------------------------------------------------------------------------------------
+
+
+def check_or_install_jdk():
+    """
+    Check if JDK is installed and is the correct version, otherwise prompts the user to install
+    it via SDKMAN.
+    """
+
+    # Check if Node is installed and is the correct version.
+    if shutil.which("java") is not None:
+        version = lib.run("get jdk version", "java -version").replace("version", "").replace("\"", "")
+        version = re.search(r"((java|openjdk)( +))(\d+(\.\d+)+)", version)
+        version = "0" if version is None else version.group(4)
+        print(f"jdk version: {version}")
+        if version >= JDK_INSTALL_VERSION:
+            return
+
+    def sdk_install_jdk():
+        lib.run(f"install JDK {JDK_INSTALL_VERSION}",
+                f"bash -c '. ~/.sdkman/bin/sdkman-init.sh; echo Y | sdk install java {JDK_INSTALL_VERSION}-amzn'")
+        print(f"Successfully installed JDK {JDK_INSTALL_VERSION}")
+
+    if os.path.isfile(os.path.expanduser("~/.sdkman/bin/sdkman-init.sh")):
+        # We have SDKMAN, try using required version or installing it.
+        try:
+            lib.run(f"init sdkman", f"bash -c '. ~/.sdkman/bin/sdkman-init.sh; sdk default java {JDK_INSTALL_VERSION}-amzn'")
+        except Exception:
+            if lib.ask_yes_no(f"JDK {JDK_INSTALL_VERSION} is required. SDKMAN is installed. "
+                              f"Install with SDKMAN?"):
+                sdk_install_jdk()
+            else:
+                raise Exception(f"JDK {JDK_INSTALL_VERSION} is required.")
+    else:
+        # Install SDKMAN + JDK.
+        sdkman_url = f"https://get.sdkman.io"
+        if lib.ask_yes_no(f"JDK {JDK_INSTALL_VERSION} is required. Install SDKMAN + JDK?"):
+            lib.run("install sdkman", f"curl -s {sdkman_url} | bash")
+            sdk_install_jdk()
+        else:
+            raise Exception(f"JDK {JDK_INSTALL_VERSION} is required.")
+
 ####################################################################################################
