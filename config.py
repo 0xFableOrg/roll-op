@@ -568,7 +568,7 @@ class Config:
         # ==========================================================================================
         # Proposer Configuration
 
-        self.proposer_poll_interval = 6
+        self.proposer_poll_interval = "6s"
         """
         Interval in seconds at which the proposer polls the op-node for new blocks.
         NOTE: devnet config is 1s.
@@ -622,9 +622,9 @@ class Config:
         # ==========================================================================================
         # Batcher Configuration
 
-        self.batcher_poll_interval = 6
+        self.batcher_poll_interval = "1s"
         """
-        Interval in seconds at which the proposer polls the execution engine for new blocks.
+        Interval in seconds at which the batcher polls the execution engine for new blocks.
         """
 
         self.sub_safety_margin = 10
@@ -639,12 +639,13 @@ class Config:
         Number of confirmations to wait for before submitting a block to the L1. Defaults to 10.
         """
 
-        self.max_channel_duration = 0
+        self.max_channel_duration = 1
         """
-        The maximum duration of L1-blocks to keep a channel open. 0 (default) to disable.
+        The maximum duration of L1-blocks to keep a channel open. (Default: 1)
+        When set to 0, this enables channels to stay open until they are big enough.
         """
 
-        self.batcher_resubmission_timeout = 48
+        self.batcher_resubmission_timeout = "30s"
         """
         The time after which a batcher will resubmit an L1 transaction that has not been included
         on-chain.
@@ -936,8 +937,6 @@ class Config:
         #  === Batcher ===
 
         self.batcher_num_confirmations = 1
-        self.batcher_poll_interval = "1s"
-        self.max_channel_duration = 1
 
         # NOTE(norswap): Comment in monorepo devnet says "SWS is 15, ChannelTimeout is 40"
         self.sub_safety_margin = 4
@@ -992,15 +991,12 @@ class Config:
 
         # === Proposer ===
 
-        self.proposer_poll_interval = 12
+        self.proposer_poll_interval = "12s"
         self.proposer_rpc_listen_port = 8560
 
         # === Batcher ===
 
         self.sub_safety_margin = 6
-        self.batcher_poll_interval = 1
-        self.batcher_resubmission_timeout = 30
-        self.max_channel_duration = 1
         self.batcher_rpc_listen_port = 8548
 
     # ----------------------------------------------------------------------------------------------
@@ -1027,9 +1023,6 @@ class Config:
         # === Batcher ===
 
         self.sub_safety_margin = 6
-        self.batcher_poll_interval = "1s"
-        self.batcher_resubmission_timeout = "30s"
-        self.max_channel_duration = 1
 
 
 ####################################################################################################
