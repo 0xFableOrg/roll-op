@@ -6,6 +6,7 @@ import os
 import pathlib
 import shutil
 
+import hildr_node
 import l2_batcher
 import l2_engine
 import l2_node
@@ -62,6 +63,10 @@ def start(config: Config):
     l2_node.start(config, sequencer=True)
     l2_proposer.start(config)
     l2_batcher.start(config)
+
+    if config.l2_hildr_enabled:
+        hildr_node.start(config)
+
     print("All L2 components are running.")
 
 
