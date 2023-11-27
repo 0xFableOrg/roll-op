@@ -37,18 +37,27 @@ def setup_optimism_repo():
     git_tag = "op-node/v1.3.0"
     git_fix1_tag = "2e57472890f9fea39cde72537935393b068d3e0f"
     git_fix2_tag = "5252c82f607af81f6cb741a370425eaf26280892"
+    git_custom_tag = "roll-op/v1.3.0"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
     elif not os.path.exists("optimism"):
         print("Cloning the optimism repository. This may take a while...")
         lib.clone_repo(github_url, "clone the optimism repository")
-
-    lib.run("checkout stable version", f"git checkout --detach {git_tag}",
-            cwd="optimism")
-
-    lib.run("install devnet fix", f"git cherry-pick {git_fix1_tag}", cwd="optimism")
-    lib.run("install submodules fix", f"git cherry-pick {git_fix2_tag}", cwd="optimism")
+        tag = lib.run("get head tag", "git show-ref HEAD --tags")
+        if tag != git_custom_tag:
+            lib.run("checkout stable version",
+                    f"git checkout --detach {git_tag}",
+                    cwd="optimism")
+            lib.run("install devnet fix",
+                    f"git cherry-pick {git_fix1_tag}",
+                    cwd="optimism")
+            lib.run("install submodules fix",
+                    f"git cherry-pick {git_fix2_tag}",
+                    cwd="optimism")
+            lib.run("tag custom version",
+                    f"git tag {git_custom_tag}",
+                    cwd="optimism")
 
     log_file = "logs/build_optimism.log"
     print(
