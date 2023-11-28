@@ -100,16 +100,16 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         os._exit(1)  # we have to use this one to exit from a thread
 
     return PROCESS_MGR.start("run temporary geth instance", [
-            "geth",
-            "--dev",
-            "--http",
-            "--http.api eth,debug",
-            f"--http.port={config.temp_l1_rpc_listen_port}",
-            "--verbosity 4",
-            "--gcmode archive",
-            "--dev.gaslimit 30000000",
-            "--rpc.allow-unprotected-txs"
-        ],
+        "geth",
+        "--dev",
+        "--http",
+        "--http.api eth,debug",
+        f"--http.port={config.temp_l1_rpc_listen_port}",
+        "--verbosity 4",
+        "--gcmode archive",
+        "--dev.gaslimit 30000000",
+        "--rpc.allow-unprotected-txs"
+    ],
         forward="fd",
         stdout=log_file,
         on_exit=early_exit_handler)
@@ -165,61 +165,61 @@ def _start_devnet_l1_node(config: Config):
     # or if the sequencing window is larger than the time-to-prune.
 
     PROCESS_MGR.start("starting geth", [
-            "geth",
+        "geth",
 
-            f"--datadir={config.l1_data_dir}",
-            f"--verbosity={config.l1_verbosity}",
+        f"--datadir={config.l1_data_dir}",
+        f"--verbosity={config.l1_verbosity}",
 
-            f"--networkid={config.l1_chain_id}",
-            "--syncmode=full",  # doesn't matter, it's only us
-            "--gcmode=archive",
-            "--rpc.allow-unprotected-txs",  # allow legacy transactions for deterministic deployment
+        f"--networkid={config.l1_chain_id}",
+        "--syncmode=full",  # doesn't matter, it's only us
+        "--gcmode=archive",
+        "--rpc.allow-unprotected-txs",  # allow legacy transactions for deterministic deployment
 
-            # p2p network config
-            f"--port={config.l1_p2p_port}",
+        # p2p network config
+        f"--port={config.l1_p2p_port}",
 
-            # No peers: the blockchain is only this node
-            "--nodiscover",
-            "--maxpeers=1",
+        # No peers: the blockchain is only this node
+        "--nodiscover",
+        "--maxpeers=1",
 
-            # HTTP JSON-RPC server config
-            "--http",
-            "--http.corsdomain=*",
-            "--http.vhosts=*",
-            f"--http.addr={config.l1_rpc_listen_addr}",
-            f"--http.port={config.l1_rpc_listen_port}",
-            "--http.api=web3,debug,eth,txpool,net,engine",
+        # HTTP JSON-RPC server config
+        "--http",
+        "--http.corsdomain=*",
+        "--http.vhosts=*",
+        f"--http.addr={config.l1_rpc_listen_addr}",
+        f"--http.port={config.l1_rpc_listen_port}",
+        "--http.api=web3,debug,eth,txpool,net,engine",
 
-            # WebSocket JSON-RPC server config
-            "--ws",
-            f"--ws.addr={config.l1_rpc_ws_listen_addr}",
-            f"--ws.port={config.l1_rpc_ws_listen_port}",
-            "--ws.origins=*",
-            "--ws.api=debug,eth,txpool,net,engine",
+        # WebSocket JSON-RPC server config
+        "--ws",
+        f"--ws.addr={config.l1_rpc_ws_listen_addr}",
+        f"--ws.port={config.l1_rpc_ws_listen_port}",
+        "--ws.origins=*",
+        "--ws.api=debug,eth,txpool,net,engine",
 
-            # Configuration for clique signing, clique itself is enabled via the genesis file
-            f"--unlock={config.l1_signer_account}",
-            "--mine",
-            f"--miner.etherbase={config.l1_signer_account}",
-            f"--password={config.l1_password_path}",
-            "--allow-insecure-unlock",
+        # Configuration for clique signing, clique itself is enabled via the genesis file
+        f"--unlock={config.l1_signer_account}",
+        "--mine",
+        f"--miner.etherbase={config.l1_signer_account}",
+        f"--password={config.l1_password_path}",
+        "--allow-insecure-unlock",
 
-            # Authenticated RPC config
-            f"--authrpc.addr={config.l1_authrpc_listen_addr}",
-            f"--authrpc.port={config.l1_authrpc_listen_port}",
-            # NOTE: The Optimism monorepo accepts connections from any host, and specifies the JWT
-            # secret to be the same used on L2. We don't see any reason to do that (we never use
-            # authenticated RPC), so we restrict access to localhost only (authrpc can't be turned
-            # off), and don't specify the JWT secret (`--authrpc.jwtsecret=jwt_secret_path`) which
-            # causes a random secret to be created in `config.l1_data_dir/geth/jwtsecret`.
-            "--authrpc.vhosts=127.0.0.1",
+        # Authenticated RPC config
+        f"--authrpc.addr={config.l1_authrpc_listen_addr}",
+        f"--authrpc.port={config.l1_authrpc_listen_port}",
+        # NOTE: The Optimism monorepo accepts connections from any host, and specifies the JWT
+        # secret to be the same used on L2. We don't see any reason to do that (we never use
+        # authenticated RPC), so we restrict access to localhost only (authrpc can't be turned
+        # off), and don't specify the JWT secret (`--authrpc.jwtsecret=jwt_secret_path`) which
+        # causes a random secret to be created in `config.l1_data_dir/geth/jwtsecret`.
+        "--authrpc.vhosts=127.0.0.1",
 
-            # Metrics options
-            *([] if not config.l1_metrics else [
-                "--metrics",
-                f"--metrics.port={config.l1_metrics_listen_port}",
-                f"--metrics.addr={config.l1_metrics_listen_addr}"]),
-        ],
+        # Metrics options
+        *([] if not config.l1_metrics else [
+            "--metrics",
+            f"--metrics.port={config.l1_metrics_listen_port}",
+            f"--metrics.addr={config.l1_metrics_listen_addr}"]),
+    ],
         forward="fd",
         stdout=log_file)
 
