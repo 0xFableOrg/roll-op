@@ -70,9 +70,9 @@ def _create_devnet_l1_genesis_allocs(config: Config):
         l2_deploy.deploy_contracts_on_l1(config, tmp_l1=True)
 
         # dump latest block to get the allocs
-        url = f"127.0.0.1:{config.temp_l1_rpc_listen_port}"
-        print(f"Fetch debug_dumpBlock from {url}")
-        res = lib.send_json_rpc_request(url, 3, "debug_dumpBlock", ["latest"])
+        host = f"127.0.0.1:{config.temp_l1_rpc_listen_port}"
+        print(f"Fetch debug_dumpBlock from {host}")
+        res = lib.send_json_rpc_request(host, 3, "debug_dumpBlock", ["latest"])
         response = json.loads(res)
         allocs = response['result']
         lib.write_json_file(config.paths.l1_allocs_path, allocs)

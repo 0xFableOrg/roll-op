@@ -10,8 +10,7 @@ l1_rpc_url = "http://127.0.0.1:8545"
 
 #l1_chain_id = 5
 
-# NOTE: for now you always need to add the port explicitly!
-#l1_rpc_url = "https://ethereum-goerli.publicnode.com:8545"
+#l1_rpc_url = "https://ethereum-goerli.publicnode.com"
 
 ## Keys
 

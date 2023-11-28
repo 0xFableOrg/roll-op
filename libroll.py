@@ -4,6 +4,7 @@ import socket
 import subprocess
 import sys
 import time
+from dataclasses import dataclass
 from threading import Thread
 
 ####################################################################################################
@@ -403,52 +404,91 @@ def ensure_port_unoccupied(service_name: str, addr: str, port: int):
 
 ####################################################################################################
 
-def wait_for_rpc_server(address: str, port: int, retries: int = 5, wait_secs=3):
+def wait_for_rpc_server(
+        host: str,
+        port: int,
+        path: str = "/",
+        protocol: str = "http",
+        retries: int = 5,
+        wait_secs=3):
     """
     Waits for a JSON-RPC server to be available at `url` (ascertained by asking for the chain ID).
     Retries until the server responds with a successful status code, waiting `wait_secs` in between
     tries, with at most `retries` attempts.
     """
-    url = f"{address}:{port}"
-    print(f"Waiting for RPC server at {url}...")
+    print(f"Waiting for RPC server at {host} (port: {port})...")
 
     headers = {"Content-type": "application/json"}
     body = '{"id":1, "jsonrpc":"2.0", "method": "eth_chainId", "params":[]}'
 
     for i in range(0, retries):
         try:
-            conn = http.client.HTTPConnection(url)
-            conn.request("POST", "/", body, headers)
+            if protocol == "https":
+                conn = http.client.HTTPSConnection(host, port)
+            elif protocol == "http":
+                conn = http.client.HTTPConnection(host, port)
+            else:
+                raise Exception(f"unsupported: waiting for RPC protocol '{protocol}'")
+            conn.request("POST", path, body, headers)
             response = conn.getresponse()
             conn.close()
             if response.status < 300:
-                debug(f"RPC server at {url} ready")
+                debug(f"RPC server at {host} ready")
                 return
             else:
+                print(response)
                 debug(f"RPC server not ready, status: {response.status}")
         except Exception:
             debug("RPC server not ready, connection attempt failed, retrying...")
             time.sleep(wait_secs)
 
-    raise Exception(f"Timed out waiting for {url}")
+    raise Exception(f"Timed out waiting for {host} (port: {port})")
 
 
 ####################################################################################################
 
-def send_json_rpc_request(url: str, nonce: int, method: str, params: list):
+def send_json_rpc_request(host: str, iden: int, method: str, params: list, path: str = "/"):
     """
-    Sends a JSON-RPC request to the given JSON_RPC server URL, with the given nonce, method and
-    params, returns the decoded JSON data from the response.
+    Sends a JSON-RPC request to the given JSON_RPC server (`host` can include a port number, e.g.
+    "127.0.0.1:8454"), with the given nonce, method and params, returns the decoded JSON data from
+    the response.
     """
-    conn = http.client.HTTPConnection(url)
+    conn = http.client.HTTPConnection(host)
     headers = {"Content-type": "application/json"}
-    body = f'{{"id":{nonce}, "jsonrpc":"2.0", "method": "{method}", "params":{params}}}'
+    body = f'{{"id":{iden}, "jsonrpc":"2.0", "method": "{method}", "params":{params}}}'
     body = body.replace("'", '"') # JSON requires double quotes
-    conn.request("POST", "/", body, headers)
+    conn.request("POST", path, body, headers)
     response = conn.getresponse()
     data = response.read().decode()
     conn.close()
     return data
 
+
+####################################################################################################
+
+@dataclass
+class RPCParseResult:
+    """
+    Result of parsing an RPC URL via :py:func:`parse_rpc_url`.
+    """
+    protocol: str
+    address: str
+    port: int
+    path: str
+
+
+def parse_rpc_url(url: str) -> RPCParseResult:
+    """
+    Parses an RPC URL into its (protocol, address, port) components.
+
+    If missing, the protocol defaults to "http" and the port to 8545 (433 for https).
+    """
+    import urllib.parse
+    parsed = urllib.parse.urlparse(url)
+    protocol = parsed.scheme or "http"
+    address = parsed.hostname
+    path = parsed.path if parsed.path else ""
+    port = parsed.port or (443 if protocol == "https" else 8545)
+    return RPCParseResult(protocol, address, port, path)
 
 ####################################################################################################
