@@ -1,7 +1,5 @@
 import os.path
 
-import urllib.parse
-
 from paths import OPPaths
 import libroll as lib
 
@@ -286,10 +284,14 @@ class Config:
         #
         # These properties also have setters that allow setting the URL as a whole, which will
         # then be split and assign the protocol, host and port parts.
+        #
+        # The L1 RPCs have a path part, to allow for JSON-RPC provider URLs. We assume you don't
+        # need those for the other components, so we eschew the path part.
 
         # See :py:attribute:`l1_rpc_url` for more details.
         self.l1_rpc_protocol = "http"
         self.l1_rpc_host = "127.0.0.1"
+        self.l1_rpc_path = ""
         self.l1_rpc_port = 8545
 
         # See :py:attribute:`l1_rpc_for_node_url` for more details.
@@ -811,7 +813,13 @@ class Config:
     # distinct form the addresses / ports that the components bind to.
     # Refer to the "Network Configuration" section for more details.
 
-    def maybe_local_url(self, protocol: str, host: str, port: int, own_address: str = None):
+    def _maybe_local_url(
+            self,
+            protocol: str,
+            host: str,
+            port: int,
+            path: str = "",
+            own_address: str = None):
         """
         Returns a URL made from protocol, host and port, but substitute 127.0.0.1 to the host
         if the host is the same as `own_address`.
@@ -820,7 +828,22 @@ class Config:
             own_address = self.own_address
         if own_address and own_address == host:
             host = "127.0.0.1"
-        return f"{protocol}://{host}:{port}"
+        return f"{protocol}://{host}:{port}{path}"
+
+    def _set_url_components(self, url: str, prefix: str, allow_path: bool = False):
+        """
+        Parses an URL and assigns its components to the corresponding attributes of this object
+        based on the prefix. The URL is only allowed to have a path after the hostname if
+        `allow_path` is True, or an exception is raised.
+        """
+        parsed = lib.parse_rpc_url(url)
+        if not allow_path and parsed.path:
+            raise ValueError(f"URL {url} (for {prefix} contains a path part, which is not allowed")
+        setattr(self, prefix + "_protocol", parsed.protocol)
+        setattr(self, prefix + "_host", parsed.address)
+        setattr(self, prefix + "_port", parsed.port)
+        if allow_path:
+            setattr(self, prefix + "_path", parsed.path)
 
     @property
     def l1_rpc_url(self, own_address: str = None):
@@ -831,15 +854,16 @@ class Config:
 
         The L2 node will use :py:attribute:`l1_rpc_for_node` instead!
         """
-        return self.maybe_local_url(
-            self.l1_rpc_protocol, self.l1_rpc_host, self.l1_rpc_port, own_address)
+        return self._maybe_local_url(
+            self.l1_rpc_protocol,
+            self.l1_rpc_host,
+            self.l1_rpc_port,
+            self.l1_rpc_path,
+            own_address=own_address)
 
     @l1_rpc_url.setter
     def l1_rpc_url(self, url: str):
-        parsed = urllib.parse.urlparse(url)
-        self.l1_rpc_protocol = parsed.scheme
-        self.l1_rpc_host = parsed.hostname
-        self.l1_rpc_port = parsed.port
+        self._set_url_components(url, "l1_rpc", allow_path=True)
 
     @property
     def l1_rpc_for_node_url(self, own_address: str = None):
@@ -850,16 +874,15 @@ class Config:
         The reason for this override is to enable the L2 node to use a more performant RPC, or a
         WebSocket connection to get L1 data.
         """
-        return self.maybe_local_url(
-            self.l1_rpc_for_node_protocol, self.l1_rpc_for_node_host, self.l1_rpc_for_node_port,
-            own_address)
+        return self._maybe_local_url(
+            self.l1_rpc_for_node_protocol,
+            self.l1_rpc_for_node_host,
+            self.l1_rpc_for_node_port,
+            own_address=own_address)
 
     @l1_rpc_for_node_url.setter
     def l1_rpc_for_node_url(self, url: str):
-        parsed = urllib.parse.urlparse(url)
-        self.l1_rpc_for_node_protocol = parsed.scheme
-        self.l1_rpc_for_node_host = parsed.hostname
-        self.l1_rpc_for_node_port = parsed.port
+        self._set_url_components(url, "l1_rpc_for_node")
 
     @property
     def l2_engine_rpc_url(self, own_address: str = None):
@@ -868,16 +891,15 @@ class Config:
         engine ("http://127.0.0.1:9545" by default).
         Host is substituted by 127.0.0.1 if it matches `own_address`.
         """
-        return self.maybe_local_url(
-            self.l2_engine_rpc_protocol, self.l2_engine_rpc_host, self.l2_engine_rpc_port,
-            own_address)
+        return self._maybe_local_url(
+            self.l2_engine_rpc_protocol,
+            self.l2_engine_rpc_host,
+            self.l2_engine_rpc_port,
+            own_address=own_address)
 
     @l2_engine_rpc_url.setter
     def l2_engine_rpc_url(self, url: str):
-        parsed = urllib.parse.urlparse(url)
-        self.l2_engine_rpc_protocol = parsed.scheme
-        self.l2_engine_rpc_host = parsed.hostname
-        self.l2_engine_rpc_port = parsed.port
+        self._set_url_components(url, "l2_engine_rpc")
 
     @property
     def l2_engine_authrpc_url(self, own_address: str = None):
@@ -886,16 +908,15 @@ class Config:
         attached to the execution engine, which serves the engine API ("http://127.0.0.1:9551" by
         default). Host is substituted by 127.0.0.1 if it matches `own_address`.
         """
-        return self.maybe_local_url(
-            self.l2_engine_authrpc_protocol, self.l2_engine_authrpc_host,
-            self.l2_engine_authrpc_port, own_address)
+        return self._maybe_local_url(
+            self.l2_engine_authrpc_protocol,
+            self.l2_engine_authrpc_host,
+            self.l2_engine_authrpc_port,
+            own_address=own_address)
 
     @l2_engine_authrpc_url.setter
     def l2_engine_authrpc_url(self, url: str):
-        parsed = urllib.parse.urlparse(url)
-        self.l2_engine_authrpc_protocol = parsed.scheme
-        self.l2_engine_authrpc_host = parsed.hostname
-        self.l2_engine_authrpc_port = parsed.port
+        self._set_url_components(url, "l2_engine_authrpc")
 
     @property
     def l2_node_rpc_url(self, own_address: str = None):
@@ -903,15 +924,15 @@ class Config:
         Address to use to connect to the op-node RPC server ("http://127.0.0.1:7545" by default).
         Host is substituted by 127.0.0.1 if it matches `own_address`.
         """
-        return self.maybe_local_url(
-            self.l2_node_rpc_protocol, self.l2_node_rpc_host, self.l2_node_rpc_port, own_address)
+        return self._maybe_local_url(
+            self.l2_node_rpc_protocol,
+            self.l2_node_rpc_host,
+            self.l2_node_rpc_port,
+            own_address=own_address)
 
     @l2_node_rpc_url.setter
     def l2_node_rpc_url(self, url: str):
-        parsed = urllib.parse.urlparse(url)
-        self.l2_node_rpc_protocol = parsed.scheme
-        self.l2_node_rpc_host = parsed.hostname
-        self.l2_node_rpc_port = parsed.port
+        self._set_url_components(url, "l2_node_rpc")
 
     # ==============================================================================================
 

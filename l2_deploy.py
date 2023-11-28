@@ -46,24 +46,28 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         return
 
     if tmp_l1:
-        l1_address = "127.0.0.1"
+        l1_rpc_protocol = "http"
+        l1_rpc_host = "127.0.0.1"
         l1_rpc_port = config.temp_l1_rpc_listen_port
-        l1_rpc_url = f"http://{l1_address}:{l1_rpc_port}"
+        l1_rpc_path = ""
+        l1_rpc_url = f"http://{l1_rpc_host}:{l1_rpc_port}"
     else:
-        l1_address = config.l1_rpc_host
+        l1_rpc_protocol = config.l1_rpc_protocol
+        l1_rpc_host = config.l1_rpc_host
         l1_rpc_port = config.l1_rpc_port
+        l1_rpc_path = config.l1_rpc_path
         l1_rpc_url = config.l1_rpc_url
 
     # wait for l1
-    lib.wait_for_port(l1_address, l1_rpc_port)
-    lib.wait_for_rpc_server(l1_address, l1_rpc_port)
+    lib.wait_for_port(l1_rpc_host, l1_rpc_port)
+    lib.wait_for_rpc_server(l1_rpc_host, l1_rpc_port, path=l1_rpc_path, protocol=l1_rpc_protocol)
 
     if tmp_l1:
         # The temporary allow does not fund dev addresses, instead it has "owned" accounts that
         # are randomly generated. We need to use those.
-        url = f"{l1_address}:{l1_rpc_port}"  # can't have "http:// in here
-        print(f"Fetch eth_accounts from {url}")
-        res = lib.send_json_rpc_request(url, 2, "eth_accounts", [])
+        host = f"{l1_rpc_host}:{l1_rpc_port}"  # can't have "http:// in here
+        print(f"Fetch eth_accounts from {host}")
+        res = lib.send_json_rpc_request(host, 2, "eth_accounts", [])
         response = json.loads(res)
         deployer_account = response["result"][0]
         private_key_arg = ""
