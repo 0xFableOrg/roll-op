@@ -71,9 +71,11 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         response = json.loads(res)
         deployer_account = response["result"][0]
         private_key_arg = ""
+        unlocked_arg = "--unlocked"
     else:
         deployer_account = config.contract_deployer_account
         private_key_arg = f"--private-key {config.contract_deployer_key}"
+        unlocked_arg = ""
 
     if tmp_l1 or config.deploy_create2_deployer:
         lib.run("send some ether to the create2 deployer account", [
@@ -81,7 +83,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             f"--from {deployer_account}",
             private_key_arg,
             f"--rpc-url {l1_rpc_url}",
-            "--unlocked",
+            unlocked_arg,
             "--value 1ether",
             "0x3fAB184622Dc19b6109349B94811493BF2a45362"  # create2 deployer account
         ], cwd=config.paths.contracts_dir)
@@ -119,7 +121,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             f"--rpc-url {l1_rpc_url}",
             "--broadcast",
             slow_arg,
-            "--unlocked"
+            unlocked_arg
         ],
         cwd=config.paths.contracts_dir,
         env=env,
