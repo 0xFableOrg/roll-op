@@ -256,7 +256,7 @@ class Config:
         # Anyhow, changing a port often involves changing a configuration in this section AND
         # changing a configuration option in the service-specific section.
 
-        self.deployment_name = "devnetL1"
+        self.deployment_name = "rollup"
         """
         Name for the rollup deployment, this will be set as the `DEPLOYMENT_CONTEXT` environment
         variable during contract deployment to L1, to determine the directory where the deploy
