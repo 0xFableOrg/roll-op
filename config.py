@@ -95,8 +95,8 @@ class Config:
         Account used to deploy contracts to L1.
         """
 
-        self.contract_deployer_key = (
-            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
+        self.contract_deployer_key = \
+            "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
         """
         Private key used to deploy contracts to L1.
         Uses the 0th "test junk" mnemonnic key by default.
