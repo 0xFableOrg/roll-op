@@ -4,12 +4,14 @@ l2_chain_id = 42069
 
 # (same as defaults)
 l1_chain_id = 900
-l1_rpc = "http://127.0.0.1:8545"
+l1_rpc_url = "http://127.0.0.1:8545"
 
 ## For Goerli
 
 #l1_chain_id = 5
-#l1_rpc = "https://ethereum-goerli.publicnode.com"
+
+# NOTE: for now you always need to add the port explicitly!
+#l1_rpc_url = "https://ethereum-goerli.publicnode.com:8545"
 
 ## Keys
 
@@ -17,7 +19,8 @@ l1_rpc = "http://127.0.0.1:8545"
 # This is ifferent from defaults, which use different accounts,
 # following after the Optimism monorepo devnet defaults.
 
-contract_deployer_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+contract_deployer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+contract_deployer_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 batcher_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 batcher_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 proposer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
