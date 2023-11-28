@@ -246,7 +246,7 @@ def load_config() -> Config:
             for key, value in config_file.items():
                 if hasattr(config, key):
                     setattr(config, key, value)
-            if config_file.get("batching_inbox_address") is None:
+            if config_file.get("batch_inbox_address") is None:
                 # Derive a unique batch inbox address from the chain id.
                 addr = "0xff69000000000000000000000000000000000000"
                 str_id = str(config.l2_chain_id)
