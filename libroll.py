@@ -456,7 +456,7 @@ def send_json_rpc_request(host: str, iden: int, method: str, params: list, path:
     conn = http.client.HTTPConnection(host)
     headers = {"Content-type": "application/json"}
     body = f'{{"id":{iden}, "jsonrpc":"2.0", "method": "{method}", "params":{params}}}'
-    body = body.replace("'", '"') # JSON requires double quotes
+    body = body.replace("'", '"')  # JSON requires double quotes
     conn.request("POST", path, body, headers)
     response = conn.getresponse()
     data = response.read().decode()

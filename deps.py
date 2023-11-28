@@ -417,6 +417,7 @@ INSTALL_GETH_VERSION = "1.13.4"
 INSTALL_GETH_COMMIT_SLUG = "3f907d6a"
 """The commit prefix that must added to the version to download the correct geth version."""
 
+
 # --------------------------------------------------------------------------------------------------
 
 def check_or_install_geth():

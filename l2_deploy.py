@@ -115,16 +115,16 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     slow_arg = "--slow" if config.deploy_slowly else ""
 
     lib.run_roll_log("deploy the L2 contracts on L1", [
-            f"forge script",
-            deploy_script,
-            "--sender", deployer_account,
-            private_key_arg,
-            f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
-            f"--rpc-url {l1_rpc_url}",
-            "--broadcast",
-            slow_arg,
-            unlocked_arg
-        ],
+        "forge script",
+        deploy_script,
+        "--sender", deployer_account,
+        private_key_arg,
+        f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
+        f"--rpc-url {l1_rpc_url}",
+        "--broadcast",
+        slow_arg,
+        unlocked_arg
+    ],
         cwd=config.paths.contracts_dir,
         env=env,
         log_file=log_file)
@@ -134,11 +134,11 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     log_file = "logs/create_l1_artifacts.log"
     print(f"Creating L1 deployment artifacts. Logging to {log_file}")
     lib.run_roll_log("create L1 deployment artifacts", [
-            "forge script",
-            deploy_script,
-            "--sig 'sync()'",
-            f"--rpc-url {l1_rpc_url}",
-        ],
+        "forge script",
+        deploy_script,
+        "--sig 'sync()'",
+        f"--rpc-url {l1_rpc_url}",
+    ],
         cwd=config.paths.contracts_dir,
         env=env,
         log_file=log_file)

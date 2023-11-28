@@ -1,5 +1,3 @@
-import os
-
 from config import Config
 import libroll as lib
 import time
