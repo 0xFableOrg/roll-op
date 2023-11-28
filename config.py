@@ -600,11 +600,13 @@ class Config:
         Number of confirmations to wait for before submitting a block to the L1 (10 by default).
         """
 
-        # Will not work if this is false. Why?
         self.allow_non_finalized = True
         """
-        Allows the proposer to submit proposals for L2 blocks derived from non-finalized L1 blocks.
-        False by default.
+        Allows the proposer to submit proposals for L2 blocks derived from non-finalized L1 blocks
+        (True by default).
+
+        Note that if your L1 does not mark blocks as finalized, this *needs* to be True, or the
+        proposer will never propose anything. This is the case for the devnet L1!
         """
 
         # === RPC ===
@@ -987,7 +989,6 @@ class Config:
         self.l1_rpc_listen_port = 9545
         self.l1_rpc_ws_listen_port = 9546
         self.l1_authrpc_listen_port = 9551
-        self.l1_p2p_port = 30313
 
         # === Engine ===
 
@@ -1006,6 +1007,7 @@ class Config:
 
         self.proposer_poll_interval = 12
         self.proposer_num_confirmations = 10
+        # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
         self.allow_non_finalized = False
         self.proposer_rpc_listen_port = 8560
 
@@ -1034,6 +1036,7 @@ class Config:
 
         self.proposer_poll_interval = 12
         self.proposer_num_confirmations = 10
+        # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
         self.allow_non_finalized = False
 
         # === Batcher ===
@@ -1056,6 +1059,7 @@ class Config:
 
         self.proposer_poll_interval = 6
         self.proposer_num_confirmations = 10
+        # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
         self.allow_non_finalized = False
 
         #  === Batcher ===
