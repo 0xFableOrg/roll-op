@@ -1,4 +1,5 @@
 import os.path
+import uuid
 
 from paths import OPPaths
 import libroll as lib
@@ -277,6 +278,17 @@ class Config:
         running on the same machine, so they might reach each other via 127.0.0.1 instead of going
         out to the internet and then back into them machine.
         (Defaults to "127.0.0.1" — assuming a local-only setup.)
+        """
+
+        self.deploy_salt = uuid.uuid4()
+        """
+        A salt used for deterministic contract deployment addresses. Ideally, this would enable us
+        to skip redeploying contracts that are already deployed (though they need to have been
+        deployed by us, otherwise they would have the wrong owner and parameters). Unfortunately,
+        this is not how the deploy script works at the moment, meaning partial deployments are not
+        possible and this needs to be rotated ever time.
+
+        Default to a random UUID, but the value can be any string.
         """
 
         # I'm not going to document all of these individually, but refer to their respective

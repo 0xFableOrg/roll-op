@@ -104,11 +104,13 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
     log_file = "logs/deploy_l1_contracts.log"
-    print(f"Deploying contracts to L1 with {deployer_account}. Logging to {log_file}")
+    print(f"Deploying contracts to L1 with {deployer_account}. Logging to {log_file}\n"
+          f"Using deploy salt: '{config.deploy_salt}'")
 
     env = {**os.environ,
            "DEPLOYMENT_CONTEXT": config.deployment_name,
-           "ETH_RPC_URL": l1_rpc_url}
+           "ETH_RPC_URL": l1_rpc_url,
+           "IMPL_SALT": f"'{config.deploy_salt}'"}
 
     slow_arg = "--slow" if config.deploy_slowly else ""
 
