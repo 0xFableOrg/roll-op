@@ -297,6 +297,7 @@ class Config:
         # See :py:attribute:`l1_rpc_for_node_url` for more details.
         self.l1_rpc_for_node_protocol = "ws"
         self.l1_rpc_for_node_host = "127.0.0.1"
+        self.l1_rpc_for_node_path = ""
         self.l1_rpc_for_node_port = 8546
 
         # See :py:attribute:`l2_engine_rpc_url` for more details.
@@ -873,16 +874,20 @@ class Config:
 
         The reason for this override is to enable the L2 node to use a more performant RPC, or a
         WebSocket connection to get L1 data.
+
+        If the config file doesn't set this but set :py:attribute:`l1_rpc_url` instead, roll-op
+        will automatically copy the value of :py:attribute:`l1_rpc_url` to this property.
         """
         return self._maybe_local_url(
             self.l1_rpc_for_node_protocol,
             self.l1_rpc_for_node_host,
             self.l1_rpc_for_node_port,
+            self.l1_rpc_for_node_path,
             own_address=own_address)
 
     @l1_rpc_for_node_url.setter
     def l1_rpc_for_node_url(self, url: str):
-        self._set_url_components(url, "l1_rpc_for_node")
+        self._set_url_components(url, "l1_rpc_for_node", allow_path=True)
 
     @property
     def l2_engine_rpc_url(self, own_address: str = None):

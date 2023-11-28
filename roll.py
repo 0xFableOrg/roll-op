@@ -246,6 +246,7 @@ def load_config() -> Config:
             for key, value in config_file.items():
                 if hasattr(config, key):
                     setattr(config, key, value)
+
             if config_file.get("batch_inbox_address") is None:
                 # Derive a unique batch inbox address from the chain id.
                 addr = "0xff69000000000000000000000000000000000000"
@@ -255,7 +256,7 @@ def load_config() -> Config:
             recommended_options = [
                 "l1_chain_id",
                 "l2_chain_id",
-                "l1_rpc",
+                "l1_rpc_url",
                 "contract_deployer_key",
                 "batcher_account",
                 "batcher_key",
@@ -266,12 +267,17 @@ def load_config() -> Config:
                 "p2p_sequencer_account",
                 "p2p_sequencer_key",
             ]
-
             for option in recommended_options:
                 if config_file.get(option) is None:
                     print(f"Warning: config file does not specify `{option}`.\n"
                           "It is highly recommended to specify this option, "
                           "especially for non-local deployments.")
+
+            if config_file.get("l1_rpc_url") is not None \
+                    and config_file.get("l1_rpc_for_node_url") is None:
+                print("Config file specifies l1_rpc_url but not l1_rpc_for_node_url.\n"
+                      "Automatically setting l1_rpc_for_node_url to the same value.")
+                config.l1_rpc_for_node_url = config.l1_rpc_url
 
         except KeyError as e:
             raise Exception(f"Missing config file value: {e}")
