@@ -491,4 +491,20 @@ def parse_rpc_url(url: str) -> RPCParseResult:
     port = parsed.port or (443 if protocol == "https" else 8545)
     return RPCParseResult(protocol, address, port, path)
 
+
+####################################################################################################
+
+def select_columns(string: str, column_index: int) -> list[str]:
+    """
+    Select the column at the given index from each line of the given string.
+    This is somewhat equivalent to `echo $string | awk '{print $column_index}'` but is strict: it
+    will throw an exception if the column is missing in at least one line.
+    """
+    try:
+        return [line.strip().split()[column_index] for line in string.splitlines()]
+    except IndexError:
+        raise Exception(
+            f"Column {column_index} missing in at least one line of:\n{string}") from None
+
+
 ####################################################################################################

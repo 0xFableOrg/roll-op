@@ -60,17 +60,15 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
         deploy_config["l1StartingBlockTag"] = "earliest"
         deploy_config["l1GenesisBlockTimestamp"] = '{:#x}'.format(int(time.time()))
     else:
+        out = lib.run(
+            "get latest block",
+            f"cast block latest --rpc-url {config.l1_rpc_url} "
+            "| grep -E '(hash|number|timestamp)'",
+            forward="capture")
         try:
-            out = lib.run(
-                "get latest block",
-                f"cast block latest --rpc-url {config.l1_rpc_url} "
-                "| grep -E '(hash|number|timestamp)' "
-                "| awk '{print $2}'",
-                forward="capture")
-            [blockhash, number, timestamp, *_rest] = out.split("\n")
+            # NOTE: We used to use awk here, but it swallows the pipeline error.
+            [blockhash, number, timestamp, *_rest] = lib.select_columns(out, 1)
             deploy_config["l1StartingBlockTag"] = blockhash
-            # TODO I don't think this is needed
-            # deploy_config["l2OutputOracleStartingTimestamp"] = int(timestamp)
             lib.debug(f"L1 starting block is {number} ({blockhash} at time {timestamp})")
         except Exception as e:
             raise lib.extend_exception(e, "Failed to get latest block") from None
