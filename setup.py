@@ -122,7 +122,9 @@ def setup_op_geth_repo():
 
 def setup_blockscout_repo():
     github_url = "https://github.com/blockscout/blockscout.git"
-    git_tag = "b6136977051730a7acd47b35b6bdcf9a74e39be9"
+    # latest CI passing commit of the `production-optimism-stg` branch
+    git_tag = "d53f5a7575a6af892bad69d80e8e23a5e54e8eea"
+    docker_tag = "5.3.3-postrelease-d53f5a75"
 
     if os.path.isfile("blockscout"):
         raise Exception("Error: 'blockscout' exists as a file and not a directory.")
@@ -133,9 +135,8 @@ def setup_blockscout_repo():
         lib.run("checkout optimism stable version", f"git checkout --detach {git_tag}",
                 cwd="blockscout")
 
-        # TODO make this not replace multiple times if run multiple times
         anchor_line = "image: blockscout/blockscout:${DOCKER_TAG:-latest}"
-        optimism_line = "image: blockscout/blockscout-optimism:5.2.2-postrelease-3c670710"
+        optimism_line = f"image: blockscout/blockscout-optimism:{docker_tag}"
         if sys.platform == "darwin" and platform.processor() == "arm":
             lib.replace_in_file(
                 "blockscout/docker-compose/services/docker-compose-backend.yml",
