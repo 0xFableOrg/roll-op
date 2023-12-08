@@ -26,21 +26,99 @@ from processes import PROCESS_MGR
 import setup
 
 ####################################################################################################
+# Global Options (needs to come first)
+
+global_option_parser = argparse.ArgumentParser(add_help=False)
+
+
+def global_arg(*args, **kwargs):
+    return global_option_parser.add_argument(*args, **kwargs)
+
+
+global_arg(
+    "--name",
+    help="name of the rollup deployment",
+    default=None,
+    dest="name")
+
+global_arg(
+    "--preset",
+    help="use a preset rollup configuration",
+    choices=["dev", "prod"],
+    default=None,
+    dest="preset")
+
+global_arg(
+    "--config",
+    help="path to the config file",
+    default=None,
+    dest="config_path")
+
+global_arg(
+    "--clean",
+    help="clean command-related output before running the specified command",
+    default=False,
+    dest="clean_first",
+    action="store_true")
+
+global_arg(
+    "--trace",
+    help="display exception stack trace in case of failure",
+    default=False,
+    dest="show_stack_trace",
+    action="store_true")
+
+global_arg(
+    "--no-ansi-esc",
+    help="disable ANSI escape codes for terminal manipulation",
+    default=True,
+    dest="use_ansi_esc",
+    action="store_false")
+
+global_arg(
+    "--yes",
+    default=False,
+    dest="always_yes",
+    action="store_true",
+    help="answer yes to all prompts (install all requested dependencies)")
+
+# --------------------------------------------------------------------------------------------------
+# Top-Level Parser & Helpers
 
 parser = argparse.ArgumentParser(
     prog="rollop",
     description="R|Helps you spin up an op-stack rollup.\n"
                 "Use `rollop <command> --help` to get more detailed help for a command.",
-    formatter_class=argparsext.SmartFormatter)
+    formatter_class=argparsext.SmartFormatter,
+    parents=[global_option_parser],
+    allow_abbrev=False,
+    add_help=False)
+
+parser.add_argument(
+    # Suppressed via `add_help=False` but reintroduced here, undocumented.
+    "-h", "--help",
+    help=argparse.SUPPRESS,
+    default=False,
+    action="store_true",
+    # No need to check this: we set things up so that having no commands shows the help.
+    dest="show_help")
 
 subparsers = parser.add_subparsers(
     title="commands",
     dest="command",
     metavar="<command>")
 
+command_dict = {}
+"""
+All command parsers, keyed by name, populated by :py:func:`command`.
+"""
 
-def command(*args, **kwargs):
-    return argparsext.add_subparser(subparsers, *args, **kwargs)
+
+def command(name: str, help: str, description: str | None = None):
+    subparser = argparsext.add_subparser(
+        subparsers, name, help, description, parents=[global_option_parser])
+    command_dict[name] = subparser
+    return subparser
 
 
 def delimiter(*args, **kwargs):
@@ -121,11 +199,6 @@ command(
          "Requires rerunning make setup after running!")
 
 command(
-    "clean-aa",
-    help="cleans up deployment outputs for account abstraction",
-)
-
-command(
     "clean-l1",
     help="cleans up deployment outputs & databases for L1, deploy config is preserved")
 
@@ -133,59 +206,17 @@ command(
     "clean-l2",
     help="cleans up deployment outputs & databases for L2, deploy config is preserved")
 
-# --------------------------------------------------------------------------------------------------
-# Global Flags
+command(
+    "clean-aa",
+    help="cleans up deployment outputs for account abstraction",
+)
 
-parser.add_argument(
-    "--name",
-    help="name of the rollup deployment",
-    default=None,
-    dest="name")
-
-parser.add_argument(
-    "--preset",
-    help="use a preset rollup configuration",
-    choices=["dev", "prod"],
-    default=None,
-    dest="preset")
-
-parser.add_argument(
-    "--config",
-    help="path to the config file",
-    default=None,
-    dest="config_path")
-
-parser.add_argument(
-    "--clean",
-    help="run the 'clean' command before running the specified command",
-    default=False,
-    dest="clean_first",
-    action="store_true")
-
-parser.add_argument(
-    "--stack-trace",
-    help="display exception stack trace in case of failure",
-    default=False,
-    dest="show_stack_trace",
-    action="store_true")
-
-parser.add_argument(
-    "--no-ansi-esc",
-    help="disable ANSI escape codes for terminal manipulation",
-    default=True,
-    dest="use_ansi_esc",
-    action="store_false")
+command(
+    "clean-explorer",
+    help="deletes the block explorer databases, logs, and containers")
 
 # --------------------------------------------------------------------------------------------------
 # Command-Specific Flags
-
-for cmd in [cmd_setup, cmd_l1, cmd_devnet]:
-    cmd.add_argument(
-        "--yes",
-        help="answer yes to all prompts (install all requested dependencies)",
-        default=False,
-        dest="always_yes",
-        action="store_true")
 
 for cmd in [cmd_l2, cmd_devnet]:
     # NOTE: When functional, might want to add to other commands (e.g. `start-l2`).
@@ -336,6 +367,9 @@ def main():
             parser.print_help()
             exit()
 
+        if lib.args.show_help:
+            command_dict[lib.args.command].print_help()
+            exit()
         deps.basic_setup()
         config = load_config()
 

@@ -32,7 +32,11 @@ class SmartFormatter(argparse.HelpFormatter):
 ####################################################################################################
 
 def add_subparser(
-        subparsers, name: str, help: str, description: str | None = None) \
+        subparsers,
+        name: str,
+        help: str,
+        description: str | None = None,
+        parents=None) \
         -> argparse.ArgumentParser:
     """
     Helper function for adding a subparser with a description derived from the help.
@@ -41,6 +45,7 @@ def add_subparser(
     return subparsers.add_parser(
         name,
         help=help,
+        parents=[] if parents is None else parents,
         description=description)
 
 
