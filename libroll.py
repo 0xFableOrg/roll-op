@@ -6,6 +6,7 @@ import sys
 import time
 from dataclasses import dataclass
 from threading import Thread
+from typing import Callable
 
 ####################################################################################################
 # GLOBALS
@@ -247,7 +248,7 @@ def write_json_file(file_path: str, data: dict):
 
 ####################################################################################################
 
-def replace_in_file(file_path: str, replacements: dict):
+def replace_in_file(file_path: str, replacements: dict, regex: bool = False):
     """
     Replaces all occurrences of the keys in `replacements` with the corresponding values inside the
     given file.
@@ -255,8 +256,13 @@ def replace_in_file(file_path: str, replacements: dict):
     with open(file_path, "r") as file:
         filedata = file.read()
 
-    for key, value in replacements.items():
-        filedata = filedata.replace(key, value)
+    if regex:
+        import re
+        for key, value in replacements.items():
+            filedata = re.sub(key, value, filedata, flags=re.MULTILINE)
+    else:
+        for key, value in replacements.items():
+            filedata = filedata.replace(key, value)
 
     with open(file_path, "w") as file:
         file.write(filedata)
