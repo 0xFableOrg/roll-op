@@ -44,20 +44,25 @@ def setup_optimism_repo():
     elif not os.path.exists("optimism"):
         print("Cloning the optimism repository. This may take a while...")
         lib.clone_repo(github_url, "clone the optimism repository")
-        tag = lib.run("get head tag", "git show-ref HEAD --tags")
-        if tag != git_custom_tag:
-            lib.run("checkout stable version",
-                    f"git checkout --detach {git_tag}",
-                    cwd="optimism")
-            lib.run("install devnet fix",
-                    f"git cherry-pick {git_fix1_tag}",
-                    cwd="optimism")
-            lib.run("install submodules fix",
-                    f"git cherry-pick {git_fix2_tag}",
-                    cwd="optimism")
-            lib.run("tag custom version",
-                    f"git tag {git_custom_tag}",
-                    cwd="optimism")
+
+    head_tag = lib.run(
+        "get head tag",
+        "git tag --contains HEAD",
+        cwd="optimism").strip()
+
+    if head_tag != git_custom_tag:
+        lib.run("checkout stable version",
+                f"git checkout --detach {git_tag}",
+                cwd="optimism")
+        lib.run("install devnet fix",
+                f"git cherry-pick {git_fix1_tag}",
+                cwd="optimism")
+        lib.run("install submodules fix",
+                f"git cherry-pick {git_fix2_tag}",
+                cwd="optimism")
+        lib.run("tag custom version",
+                f"git tag {git_custom_tag}",
+                cwd="optimism")
 
     log_file = "logs/build_optimism.log"
     print(
