@@ -52,19 +52,19 @@ always for your permission before installing anything outside the current direct
 ## Usage
 
 ```
-usage: rollop <options> <command> <command_options> ...
+usage: rollop [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--trace] [--no-ansi-esc] [--yes] <command> ...
 
 Helps you spin up an op-stack rollup.
 Use `rollop <command> --help` to get more detailed help for a command.
 
 options:
-  -h, --help            show this help message and exit
   --name NAME           name of the rollup deployment
   --preset {dev,prod}   use a preset rollup configuration
   --config CONFIG_PATH  path to the config file
-  --clean               run the 'clean' command before running the specified command
-  --stack-trace         display exception stack trace in case of failure
+  --clean               clean command-related output before running the specified command
+  --trace               display exception stack trace in case of failure
   --no-ansi-esc         disable ANSI escape codes for terminal manipulation
+  --yes                 answer yes to all prompts (install all requested dependencies)
 
 commands:
   <command>
@@ -77,6 +77,7 @@ commands:
     clean               cleans up deployment outputs and databases
     l2                  deploys and starts a local L2 blockchain
     aa                  starts an ERC-4337 bundler and a paymaster signer service
+    explorer            starts a block explorer
     
     -- GRANULAR COMMANDS --
 
@@ -91,9 +92,10 @@ commands:
     -- CLEANUP --
 
     clean-build         cleans up build outputs (but not deployment outputs or databases)
-    clean-aa            cleans up deployment outputs for account abstraction
     clean-l1            cleans up deployment outputs & databases for L1, deploy config is preserved
     clean-l2            cleans up deployment outputs & databases for L2, deploy config is preserved
+    clean-aa            cleans up deployment outputs for account abstraction
+    clean-explorer      deletes the block explorer databases, logs, and containers
 ```
 
 You can also use the `roll.py` script directly as `./roll.py` or `python3 roll.py`  as an
