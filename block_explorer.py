@@ -52,7 +52,7 @@ def launch_blockscout(config: Config):
         "blockscout/docker-compose/docker-compose.yml",
         edit_docker_compose_config)
 
-    lib.replace_in_file("blockscout/docker-compose/envs/common-blockscout.env",{
+    lib.replace_in_file("blockscout/docker-compose/envs/common-blockscout.env", {
         r"^ETHEREUM_JSONRPC_HTTP_URL=.*": f"ETHEREUM_JSONRPC_HTTP_URL={http_url}",
         r"^ETHEREUM_JSONRPC_TRACE_URL=.*": f"ETHEREUM_JSONRPC_TRACE_URL={http_url}",
         r"^ETHEREUM_JSONRPC_WS_URL=.*": f"ETHEREUM_JSONRPC_WS_URL={ws_url}",
@@ -60,8 +60,19 @@ def launch_blockscout(config: Config):
         r"^# ETHEREUM_JSONRPC_WS_URL=.*": f"ETHEREUM_JSONRPC_WS_URL={ws_url}",
     }, regex=True)
 
+    lib.replace_in_file("blockscout/docker-compose/envs/common-frontend.env", {
+        r"^NEXT_PUBLIC_NETWORK_NAME=.*":
+            f"NEXT_PUBLIC_NETWORK_NAME={config.chain_name}",
+        r"^NEXT_PUBLIC_NETWORK_SHORT_NAME=.*":
+            f"NEXT_PUBLIC_NETWORK_SHORT_NAME={config.chain_short_name}",
+        r"^NEXT_PUBLIC_NETWORK_ID=.*":
+            f"NEXT_PUBLIC_NETWORK_ID={config.l2_chain_id}"
+    }, regex=True)
+
     env = {**os.environ,
            "COMPOSE_PROJECT_NAME": _COMPOSE_PROJECT_NAME,
+           "NEXT_PUBLIC_NETWORK_NAME": config.chain_name,
+           "NEXT_PUBLIC_NETWORK_ID": str(config.l2_chain_id),
            "DOCKER_REPO": "blockscout-optimism",
            "DOCKER_TAG": _DOCKER_TAG,
            # https://hub.docker.com/r/blockscout/blockscout-optimism/tags
@@ -76,6 +87,9 @@ def launch_blockscout(config: Config):
            "VISUALIZER_DOCKER_TAG": "v0.2.0"
            # ghcr.io/blockscout/visualizer
            }
+
+    if config.enable_governance:
+        env["NEXT_PUBLIC_NETWORK_GOVERNANCE_TOKEN_SYMBOL"] = config.governance_token_symbol
 
     # This will keep running, and the explorer will be shut down when it is killed.
     PROCESS_MGR.start(
