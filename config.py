@@ -313,10 +313,18 @@ class Config:
         self.l1_rpc_for_node_path = ""
         self.l1_rpc_for_node_port = 8546
 
+        # See :py:attribute:`l2_engine_rpc_http_url` for more details.
+        self.l2_engine_rpc_http_host = "127.0.0.1"
+        self.l2_engine_rpc_http_port = 9545
+
+        # See :py:attribute:`l2_engine_rpc_ws_url` for more details.
+        self.l2_engine_rpc_ws_host = "127.0.0.1"
+        self.l2_engine_rpc_ws_port = 9546
+
         # See :py:attribute:`l2_engine_rpc_url` for more details.
         self.l2_engine_rpc_protocol = "http"
-        self.l2_engine_rpc_host = "127.0.0.1"
-        self.l2_engine_rpc_port = 9545
+        self.l2_engine_rpc_host = self.l2_engine_rpc_http_host
+        self.l2_engine_rpc_port = self.l2_engine_rpc_ws_port
 
         # See :py:attribute:`l2_engine_authrpc_url` for more details.
         self.l2_engine_authrpc_protocol = "http"
@@ -907,6 +915,7 @@ class Config:
         """
         Protocol + address + port to use to connect to the L2 RPC server attached to the execution
         engine ("http://127.0.0.1:9545" by default).
+        This is the default URL to be used whenever protocol choice is allowed.
         Host is substituted by 127.0.0.1 if it matches `own_address`.
         """
         return self._maybe_local_url(
@@ -918,6 +927,40 @@ class Config:
     @l2_engine_rpc_url.setter
     def l2_engine_rpc_url(self, url: str):
         self._set_url_components(url, "l2_engine_rpc")
+
+    @property
+    def l2_engine_rpc_http_url(self, own_address: str = None):
+        """
+        Protocol + address + port to use to connect to the L2 *HTTP* RPC server attached to the
+        execution engine ("http://127.0.0.1:9545" by default).
+        Host is substituted by 127.0.0.1 if it matches `own_address`.
+        """
+        return self._maybe_local_url(
+            "http",
+            self.l2_engine_rpc_http_host,
+            self.l2_engine_rpc_http_port,
+            own_address=own_address)
+
+    @l2_engine_rpc_http_url.setter
+    def l2_engine_rpc_http_url(self, url: str):
+        self._set_url_components(url, "l2_engine_rpc_http")
+
+    @property
+    def l2_engine_rpc_ws_url(self, own_address: str = None):
+        """
+        Protocol + address + port to use to connect to the L2 *WebSocket* RPC server attached to the
+        execution engine ("ws://127.0.0.1:9546" by default).
+        Host is substituted by 127.0.0.1 if it matches `own_address`.
+        """
+        return self._maybe_local_url(
+            "ws",
+            self.l2_engine_rpc_ws_host,
+            self.l2_engine_rpc_ws_port,
+            own_address=own_address)
+
+    @l2_engine_rpc_ws_url.setter
+    def l2_engine_rpc_ws_url(self, url: str):
+        self._set_url_components(url, "l2_engine_rpc_ws")
 
     @property
     def l2_engine_authrpc_url(self, own_address: str = None):
@@ -1017,7 +1060,9 @@ class Config:
         self.l1_rpc_url = "http://127.0.0.1:9545"
         self.l1_rpc_for_node_url = "ws://127.0.0.1:9546"
 
-        self.l2_engine_rpc_url = "http://127.0.0.1:8545"
+        self.l2_engine_rpc_http_url = "http://127.0.0.1:8545"
+        self.l2_engine_rpc_ws_url = "ws://127.0.0.1:8546"
+        self.l2_engine_rpc_url = self.l2_engine_rpc_http_url
         self.l2_engine_authrpc_url = "http://127.0.0.1:8551"
         self.l2_node_rpc_url = "http://127.0.0.1:8547"
 
