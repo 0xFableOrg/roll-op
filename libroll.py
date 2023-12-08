@@ -508,3 +508,20 @@ def select_columns(string: str, column_index: int) -> list[str]:
 
 
 ####################################################################################################
+
+def edit_yaml_file(file_path: str, edit: Callable[[dict], None]):
+    """
+    Edits the given YAML file by loading it, passing the resulting dictionary to the given `edit`
+    function, and writing the resulting dictionary back to the file.
+    """
+    import deps
+    deps.install_pyyaml()
+    import yaml
+    with open(file_path, "r") as file:
+        data = yaml.safe_load(file)
+    edit(data)
+    with open(file_path, "w") as file:
+        yaml.dump(data, file, default_flow_style=False, sort_keys=False)
+
+
+####################################################################################################
