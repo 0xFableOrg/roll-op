@@ -4,11 +4,8 @@ Exposes function to set up the project, in particular clone the Optimism monorep
 
 import os
 import shutil
-import sys
-
 import deps
 import libroll as lib
-import platform
 
 from config import Config
 
@@ -24,7 +21,6 @@ def setup(config: Config):
     deps.check_or_install_foundry()
     setup_optimism_repo()
     setup_op_geth_repo()
-    setup_blockscout_repo()
 
     os.makedirs(config.paths.gen_dir, exist_ok=True)
 
@@ -125,35 +121,6 @@ def setup_op_geth_repo():
     lib.chmodx("bin/op-geth")
 
     print("Successfully built the op-geth repository.")
-
-
-####################################################################################################
-
-def setup_blockscout_repo():
-    github_url = "https://github.com/blockscout/blockscout.git"
-    # latest CI passing commit of the `production-optimism-stg` branch
-    git_tag = "d53f5a7575a6af892bad69d80e8e23a5e54e8eea"
-    docker_tag = "5.3.3-postrelease-d53f5a75"
-
-    if os.path.isfile("blockscout"):
-        raise Exception("Error: 'blockscout' exists as a file and not a directory.")
-    elif not os.path.exists("blockscout"):
-        print("Cloning the blockscout repository. This may take a while...")
-        lib.clone_repo(github_url, "clone the blockscout repository")
-
-        lib.run("checkout optimism stable version", f"git checkout --detach {git_tag}",
-                cwd="blockscout")
-
-        anchor_line = "image: blockscout/blockscout:${DOCKER_TAG:-latest}"
-        optimism_line = f"image: blockscout/blockscout-optimism:{docker_tag}"
-        if sys.platform == "darwin" and platform.processor() == "arm":
-            lib.replace_in_file(
-                "blockscout/docker-compose/services/docker-compose-backend.yml",
-                {anchor_line: f"{optimism_line}\n    platform: linux/arm64"})
-        else:
-            lib.replace_in_file(
-                "blockscout/docker-compose/services/docker-compose-backend.yml",
-                {anchor_line: optimism_line})
 
 
 ####################################################################################################
