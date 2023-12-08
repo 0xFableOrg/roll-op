@@ -84,8 +84,12 @@ def setup_optimism_repo():
     shutil.copyfile("optimism/op-node/bin/op-node", "bin/op-node")
     lib.chmodx("bin/op-node")
 
-    print("Building the Cannon pre-state")
-    lib.run("building the Cannon pre-state", "make cannon-prestate", cwd="optimism")
+    if not os.path.isfile("optimism/op-program/bin/prestate-proof.json"):
+        print("Building the Cannon pre-state")
+        lib.run(
+            "building the Cannon pre-state",
+            "make cannon-prestate",
+            cwd="optimism")
 
     print("Successfully built the optimism repository.")
 
