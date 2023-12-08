@@ -33,6 +33,7 @@ The following dependencies will be checked by `roll.py`:
 
 - Some common command line utilities: `make`, `curl`, `tar`, `awk` and `grep`.
 - Git
+- Docker (if you wish to run the Blockscout block explorer)
 
 `roll.py` will check the following dependencies and install them for you if needed (the script will
 always for your permission before installing anything outside the current directory):

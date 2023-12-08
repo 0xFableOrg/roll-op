@@ -483,4 +483,36 @@ def install_geth():
 
     print(f"Successfully installed geth {INSTALL_GETH_VERSION} as ./bin/geth")
 
+
+####################################################################################################
+
+MIN_DOCKER_VERSION = "24"
+"""
+Minimum supported Docker version. This is somewhat arbitrary, simply the latest major version,
+that we also tested with.
+"""
+
+
+def check_docker():
+    if shutil.which("docker") is None:
+        raise Exception(
+            "Docker is not installed. Please install either Docker Engine or Docker Desktop\n"
+            "by following the instructions at https://docs.docker.com/engine/install/.")
+
+    version_blob = lib.run("get docker version", "docker --version")
+    match = re.search(r"(\d+\.\d+\.\d+)", version_blob)
+    if match is None:
+        raise Exception("Failed to parse the Docker version, "
+                        f"try updating Docker engine to v{MIN_DOCKER_VERSION} or higher.")
+    elif match.group(1) < MIN_DOCKER_VERSION:
+        raise Exception(f"Please update docker to {MIN_DOCKER_VERSION} or higher. "
+                        "Refer to https://docs.docker.com/engine/install/")
+
+    try:
+        lib.run("try running docker compose", "docker compose version")
+    except Exception:
+        raise Exception("Docker Compose not available, please install the Compose plugin. "
+                        "Refer to https://docs.docker.com/compose/install/")
+
+
 ####################################################################################################

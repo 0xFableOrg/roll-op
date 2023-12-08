@@ -32,6 +32,7 @@ def launch_blockscout(config: Config):
     """
     Launch the blockscout block explorer, setting up the repo if necessary.
     """
+    deps.check_docker()
     setup_blockscout_repo()
 
     log_file_name = "logs/launch_blockscout.log"
