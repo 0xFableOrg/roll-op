@@ -50,11 +50,23 @@ def _setup_python_deps():
     """
     Install required Python dependencies.
     """
+    # Used for the main config file
     if importlib.util.find_spec("tomli") is None:
         if lib.ask_yes_no("The Tomli python library is required. Install?\n"
                           "This will install globally if not running in a venv (see README.md)."):
             lib.run("install Tomli",
                     [sys.executable, "-m", "pip", "install", "tomli"])
+
+
+####################################################################################################
+
+def install_pyyaml():
+    # Used for editing blockscout config files.
+    if importlib.util.find_spec("yaml") is None:
+        if lib.ask_yes_no("The PyYAML python library is required. Install?\n"
+                          "This will install globally if not running in a venv (see README.md)."):
+            lib.run("install PyYAML",
+                    [sys.executable, "-m", "pip", "install", "pyyaml"])
 
 
 ####################################################################################################
