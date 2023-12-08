@@ -152,6 +152,10 @@ command(
     "aa",
     help="starts an ERC-4337 bundler and a paymaster signer service")
 
+command(
+    "explorer",
+    help="starts a block explorer")
+
 # --------------------------------------------------------------------------------------------------
 delimiter("GRANULAR COMMANDS")
 
@@ -313,19 +317,6 @@ def load_config() -> Config:
         except KeyError as e:
             raise Exception(f"Missing config file value: {e}")
 
-    # TODO: this isn't very composable
-    #   It would be better to change the default to be blockscout-compatible, then
-    #   add a check when the explorer flag is set to error if the port setup is not compatible.
-    if hasattr(lib.args, "explorer") and lib.args.explorer:
-        # Invert defaults, because it was hard to make blockscout work if the L2 engine wasn't
-        # on the 8545 port.
-        if config.l1_rpc_port == 8545:
-            config.l1_rpc_port = 9545
-        if config.l1_rpc_listen_port == 8545:
-            config.l1_rpc_listen_port = 9545
-        config.l2_engine_rpc_port = 8545
-        config.l2_engine_rpc_listen_port = 8545
-
     config.validate()
 
     return config
@@ -338,7 +329,7 @@ def start_addons(config: Config):
     Starts a block explorer and/or an ERC4337 bundler and paymaster, if configured to do so.
     """
     if hasattr(lib.args, "explorer") and lib.args.explorer:
-        block_explorer.launch_blockscout()
+        block_explorer.launch_blockscout(config)
     if hasattr(lib.args, "aa") and lib.args.aa:
         account_abstraction.setup()
         account_abstraction.deploy(config)
@@ -412,6 +403,11 @@ def main():
             account_abstraction.start(config)
             PROCESS_MGR.wait_all()
 
+        elif lib.args.command == "explorer":
+
+            block_explorer.launch_blockscout(config)
+            PROCESS_MGR.wait_all()
+
         elif lib.args.command == "l1":
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
@@ -428,13 +424,13 @@ def main():
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
             l2.start(config)
             if hasattr(lib.args, "explorer") and lib.args.explorer:
-                block_explorer.launch_blockscout()
+                block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-engine":
             l2_engine.start(config)
             if hasattr(lib.args, "explorer") and lib.args.explorer:
-                block_explorer.launch_blockscout()
+                block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-sequencer":
@@ -461,6 +457,9 @@ def main():
 
         elif lib.args.command == "clean-aa":
             account_abstraction.clean()
+
+        elif lib.args.command == "clean-explorer":
+            block_explorer.clean()
 
         print("Done.")
     except KeyboardInterrupt:
