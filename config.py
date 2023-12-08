@@ -268,6 +268,18 @@ class Config:
         # script, but required for other chains to put the deployment artifacts in their own
         # directory.
 
+        self.chain_name = f"roll-op <{self.deployment_name}>"
+        """
+        Name of the chain, notably used in the block explorer. Defaults to "roll-op
+        <{deployment_name}>".
+        """
+
+        self.chain_short_name = "roll-op"
+        """
+        Short version of :py:attribute:`chain_name`, used in the block explorer.
+        Defaults to "roll-op".
+        """
+
         self.l1_chain_id = 900
         """
         Chain ID of the L1 to use. If spinning an L1 devnet, it will use this chain ID.
