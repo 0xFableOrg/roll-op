@@ -361,11 +361,9 @@ def main():
         if lib.args.show_help:
             command_dict[lib.args.command].print_help()
             exit()
+
         deps.basic_setup()
         config = load_config()
-
-        if lib.args.clean_first:
-            clean(config)
 
         if lib.args.command == "setup":
             setup.setup(config)
@@ -374,6 +372,9 @@ def main():
         deps.post_setup()
 
         if lib.args.command == "devnet":
+            if lib.args.clean_first:
+                clean(config)
+
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
 
@@ -391,6 +392,9 @@ def main():
             clean(config)
 
         elif lib.args.command == "l2":
+            if lib.args.clean_first:
+                l2.clean(config)
+
             deps.check_or_install_foundry()
 
             l2.deploy_and_start(config)
@@ -398,17 +402,25 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "aa":
+            if lib.args.clean_first:
+                account_abstraction.clean()
+
             account_abstraction.setup()
             account_abstraction.deploy(config)
             account_abstraction.start(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "explorer":
+            if lib.args.clean_first:
+                block_explorer.clean()
 
             block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l1":
+            if lib.args.clean_first:
+                l1.clean(config)
+
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
 
@@ -416,11 +428,17 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "deploy-l2":
+            if lib.args.clean_first:
+                l2.clean(config)
+
             deps.check_or_install_foundry()
 
             l2_deploy.deploy(config)
 
         elif lib.args.command == "start-l2":
+            if lib.args.clean_first:
+                l2.clean(config)
+
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
             l2.start(config)
             if hasattr(lib.args, "explorer") and lib.args.explorer:
@@ -428,20 +446,28 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-engine":
+            if lib.args.clean_first:
+                l2_engine.clean(config)
+
             l2_engine.start(config)
             if hasattr(lib.args, "explorer") and lib.args.explorer:
                 block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-sequencer":
+            if lib.args.clean_first:
+                l2_node.clean()
+
             l2_node.start(config, sequencer=True)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-batcher":
+            # nothing to clean
             l2_batcher.start(config)
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-proposer":
+            # nothing to clean
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
             l2_proposer.start(config)
             PROCESS_MGR.wait_all()
