@@ -5,10 +5,8 @@ This is the entry point for roll-op system, responsible for parsing command line
 invoking the appropriate commands.
 """
 
-import argparse
 import os
 
-import argparsext
 import block_explorer
 import account_abstraction
 import deps
@@ -20,62 +18,64 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
+from argparsing import Argparser
 from config import devnet_config, production_config, Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 import setup
 
 ####################################################################################################
-# Global Options (needs to come first)
 
-global_option_parser = argparse.ArgumentParser(add_help=False)
+p = Argparser(
+    program_name="rollop",
+    description="R|Helps you spin up an op-stack rollup.\n"
+                "Use `rollop <command> --help` to get more detailed help for a command.",
+)
 
+# --------------------------------------------------------------------------------------------------
+# Global Options
 
-def global_arg(*args, **kwargs):
-    return global_option_parser.add_argument(*args, **kwargs)
-
-
-global_arg(
+p.arg(
     "--name",
     help="name of the rollup deployment",
     default=None,
     dest="name")
 
-global_arg(
+p.arg(
     "--preset",
     help="use a preset rollup configuration",
     choices=["dev", "prod"],
     default=None,
     dest="preset")
 
-global_arg(
+p.arg(
     "--config",
     help="path to the config file",
     default=None,
     dest="config_path")
 
-global_arg(
+p.arg(
     "--clean",
     help="clean command-related output before running the specified command",
     default=False,
     dest="clean_first",
     action="store_true")
 
-global_arg(
+p.arg(
     "--trace",
     help="display exception stack trace in case of failure",
     default=False,
     dest="show_stack_trace",
     action="store_true")
 
-global_arg(
+p.arg(
     "--no-ansi-esc",
     help="disable ANSI escape codes for terminal manipulation",
     default=True,
     dest="use_ansi_esc",
     action="store_false")
 
-global_arg(
+p.arg(
     "--yes",
     default=False,
     dest="always_yes",
@@ -83,155 +83,111 @@ global_arg(
     help="answer yes to all prompts (install all requested dependencies)")
 
 # --------------------------------------------------------------------------------------------------
-# Top-Level Parser & Helpers
+p.delimiter("MAIN COMMANDS")
 
-parser = argparse.ArgumentParser(
-    prog="rollop",
-    description="R|Helps you spin up an op-stack rollup.\n"
-                "Use `rollop <command> --help` to get more detailed help for a command.",
-    formatter_class=argparsext.SmartFormatter,
-    parents=[global_option_parser],
-    allow_abbrev=False,
-    add_help=False)
-
-parser.add_argument(
-    # Suppressed via `add_help=False` but reintroduced here, undocumented.
-    "-h", "--help",
-    help=argparse.SUPPRESS,
-    default=False,
-    action="store_true",
-    # No need to check this: we set things up so that having no commands shows the help.
-    dest="show_help")
-
-subparsers = parser.add_subparsers(
-    title="commands",
-    dest="command",
-    metavar="<command>")
-
-command_dict = {}
-"""
-All command parsers, keyed by name, populated by :py:func:`command`.
-"""
-
-
-def command(name: str, help: str, description: str | None = None):
-    subparser = argparsext.add_subparser(
-        subparsers, name, help, description, parents=[global_option_parser])
-    command_dict[name] = subparser
-    return subparser
-
-
-def delimiter(*args, **kwargs):
-    return argparsext.add_subparser_delimiter(subparsers, *args, **kwargs)
-
-
-# --------------------------------------------------------------------------------------------------
-delimiter("MAIN COMMANDS")
-
-command(
+p.command(
     "help",
     help="show this help message and exit")
 
-cmd_setup = command(
+p.command(
     "setup",
     help="installs prerequisites and builds the optimism repository")
 
-cmd_devnet = command(
+cmd_devnet = p.command(
     "devnet",
     help="starts a local devnet, comprising an L1 node and all L2 components")
 
-command(
+p.command(
     "clean",
     help="cleans up deployment outputs and databases")
 
-cmd_l2 = command(
+cmd_l2 = p.command(
     "l2",
     help="deploys and starts a local L2 blockchain")
 
-command(
+p.command(
     "aa",
     help="starts an ERC-4337 bundler and a paymaster signer service")
 
-command(
+p.command(
     "explorer",
     help="starts a block explorer")
 
 # --------------------------------------------------------------------------------------------------
-delimiter("GRANULAR COMMANDS")
+p.delimiter("GRANULAR COMMANDS")
 
-cmd_l1 = command(
+p.command(
     "l1",
     help="starts a local L1 node",
     description="Starts a local L1 node, initializing it if needed.")
 
-command(
+p.command(
     "deploy-l2",
     help="deploys but does not start an L2 chain",
     description="Deploys but does not start an L2 chain: "
                 "creates the genesis and deploys the contracts to L1.")
 
-command(
+p.command(
     "start-l2",
     help="start all components of the rollup system (see below)")
 
-command(
+p.command(
     "l2-engine",
     help="starts a local L2 execution engine (op-geth) node",
     description="Starts a local L2 execution engine (op-geth) node, initializing it if needed.")
 
-command(
+p.command(
     "l2-sequencer",
     help="starts a local L2 node (op-node) in sequencer mode")
 
-command(
+p.command(
     "l2-batcher",
     help="starts a local L2 transaction batcher")
 
-command(
+p.command(
     "l2-proposer",
     help="starts a local L2 output roots proposer")
 
 # --------------------------------------------------------------------------------------------------
-delimiter("CLEANUP")
+p.delimiter("CLEANUP")
 
-command(
+p.command(
     "clean-build",
     help="cleans up build outputs (but not deployment outputs or databases)",
     description="Cleans up build outputs — leaves deployment outputs and databases intact, "
-         "as well as anything that was downloaded. "
-         "Mostly used to get the the download repos to rebuild. "
-         "Requires rerunning make setup after running!")
+                "as well as anything that was downloaded. "
+                "Mostly used to get the the download repos to rebuild. "
+                "Requires rerunning make setup after running!")
 
-command(
+p.command(
     "clean-l1",
     help="cleans up deployment outputs & databases for L1, deploy config is preserved")
 
-command(
+p.command(
     "clean-l2",
     help="cleans up deployment outputs & databases for L2, deploy config is preserved")
 
-command(
+p.command(
     "clean-aa",
     help="cleans up deployment outputs for account abstraction",
 )
 
-command(
+p.command(
     "clean-explorer",
     help="deletes the block explorer databases, logs, and containers")
 
 # --------------------------------------------------------------------------------------------------
-# Command-Specific Flags
+# Command-Specific Options
 
 for cmd in [cmd_l2, cmd_devnet]:
-    # NOTE: When functional, might want to add to other commands (e.g. `start-l2`).
-    cmd.add_argument(
+    cmd.arg(
         "--explorer",
         help="deploys a blockscout explorer for the L2 chain (NOT FUNCTIONAL)",
         default=False,
         dest="explorer",
         action="store_true")
 
-    cmd.add_argument(
+    cmd.arg(
         "--aa",
         help="starts an ERC4337 bundler and a paymaster signer service",
         default=False,
@@ -352,14 +308,15 @@ def clean(config: Config):
 ####################################################################################################
 
 def main():
-    lib.args = parser.parse_args()
+    lib.args = p.parse()
+
     try:
         if lib.args.command is None or lib.args.command == "help":
-            parser.print_help()
+            p.print_help()
             exit()
 
         if lib.args.show_help:
-            command_dict[lib.args.command].print_help()
+            p.print_help(lib.args.command)
             exit()
 
         deps.basic_setup()
