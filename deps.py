@@ -204,7 +204,7 @@ def install_go() -> bool:
         os.makedirs("bin/go_install", exist_ok=True)
         descr = "install go"
         url = f"https://go.dev/dl/go{GO_INSTALL_VERSION}.{osys}-{arch}.tar.gz"
-        lib.run(descr, f"curl -L {url}  | tar xz -C bin/go_install --strip-components=1")
+        lib.run(descr, f"curl -L {url} | tar xz -C bin/go_install --strip-components=1")
         lib.run("symlink go to bin/go", "ln -sf go_install/bin/go bin/go")
         lib.chmodx("bin/go")
     except Exception as err:
@@ -384,60 +384,43 @@ def get_foundry_version():
 
 ####################################################################################################
 
-# This is a pretty arbitrary cutoff, this was my old version that worked.
-MIN_FORGE_VERSION = "2023-05-23"
-"""Minimum supported forge version."""
+FOUNDRY_VERSION = "2023-11-01"
+"""
+Required version of forge. We're locking down foundry to a specific version, as new versions can
+introduce serious regressions, and have done so in the past.
+"""
+
+FOUNDRY_INSTALL_TAG = "nightly-60ec00296f00754bc21ed68fd05ab6b54b50e024"
+"""
+The tag of the foundry release to install if needed.
+"""
 
 
 def check_or_install_foundry():
     """
-    Verify that foundry is installed and has the correct version, or install it if not.
+    Verify that foundry is installed with the correct version.
     """
 
-    def check_forge_version():
-        version = get_foundry_version()
-        if version is None:
-            return False
-        return version >= MIN_FORGE_VERSION
-
-    # Doing this here, even if Foundry might already be in path, covers the edge case where we
-    # installed Foundry in a previous run of the tool, but the user didn't restart their shell.
-    lib.prepend_to_path(os.path.expanduser("~/.foundry/bin"))
-
-    if shutil.which("forge") is not None:
-        if check_forge_version():
-            return
-        if shutil.which("foundryup") is not None:
-            if lib.ask_yes_no("Forge (Foundry) is outdated, run foundryup to update?"):
-                lib.run("update foundry", "foundryup")
-                if check_forge_version():
-                    return
-                if lib.ask_yes_no("Forge is still outdated, update foundryup?"):
-                    install_foundry()
-                    return
-        else:
-            if lib.ask_yes_no("Forge (Foundry) is outdated, install foundryup and update?"):
-                install_foundry()
-                return
-        raise Exception(f"Forge (Foundry) is outdated (expected: > {MIN_FORGE_VERSION}).")
-    else:
-        if lib.ask_yes_no("Forge (Foundry) is required. Install globally?"):
-            install_foundry()
-        else:
-            raise Exception("Forge is required.")
-
-
-####################################################################################################
-
-def install_foundry():
-    """
-    Installs foundry globally.
-    """
-    print("Installing Foundry")
-    lib.run("install foundryup", "curl -L https://foundry.paradigm.xyz | bash")
-    lib.run("install foundry", "foundryup")
     version = get_foundry_version()
-    print(f"Successfully installed Foundry {version}")
+    if version == FOUNDRY_VERSION:
+        return
+
+    osys = get_valid_os("foundry")
+    arch = get_valid_arch("foundry")
+
+    if osys == "linux" and arch == "arm64":
+        raise Exception(
+            "Foundry binaries are not available for Linux/arm64.\n"
+            "Try foundryup -v nightly-60ec00296f00754bc21ed68fd05ab6b54b50e024, "
+            "or building foundry from sources.")
+
+    url = f"https://github.com/foundry-rs/foundry/releases/download/{FOUNDRY_INSTALL_TAG}" \
+          f"/foundry_nightly_{osys}_{arch}.tar.gz"
+
+    print(f"Installing Foundry locally ({FOUNDRY_VERSION} release)...")
+    # will overwrite old version if present
+    lib.run("downloading foundry",
+            f"curl -L {url} | tar xz -C bin")
 
 
 ####################################################################################################
