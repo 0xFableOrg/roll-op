@@ -336,7 +336,7 @@ class Config:
         # See :py:attribute:`l2_engine_rpc_url` for more details.
         self.l2_engine_rpc_protocol = "http"
         self.l2_engine_rpc_host = self.l2_engine_rpc_http_host
-        self.l2_engine_rpc_port = self.l2_engine_rpc_ws_port
+        self.l2_engine_rpc_port = self.l2_engine_rpc_http_port
 
         # See :py:attribute:`l2_engine_authrpc_url` for more details.
         self.l2_engine_authrpc_protocol = "http"
