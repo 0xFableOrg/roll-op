@@ -276,10 +276,10 @@ def cmd_with_node(command: str) -> str:
 
 ####################################################################################################
 
-NODE_VERSION = "v16.16.0"
+NODE_VERSION = "v20.9.0"
 """Full node of the node version required by the optimism repository."""
 
-NVM_VERSION = "v0.39.4"
+NVM_VERSION = "v0.39.7"
 """A recent NVM version to install if needed."""
 
 
