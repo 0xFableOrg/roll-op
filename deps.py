@@ -329,7 +329,7 @@ def check_or_install_node():
 
 def check_or_install_yarn():
     """
-    Check if Node.js is installed on the current Node and is the correct version, otherwise prompts
+    Check if Yarn is installed on the current Node and is the correct version, otherwise prompts
     the user to install it. This call should always be preceded by a call to
     :py:func:`check_or_install_node`.
     """
@@ -345,6 +345,28 @@ def check_or_install_yarn():
         print("Successfully installed Yarn.")
     else:
         raise Exception("Yarn is required.")
+
+
+####################################################################################################
+
+def check_or_install_pnpm():
+    """
+    Check if pnpm is installed on the current Node and is the correct version, otherwise prompts
+    the user to install it. This call should always be preceded by a call to
+    :py:func:`check_or_install_node`.
+    """
+    try:
+        # can't use `shutil.which`, we need to use proper Node version!
+        lib.run("get pnpm version", cmd_with_node("pnpm --version"))
+        return
+    except Exception:
+        pass
+
+    if lib.ask_yes_no("PNPM is required. Install?"):
+        lib.run("install PNPM", cmd_with_node("npm install -g pnpm"))
+        print("Successfully installed PNPM.")
+    else:
+        raise Exception("PNPM is required.")
 
 
 ####################################################################################################
