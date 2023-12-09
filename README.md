@@ -50,7 +50,7 @@ always for your permission before installing anything outside the current direct
   (`npm install -g yarn` — the old one, not yarn v3 aka yarn berry)
 - Geth >= 1.13.4 (but only if you want to run a devnet L1 node)
 - The `jq` command line utility
-- Foundry
+- [Foundry](https://github.com/foundry-rs/foundry)
 - Go >= 1.21
 
 ## Usage
