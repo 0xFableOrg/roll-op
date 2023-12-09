@@ -43,6 +43,7 @@ def setup():
     # === build account abstraction contracts ===
 
     deps.check_or_install_node()
+    deps.check_or_install_yarn()
 
     log_file = "logs/build_aa_contracts.log"
     print(f"Building account abstraction contracts. Logging to {log_file}")
