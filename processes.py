@@ -77,7 +77,12 @@ class BackgroundProcessManager:
         If `on_exit` is specified, it will be called when the process exits (which is monitored in a
         separate thread). It is NOT called when we kill the process ourselves.
         """
-        process: Popen = lib.run(descr, command, **kwargs, wait=False)
+
+        # Using exec is necessary on linux, where killing the process only kills the outer shell if
+        # not present.
+        exec_command = "exec " + command if isinstance(command, str) else ["exec", *command]
+
+        process: Popen = lib.run(descr, exec_command, **kwargs, wait=False)
         process.name = f"subprocess({descr})"
         self.processes.append(process)
 
