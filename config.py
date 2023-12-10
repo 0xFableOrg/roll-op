@@ -633,7 +633,7 @@ class Config:
 
         self.proposer_num_confirmations = 1
         """
-        Number of confirmations to wait for before submitting a block to the L1 (10 by default).
+        Number of confirmations to wait for before submitting a block to the L1 (1 by default).
         """
 
         self.allow_non_finalized = True
