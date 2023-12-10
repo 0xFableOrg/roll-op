@@ -1,12 +1,18 @@
 PRODUCTION_CONFIG = {
     # Values copied from optimism/packages/contracts-bedrock/deploy-config/goerli.json
     # With some edit mades for values that encode specific Goerli blockhashes and timestamps.
+
     # These need to be overriden depending on the target L1:
     # - l1StartingBlockTag — earliest L1 block that may contain L2 data
-    # - l1GenesisBlockTimestamp — timestamp of the L1 genesis block (to generate devnet L1 genesis)
     # - l2OutputOracleStartingTimestamp — timestamp of the first L2 block
-
-    # TODO describe the above
+    #   (this defaults to -1, causing it to use l1StartingBlockTag's timestamp)
+    #
+    # If you're deploying an L1 genesis, you also need to set the following, in order to generate
+    # the L1 genesis (these values are not otherwise used):
+    # - l1UseClique — whether to use clique (vs Ethereum PoS — roll-op only supports clique)
+    # - cliqueSignerAddress — address of the clique signer
+    # - l1GenesisBlockTimestamp — timestamp to use for the L1 genesis block
+    # - l1BlockTime — time between two L1 blocks
 
     # The documentation for all values in this file can be found here:
     # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-chain-ops/genesis/config.go
@@ -52,10 +58,6 @@ PRODUCTION_CONFIG = {
     "l2OutputOracleStartingBlockNumber": 0,
     "l2GenesisBlockGasLimit": "0x2faf080",
 
-    # This is the timestamp of the first L2 block. Setting this to a negative value causes the
-    # deploy script to use l1StartingBlockTag's timestamp.
-    "l2OutputOracleStartingTimestamp": -1,
-
     "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "sequencerFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
@@ -87,15 +89,34 @@ PRODUCTION_CONFIG = {
     "recommendedProtocolVersion":
         "0x0000000000000000000000000000000000000000000000000000000000000000",
 
-    # L1 Settings
-    "l1UseClique": False,
+    # Settings to get from L1
     "l1StartingBlockTag": "REPLACE THIS (BLOCKHASH or TAG)",
-    "l1GenesisBlockTimestamp": "0x64c811bf",  # TOOD investigate this
+
+    # This is the timestamp of the first L2 block. Setting this to a negative value causes the
+    # deploy script to use l1StartingBlockTag's timestamp.
+    "l2OutputOracleStartingTimestamp": -1,
+
+    # Devnet L1 Settings
+    "l1UseClique": True,
+    "cliqueSignerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "l1GenesisBlockTimestamp": "REPLACE THIS OR UNUSED",
     "l1BlockTime": 12
 }
 
 DEVNET_CONFIG = {
     # Values copied from optimism/packages/contracts-bedrock/deploy-config/devnetL1-template.json
+
+    # These need to be overriden depending on the target L1:
+    # - l1StartingBlockTag — earliest L1 block that may contain L2 data
+    # - l2OutputOracleStartingTimestamp — timestamp of the first L2 block
+    #   (this defaults to -1, causing it to use l1StartingBlockTag's timestamp)
+    #
+    # If you're deploying an L1 genesis, you also need to set the following, in order to generate
+    # the L1 genesis (these values are not otherwise used):
+    # - l1UseClique — whether to use clique (vs Ethereum PoS — roll-op only supports clique)
+    # - cliqueSignerAddress — address of the clique signer
+    # - l1GenesisBlockTimestamp — timestamp to use for the L1 genesis block
+    # - l1BlockTime — time between two L1 blocks
 
     # The documentation for all values in this file can be found here:
     # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-chain-ops/genesis/config.go
@@ -141,10 +162,6 @@ DEVNET_CONFIG = {
     "l2OutputOracleStartingBlockNumber": 0,
     "l2GenesisBlockGasLimit": "0x1c9c380",
 
-    # This is the timestamp of the first L2 block. Setting this to a negative value causes the
-    # deploy script to use l1StartingBlockTag's timestamp. Changed from 0 in the template.
-    "l2OutputOracleStartingTimestamp": -1,
-
     "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "sequencerFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
@@ -176,10 +193,16 @@ DEVNET_CONFIG = {
     "recommendedProtocolVersion":
         "0x0000000000000000000000000000000000000000000000000000000000000000",
 
-    # L1 Settings
+    # Settings to get from L1
+    "l1StartingBlockTag": "REPLACE THIS (BLOCKHASH or TAG)",
+
+    # This is the timestamp of the first L2 block. Setting this to a negative value causes the
+    # deploy script to use l1StartingBlockTag's timestamp.
+    "l2OutputOracleStartingTimestamp": -1,
+
+    # Devnet L1 Settings
     "l1UseClique": True,
     "cliqueSignerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "l1StartingBlockTag": "earliest",
-    "l1GenesisBlockTimestamp": "0x64c811bf",  # TOOD investigate this
-    "l1BlockTime": 3,
+    "l1GenesisBlockTimestamp": "REPLACE THIS OR UNUSED",
+    "l1BlockTime": 3
 }
