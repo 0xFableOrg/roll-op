@@ -15,7 +15,7 @@ PRODUCTION_CONFIG = {
     # - l1BlockTime — time between two L1 blocks
 
     # The documentation for all values in this file can be found here:
-    # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-chain-ops/genesis/config.go
+    # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.1/op-chain-ops/genesis/config.go
 
     # All fields between "start overriden" and "end overriden" are overriden by the global Config.
     # See l2_deploy.py::generate_deploy_config() for details on how the global Config overrides
@@ -119,7 +119,7 @@ DEVNET_CONFIG = {
     # - l1BlockTime — time between two L1 blocks
 
     # The documentation for all values in this file can be found here:
-    # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-chain-ops/genesis/config.go
+    # https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.1/op-chain-ops/genesis/config.go
 
     # All fields between "start overriden" and "end overriden" are overriden by the global Config.
     # See l2_deploy.py::generate_deploy_config() for details on how the global Config overrides

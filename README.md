@@ -16,10 +16,10 @@ abstraction infrastructure (a bundler and a paymaster).
 
 ## Versioning
 
-The current version of simple-op-stack-rollup deploys software pinned to the following commit
+The current version of simple-op-stack-rollup deploys software pinned to the following releases:
 
-- Optimism Monorepo: [`7168db67c5b421975fef2a090aa6e6ee4e3ff298`](https://github.com/ethereum-optimism/optimism/tree/7168db67c5b421975fef2a090aa6e6ee4e3ff298)
-- op-geth: [`v1.101106.0`](https://github.com/ethereum-optimism/op-geth/tree/v1.101106.0)
+- Optimism Monorepo: [`op-node/v1.3.1 `](https://github.com/ethereum-optimism/optimism/releases/tag/op-node%2Fv1.3.1) (+ [a few patches](setup.py))
+- op-geth: [`v1.101304.1`](https://github.com/ethereum-optimism/op-geth/releases/tag/v1.101304.1)
 
 ## Prerequisites
 

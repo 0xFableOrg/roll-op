@@ -30,10 +30,10 @@ def setup(config: Config):
 def setup_optimism_repo():
     github_url = "https://github.com/ethereum-optimism/optimism.git"
 
-    git_tag = "op-node/v1.3.0"
+    git_tag = "op-node/v1.3.1"
     git_fix1_tag = "2e57472890f9fea39cde72537935393b068d3e0f"
     git_fix2_tag = "5252c82f607af81f6cb741a370425eaf26280892"
-    git_custom_tag = "roll-op/v1.3.0"
+    git_custom_tag = "roll-op/v1.3.1"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
