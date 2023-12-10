@@ -125,6 +125,9 @@ repository and can be symlinked if required.
 # deploy rollup on existing L1, then start it
 ./rollop --name=my-prod-rollup --preset=prod --config=config.toml deploy-l2
 ./rollop --name=my-prod-rollup --preset=prod --config=config.toml start-l2
+
+# start block explorer (blockscout) for a running rollup
+./rollop explorer --config=config.toml
 ```
 
 ## Contributing (for developers building simple-op-stack rollup)
@@ -140,12 +143,12 @@ make check
 
 # Fix issues highlighted by make check if possible (some lint issues might need manual fixes)
 make fix && make check
-
-
 ```
 
-## Plans
+## Known Issues
 
-- See [here](https://app.charmverse.io/op-grants/proposals?id=a6e6bfb8-75bd-41bd-acb1-618c3c62e667)
-  for the initial description of the project including some milestones.
-- See [this document](https://hackmd.io/@vitalizing/SJXw9Wbih) for a more thoughtful architecture breakdown.
+- Blockscout will show an indexing warning on the page. The indexing percentage only goes down with
+  time, but restarting the explorer makes it jump up. Regardless, the explorer seems to work just
+  fine.
+- When running the devnet, the deployment of the contracts to the temporary L1 will hang. Just abort
+  and restart the command.
