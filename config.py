@@ -1032,9 +1032,9 @@ class Config:
         default config.
 
         The source of truth for these values can be found here:
-        https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/ops-bedrock/docker-compose.yml
+        https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.1/ops-bedrock/docker-compose.yml
         Or in Go defaults, e.g.
-        https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.0/op-service/txmgr/cli.go
+        https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.1/op-service/txmgr/cli.go
         """
 
         # === Network ===
