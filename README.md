@@ -2,6 +2,8 @@
 
 Under development!
 
+!! Deployments with the config option `allow_finalized = False` are currently not working.
+
 This work is support by an
 [Optimism governance grant](https://app.charmverse.io/op-grants/proposals?id=a6e6bfb8-75bd-41bd-acb1-618c3c62e667).
 
@@ -127,6 +129,17 @@ repository and can be symlinked if required.
 # start block explorer (blockscout) for a running rollup
 ./rollop explorer --config=config.toml
 ```
+
+In the dev preset, you can use the following cast command to generate a simple transfer transaction:
+```
+cast send \
+  --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
+  --private-key ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
+  --rpc-url http://127.0.0.1:9545 \
+  --value 1ether \
+  0x3fAB184622Dc19b6109349B94811493BF2a45362
+```
+
 
 ## Contributing (for developers building simple-op-stack rollup)
 
