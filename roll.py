@@ -452,7 +452,9 @@ def main():
         if lib.args.show_stack_trace:
             raise e
         else:
-            print(f"Aborted with error: {e}")
+            trace_msg = " (rerun with --trace to show python stack trace)"
+            trace_msg = trace_msg if not lib.args.show_stack_trace else ""
+            print(f"Aborted with error{trace_msg}: {e}")
             exit(1)
 
 
