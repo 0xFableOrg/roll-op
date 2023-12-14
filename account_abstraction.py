@@ -91,7 +91,7 @@ def deploy(config: Config):
     env = {**os.environ,
            "PRIVATE_KEY": config.aa_deployer_key,
            "PAYMASTER_PRIVATE_KEY": config.paymaster_key,
-           "RPC_URL": config.l2_engine_rpc}
+           "RPC_URL": config.l2_engine_rpc_url}
 
     log_file = f"logs/{config.deploy_aa_log_file_name}"
     print(f"Deploying account abstraction contracts. Logging to {log_file}")
