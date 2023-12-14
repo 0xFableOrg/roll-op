@@ -1,6 +1,7 @@
 import { BigNumberish, ethers } from 'ethers';
 import { paymasterAbi } from './abis';
 import { BytesLike } from '@ethersproject/bytes';
+import { whitelistAll, whitelistedAddresses } from './config';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -29,8 +30,14 @@ export async function sponsorTransaction(userOp: UserOperation): Promise<UserOpe
         provider
     );
 
-    /// NOTE: Define additional transaction sponsor logic here if needed
-    /// For example, it could be a list of whitelisted addresses
+    // If user address is not whitelisted for gas sponsor, return
+    if (
+        !whitelistAll && !whitelistedAddresses.map(
+            address => address.toLowerCase()
+        ).includes(userOp.sender.toLowerCase())
+    ) {
+        return userOp;
+    }
 
     const coder = new ethers.AbiCoder();
     const validAfter = (await provider.getBlock('latest'))?.timestamp;
