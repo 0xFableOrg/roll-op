@@ -584,9 +584,9 @@ class Config:
 
         # === P2P Options ===
 
-        self.l2_node_p2p_enabled = True
+        self.l2_node_p2p_enabled = False
         """
-        Whether to enable P2P (peer discovery + block gossip — True by default).
+        Whether to enable P2P (peer discovery + block gossip — False by default).
         """
 
         self.l2_node_p2p_listen_addr = "0.0.0.0"
