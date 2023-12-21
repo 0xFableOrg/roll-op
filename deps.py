@@ -11,6 +11,7 @@ import sys
 
 import libroll as lib
 import term
+from config import Config
 
 
 ####################################################################################################
@@ -19,7 +20,6 @@ def basic_setup():
     """
     Does some basic setup (creating directories, modifying path), performing basic checks.
     """
-    os.makedirs("logs", exist_ok=True)
     os.makedirs("bin", exist_ok=True)
 
     lib.prepend_to_path("bin")
@@ -33,6 +33,16 @@ def basic_setup():
     _check_basic_prerequisites()
     _setup_python_deps()
 
+
+####################################################################################################
+
+def create_paths(config: Config):
+    """
+    Make sure some basic config-dependent paths do exist.
+    """
+    os.makedirs(config.artifacts_dir, exist_ok=True)
+    os.makedirs(config.databases_dir, exist_ok=True)
+    os.makedirs(config.logs_dir, exist_ok=True)
 
 ####################################################################################################
 

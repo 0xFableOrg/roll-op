@@ -15,7 +15,7 @@ def deploy(config: Config):
     Deploy the rollup by deploying the contracts to L1 then generating the L2 genesis file, but does
     not start the software components.
     """
-    os.makedirs(config.paths.gen_dir, exist_ok=True)
+    os.makedirs(config.artifacts_dir, exist_ok=True)
 
     if not os.path.exists(config.deploy_config_path):
         deploy_config.generate_deploy_config(config)
@@ -103,7 +103,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
-    log_file = "logs/deploy_l1_contracts.log"
+    log_file = f"{config.logs_dir}/deploy_l1_contracts.log"
     print(f"Deploying contracts to L1 with {deployer_account}. Logging to {log_file}\n"
           f"Using deploy salt: '{config.deploy_salt}'")
 
@@ -129,9 +129,10 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         env=env,
         log_file=log_file)
 
-    shutil.copy(os.path.join(config.deployments_dir, ".deploy"), config.paths.addresses_json_path)
+    shutil.copy(os.path.join(config.deployment_artifacts_gen_dir, ".deploy"),
+                config.paths.addresses_json_path)
 
-    log_file = "logs/create_l1_artifacts.log"
+    log_file = f"{config.logs_dir}/create_l1_artifacts.log"
     print(f"Creating L1 deployment artifacts. Logging to {log_file}")
     lib.run_roll_log("create L1 deployment artifacts", [
         "forge script",
@@ -159,7 +160,7 @@ def _generate_l2_genesis(config: Config):
                 "go run cmd/main.go genesis l2",
                 f"--l1-rpc={config.l1_rpc_url}",
                 f"--deploy-config={config.deploy_config_path}",
-                f"--deployment-dir={config.deployments_dir}",
+                f"--deployment-dir={config.deployment_artifacts_gen_dir}",
                 f"--outfile.l2={config.paths.l2_genesis_path}",
                 f"--outfile.rollup={config.paths.rollup_config_path}"],
                 cwd=config.paths.op_node_dir)

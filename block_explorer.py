@@ -35,7 +35,7 @@ def launch_blockscout(config: Config):
     deps.check_docker()
     setup_blockscout_repo()
 
-    log_file_name = "logs/launch_blockscout.log"
+    log_file_name = f"{config.logs_dir}/launch_blockscout.log"
     log_file = open(log_file_name, "w")
     print(f"Launching the blockscout block explorer. Logging to {log_file_name}\n"
           "Explorer available at http://localhost/ in a little bit.")

@@ -21,7 +21,7 @@ def start(config: Config, sequencer: bool = True):
 
     l2.generate_jwt_secret(config)
 
-    log_file_path = "logs/l2_node.log"
+    log_file_path = f"{config.logs_dir}/l2_node.log"
     print(f"Starting L2 node. Logging to {log_file_path}")
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
@@ -35,7 +35,7 @@ def start(config: Config, sequencer: bool = True):
             # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/flags.go
             f"--l1={config.l1_rpc_for_node_url}",
             f"--l2={config.l2_engine_authrpc_url}",
-            f"--l2.jwt-secret={os.path.join('..', config.jwt_secret_path)}",
+            f"--l2.jwt-secret={os.path.join(config.jwt_secret_path)}",
             f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
             f"--rollup.config={os.path.join('..', config.paths.rollup_config_path)}",
             f"--l1.rpckind={config.l2_node_l1_rpc_kind}",
@@ -74,7 +74,8 @@ def start(config: Config, sequencer: bool = True):
                 f"--metrics.port={config.l2_node_metrics_listen_port}",
                 f"--metrics.addr={config.l2_node_metrics_listen_addr}"]),
         ],
-        cwd=config.db_path,  # so that `opnode_*_db` directories get created under the db directory
+        # so that `opnode_*_db` directories get created under the db directory
+        cwd=config.databases_dir,
         forward="fd",
         stdout=log_file)
 

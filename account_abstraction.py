@@ -24,7 +24,7 @@ def is_setup():
 
 # --------------------------------------------------------------------------------------------------
 
-def setup():
+def setup(config: Config):
     """
     Sets up all components necessary to run the account abstraction setup (cloning directories,
     building & installing sfotware).
@@ -45,7 +45,7 @@ def setup():
     deps.check_or_install_node()
     deps.check_or_install_yarn()
 
-    log_file = "logs/build_aa_contracts.log"
+    log_file = f"{config.logs_dir}/build_aa_contracts.log"
     print(f"Building account abstraction contracts. Logging to {log_file}")
 
     lib.run_roll_log(
@@ -59,7 +59,7 @@ def setup():
     github_url = "github.com/stackup-wallet/stackup-bundler"
     version = "v0.6.21"
 
-    log_file = "logs/install_bundler.log"
+    log_file = f"{config.logs_dir}/install_bundler.log"
     print(f"Installing stackup bundler. Logging to {log_file}")
 
     env = {**os.environ, "GOBIN": os.path.abspath("bin")}
@@ -72,7 +72,7 @@ def setup():
 
     # === build paymaster dependencies ===
 
-    log_file = "logs/build_paymaster.log"
+    log_file = f"{config.logs_dir}/build_paymaster.log"
     print(f"Building paymaster dependencies. {log_file}")
     lib.run_roll_log(
         "build paymaster dependencies",
@@ -93,7 +93,7 @@ def deploy(config: Config):
            "PAYMASTER_PRIVATE_KEY": config.paymaster_key,
            "RPC_URL": config.l2_engine_rpc_url}
 
-    log_file = f"logs/{config.deploy_aa_log_file_name}"
+    log_file = f"{config.logs_dir}/{config.deploy_aa_log_file_name}"
     print(f"Deploying account abstraction contracts. Logging to {log_file}")
 
     lib.run_roll_log(
@@ -130,7 +130,7 @@ def start_bundler(config: Config):
            "ERC4337_BUNDLER_ETH_CLIENT_URL": config.l2_engine_rpc_url,
            "ERC4337_BUNDLER_PRIVATE_KEY": bundler_key}
 
-    log_file_path = "logs/stackup_bundler.log"
+    log_file_path = f"{config.logs_dir}/stackup_bundler.log"
     log_file = open(log_file_path, "w")
     print(f"Starting the stackup bundler. Logging to {log_file_path}.")
 
@@ -160,7 +160,7 @@ def start_paymaster(config: Config):
 
     paymaster_address = lib.run(
         "parsing paymaster address",
-        f"grep '==VerifyingPaymaster addr=' logs/{config.deploy_aa_log_file_name}"
+        f"grep '==VerifyingPaymaster addr=' {config.logs_dir}/{config.deploy_aa_log_file_name}"
     ).strip().split(' ')[-1]
 
     env = {**os.environ,
@@ -173,7 +173,7 @@ def start_paymaster(config: Config):
            "PRIVATE_KEY": config.paymaster_key}
 
     # start paymaster signer service
-    log_file_path = "logs/paymaster_signer.log"
+    log_file_path = f"{config.logs_dir}/paymaster_signer.log"
     log_file = open(log_file_path, "w")
     print(f"Starting paymaster signer service. Logging to {log_file_path}")
 

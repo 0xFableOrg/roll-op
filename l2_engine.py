@@ -25,7 +25,7 @@ def start(config: Config):
     os.makedirs(config.l2_engine_data_dir, exist_ok=True)
 
     if not os.path.exists(config.l2_engine_chaindata_dir):
-        log_file = "logs/init_l2_genesis.log"
+        log_file = f"{config.logs_dir}/init_l2_genesis.log"
         print(f"Directory {config.l2_engine_chaindata_dir} missing, "
               "importing genesis in op-geth node."
               f"Logging to {log_file}")
@@ -37,7 +37,7 @@ def start(config: Config):
              f"--datadir={config.l2_engine_data_dir}",
              config.paths.l2_genesis_path])
 
-    log_file_path = "logs/l2_engine.log"
+    log_file_path = f"{config.logs_dir}/l2_engine.log"
     print(f"Starting op-geth node. Logging to {log_file_path}")
     sys.stdout.flush()
 

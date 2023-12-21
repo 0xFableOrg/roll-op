@@ -24,7 +24,7 @@ def deploy_devnet_l1(config: Config):
     Spin the devnet L1 node, doing whatever tasks are necessary, including generating the genesis
     file and config files, and deploying the L1 contracts.
     """
-    os.makedirs(config.paths.gen_dir, exist_ok=True)
+    os.makedirs(config.artifacts_dir, exist_ok=True)
     _generate_devnet_l1_genesis(config)
     _start_devnet_l1_node(config)
     print("Devnet L1 deployment is complete! L1 node is running.")
@@ -90,7 +90,7 @@ def _start_temporary_geth_node(config: Config) -> Popen:
 
     lib.ensure_port_unoccupied("temporary geth", "127.0.0.1", config.temp_l1_rpc_listen_port)
 
-    log_file_path = "logs/temp_geth.log"
+    log_file_path = f"{config.logs_dir}/temp_geth.log"
     log_file = open(log_file_path, "w")
     print(f"Starting temporary geth node. Logging to {log_file_path}")
 
@@ -144,7 +144,7 @@ def _start_devnet_l1_node(config: Config):
         os.remove(f"{config.l1_data_dir}/block-signer-key")
 
     if not os.path.exists(config.l1_chaindata_dir):
-        log_file = "logs/init_l1_genesis.log"
+        log_file = f"{config.logs_dir}/init_l1_genesis.log"
         print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node."
               f"Logging to {log_file}")
         lib.run("initializing genesis", [
@@ -155,7 +155,7 @@ def _start_devnet_l1_node(config: Config):
             config.paths.l1_genesis_path
         ])
 
-    log_file_path = "logs/l1_node.log"
+    log_file_path = f"{config.logs_dir}/l1_node.log"
     print(f"Starting L1 node. Logging to {log_file_path}")
     sys.stdout.flush()
     log_file = open(log_file_path, "w")
@@ -233,8 +233,8 @@ def clean(config: Config):
     Cleans up deployment files and databases, such that trying to start the devnet L1 node will
     proceed as though it had never been started before.
     """
-    if os.path.exists(config.paths.gen_dir):
-        path = os.path.join(config.paths.gen_dir, "genesis-l1.json")
+    if os.path.exists(config.artifacts_dir):
+        path = os.path.join(config.artifacts_dir, "genesis-l1.json")
         pathlib.Path(path).unlink(missing_ok=True)
 
     if os.path.exists(config.l1_data_dir):
