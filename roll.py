@@ -396,7 +396,11 @@ def main():
             if lib.args.clean_first:
                 l2.clean(config)
 
+            if not os.path.exists(config.paths.addresses_json_path):
+                raise Exception(f"Cannot find {config.paths.addresses_json_path}.\n"
+                                "Did you deploy the rollup? (`rollop deploy-l2`)")
             config.deployments = lib.read_json_file(config.paths.addresses_json_path)
+
             l2.start(config)
             if hasattr(lib.args, "explorer") and lib.args.explorer:
                 block_explorer.launch_blockscout(config)
