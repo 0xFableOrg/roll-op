@@ -634,7 +634,8 @@ class Config:
 
         self.proposer_num_confirmations = 1
         """
-        Number of confirmations to wait for before submitting a block to the L1 (1 by default).
+        Number of confirmations to wait after submitting a proposal to the L1, to consider the
+        submission successful (1 by default).
         """
 
         self.allow_non_finalized = True
@@ -698,7 +699,8 @@ class Config:
 
         self.batcher_num_confirmations = 1
         """
-        Number of confirmations to wait for before submitting a block to the L1 (10 by default).
+        Number of confirmations to wait after submitting a batch to the L1, to consider the
+        submission successful (1 by default).
         """
 
         self.max_channel_duration = 1
