@@ -280,9 +280,10 @@ class Config:
         Defaults to "roll-op".
         """
 
-        self.l1_chain_id = 900
+        self.l1_chain_id = 1201101711
         """
         Chain ID of the L1 to use. If spinning an L1 devnet, it will use this chain ID.
+        Defaults to 1201101711 — 'rollop L1' in 1337 speak.
         """
 
         self.own_address = "127.0.0.1"
@@ -459,8 +460,8 @@ class Config:
         # See also the properties starting with `l2_engine` below which are paths derived from
         # :py:attribute:`l2_engine_data_dir`.
 
-        self.l2_chain_id = 902
-        """Chain ID of the local L2."""
+        self.l2_chain_id = 1201101712
+        """Chain ID of the local L2 (default: 1201101712 — 'rollop L2' in 1337 speak)."""
 
         self.l2_engine_verbosity = 3
         """Geth verbosity level (from 0 to 5, see op-geth --help)."""
