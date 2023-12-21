@@ -19,15 +19,13 @@ def setup(config: Config):
     deps.check_or_install_node()
     deps.check_or_install_pnpm()
     deps.check_or_install_foundry()
-    setup_optimism_repo()
-    setup_op_geth_repo()
-
-    os.makedirs(config.paths.gen_dir, exist_ok=True)
+    setup_optimism_repo(config)
+    setup_op_geth_repo(config)
 
 
 ####################################################################################################
 
-def setup_optimism_repo():
+def setup_optimism_repo(config: Config):
     github_url = "https://github.com/ethereum-optimism/optimism.git"
 
     git_tag = "op-node/v1.3.1"
@@ -63,7 +61,7 @@ def setup_optimism_repo():
                 f"git tag {git_custom_tag}",
                 cwd="optimism")
 
-    log_file = "logs/build_optimism.log"
+    log_file = f"{config.logs_dir}/build_optimism.log"
     print(
         f"Starting to build the optimism repository. Logging to {log_file}\n"
         "This may take a while...")
@@ -95,7 +93,7 @@ def setup_optimism_repo():
 
 ####################################################################################################
 
-def setup_op_geth_repo():
+def setup_op_geth_repo(config: Config):
     """
     Clone the op-geth repository and build it.
     """
@@ -121,14 +119,15 @@ def setup_op_geth_repo():
                 f"git checkout --detach {git_tag}",
                 cwd="op-geth")
 
-    print("Starting to build the op-geth repository. Logging to logs/build_op_geth.log\n"
+    log_file = f"{config.logs_dir}/build_op_geth.log"
+    print(f"Starting to build the op-geth repository. Logging to {log_file}\n"
           "This may take a while...")
 
     lib.run_roll_log(
         descr="build op-geth",
         command=deps.cmd_with_node("make geth"),
         cwd="op-geth",
-        log_file="logs/build_op_geth.log")
+        log_file=log_file)
 
     shutil.copyfile("op-geth/build/bin/geth", "bin/op-geth")
     lib.chmodx("bin/op-geth")

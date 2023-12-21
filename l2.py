@@ -73,17 +73,17 @@ def clean(config: Config):
     Cleans up deployment outputs and databases, such that trying to deploy the L2 blockchain will
     proceed as though the chain hadn't been deployed previously.
     """
-    if os.path.exists(config.paths.gen_dir):
-        lib.debug(f"Cleaning up {config.paths.gen_dir}")
-        for file_path in pathlib.Path(config.paths.gen_dir).iterdir():
+    if os.path.exists(config.artifacts_dir):
+        lib.debug(f"Cleaning up {config.artifacts_dir}")
+        for file_path in pathlib.Path(config.artifacts_dir).iterdir():
             if file_path.is_file() and file_path.name != "genesis-l1.json":
                 os.remove(file_path)
 
     l2_engine.clean(config)
     l2_node.clean()
 
-    lib.debug(f"Cleaning up {config.deployments_dir}")
-    shutil.rmtree(config.deployments_dir, ignore_errors=True)
+    lib.debug(f"Cleaning up {config.deployment_artifacts_gen_dir}")
+    shutil.rmtree(config.deployment_artifacts_gen_dir, ignore_errors=True)
 
 
 ####################################################################################################

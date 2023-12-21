@@ -44,6 +44,9 @@ class OPPaths:
         self.gen_dir = os.path.abspath(gen_dir)
         """Output directory for generated files."""
 
+        self.artifacts_dir = pjoin(self.gen_dir, "artifacts")
+        """cf. :py:attr:`Config.artifacts_dir`."""
+
         self.deploy_config_dir = pjoin(self.contracts_dir, "deploy-config")
         """
         Directory that will contain the deploy configuration files, whose name will be the
@@ -52,10 +55,10 @@ class OPPaths:
 
         # === Generated Files — L1 Devnet ===
 
-        self.l1_genesis_path = pjoin(self.gen_dir, "genesis-l1.json")
+        self.l1_genesis_path = pjoin(self.artifacts_dir, "genesis-l1.json")
         """Devnet L1 genesis file path."""
 
-        self.l1_allocs_path = pjoin(self.gen_dir, "allocs-l1.json")
+        self.l1_allocs_path = pjoin(self.artifacts_dir, "allocs-l1.json")
         """
         Devnet L1 account pre-allocations file path. This includes ETH pre-allocation to test
         accounts, and possibly the pre-deployed L2 contracts if
@@ -71,16 +74,16 @@ class OPPaths:
         :py:class:Config, it will be appended as a new path component.
         """
 
-        self.addresses_json_path = pjoin(self.gen_dir, "addresses.json")
+        self.addresses_json_path = pjoin(self.artifacts_dir, "addresses.json")
         """File mapping L1 contracts to their deployed addresses."""
 
-        self.sdk_addresses_json_path = pjoin(self.gen_dir, "sdk-addresses.json")
+        self.sdk_addresses_json_path = pjoin(self.artifacts_dir, "sdk-addresses.json")
         """L1 contract addresses for use in the Optimism SDK."""
 
-        self.l2_genesis_path = pjoin(self.gen_dir, "genesis-l2.json")
+        self.l2_genesis_path = pjoin(self.artifacts_dir, "genesis-l2.json")
         """L2 genesis file path."""
 
-        self.rollup_config_path = pjoin(self.gen_dir, "rollup.json")
+        self.rollup_config_path = pjoin(self.artifacts_dir, "rollup.json")
         """L2 rollup config file path."""
 
 ####################################################################################################

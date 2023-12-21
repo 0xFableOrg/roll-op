@@ -19,7 +19,7 @@ import l2_node
 import l2_proposer
 import libroll as lib
 from argparsing import Argparser
-from config import devnet_config, production_config, Config
+from config import Config
 from paths import OPPaths
 from processes import PROCESS_MGR
 import setup
@@ -207,13 +207,13 @@ def load_config() -> Config:
     deployment_name = deployment_name if deployment_name else lib.args.preset
     deployment_name = deployment_name if deployment_name else "rollup"
 
-    paths = OPPaths(gen_dir=os.path.join("deployments", f"{deployment_name}"))
+    config = Config(lib.args.name)
 
     # Define config preset
     if lib.args.preset is None or lib.args.preset == "dev":
-        config = devnet_config(paths)
+        pass
     elif lib.args.preset == "prod":
-        config = production_config(paths)
+        config.use_production_config()
     else:
         # Should never happen, as correct preset is validated by argparse.
         raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'dev', 'prod'.")
@@ -226,7 +226,7 @@ def load_config() -> Config:
             import tomli
         except Exception:
             raise Exception(
-                "Missing dependencies. Try running python roll.py setup first.")
+                "Missing dependencies. Try running `rollop setup` first.")
         if os.path.exists(lib.args.config_path):
             with open(lib.args.config_path, mode="rb") as f:
                 config_file = tomli.load(f)
@@ -287,7 +287,7 @@ def start_addons(config: Config):
     if hasattr(lib.args, "explorer") and lib.args.explorer:
         block_explorer.launch_blockscout(config)
     if hasattr(lib.args, "aa") and lib.args.aa:
-        account_abstraction.setup()
+        account_abstraction.setup(config)
         account_abstraction.deploy(config)
         account_abstraction.start(config)
 
@@ -321,6 +321,7 @@ def main():
 
         deps.basic_setup()
         config = load_config()
+        deps.create_paths(config)
 
         if lib.args.command == "setup":
             setup.setup(config)
@@ -362,7 +363,7 @@ def main():
             if lib.args.clean_first:
                 account_abstraction.clean()
 
-            account_abstraction.setup()
+            account_abstraction.setup(config)
             account_abstraction.deploy(config)
             account_abstraction.start(config)
             PROCESS_MGR.wait_all()

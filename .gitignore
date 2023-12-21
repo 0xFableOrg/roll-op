@@ -14,9 +14,7 @@ __pycache__
 
 # Build & runtime outputs
 /bin
-/db
 /deployments
-/logs
 
 # Private configuration
 /.env
