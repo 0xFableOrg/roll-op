@@ -2,8 +2,6 @@
 
 Under development!
 
-!! Deployments with the config option `allow_finalized = False` are currently not working.
-
 This work is support by an
 [Optimism governance grant](https://app.charmverse.io/op-grants/proposals?id=a6e6bfb8-75bd-41bd-acb1-618c3c62e667).
 
