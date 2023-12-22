@@ -1,5 +1,3 @@
-import sys
-
 from config import Config
 from processes import PROCESS_MGR
 
