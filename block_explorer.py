@@ -133,19 +133,26 @@ def setup_blockscout_repo():
 
 ####################################################################################################
 
-def clean():
+def clean(config: Config):
     """
     Deletes the block explorer databases, logs, and containers.
     """
-    print("Cleaning up block explorer databases, logs, and containers...")
-    shutil.rmtree(
-        "blockscout/docker-compose/services/blockscout-db-data", ignore_errors=True)
-    shutil.rmtree(
-        "blockscout/docker-compose/services/logs", ignore_errors=True)
-    shutil.rmtree(
-        "blockscout/docker-compose/services/redis-data", ignore_errors=True)
-    shutil.rmtree(
-        "blockscout/docker-compose/services/stats-db-data", ignore_errors=True)
+
+    dir_paths = [
+        "blockscout/docker-compose/services/blockscout-db-data",
+        "blockscout/docker-compose/services/logs",
+        "blockscout/docker-compose/services/redis-data",
+        "blockscout/docker-compose/services/stats-db-data",
+    ]
+
+    for path in dir_paths:
+        lib.debug(f"Removing {path}")
+        shutil.rmtree(path, ignore_errors=True)
+
+    path = os.path.join(config.logs_dir, "launch_blockscout.log")
+    if os.path.exists(path):
+        lib.debug(f"Removing {path}")
+        os.remove(path)
 
     lib.run("remove blockscout containers",
             f"docker compose --project-name {_COMPOSE_PROJECT_NAME} rm --stop --force")

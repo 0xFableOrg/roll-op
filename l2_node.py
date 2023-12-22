@@ -92,6 +92,7 @@ def clean():
     """
     Delete the L2 node's p2p databases.
     """
+    lib.debug("Removing L2 node's p2p databases")
     shutil.rmtree("opnode_discovery_db", ignore_errors=True)
     shutil.rmtree("opnode_peerstore_db", ignore_errors=True)
 

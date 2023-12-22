@@ -5,7 +5,6 @@ on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 
 import json
 import os
-import pathlib
 import shutil
 import sys
 from subprocess import Popen
@@ -230,15 +229,24 @@ def _start_devnet_l1_node(config: Config):
 
 def clean(config: Config):
     """
-    Cleans up deployment files and databases, such that trying to start the devnet L1 node will
-    proceed as though it had never been started before.
+    Cleans up L1 deployment outputs.
     """
-    if os.path.exists(config.artifacts_dir):
-        path = os.path.join(config.artifacts_dir, "genesis-l1.json")
-        pathlib.Path(path).unlink(missing_ok=True)
+    paths = [
+        os.path.join(config.artifacts_dir, "genesis-l1.json"),
+        os.path.join(config.logs_dir, "l1_node.log"),
+        os.path.join(config.logs_dir, "temp_geth.log"),
+        os.path.join(config.artifacts_dir, "genesis-l1.json"),
+        os.path.join(config.artifacts_dir, "l1_allocs.json")
+    ]
+
+    for path in paths:
+        if os.path.exists(path):
+            lib.debug(f"Removing {path}")
+            os.remove(path)
 
     if os.path.exists(config.l1_data_dir):
-        print(f"Cleaning up {config.l1_data_dir}")
+        lib.debug(f"Removing {config.l1_data_dir}")
         shutil.rmtree(config.l1_data_dir, ignore_errors=True)
+
 
 ####################################################################################################
