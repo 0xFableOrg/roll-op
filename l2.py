@@ -70,19 +70,32 @@ def generate_jwt_secret(config: Config):
 
 def clean(config: Config):
     """
-    Cleans up deployment outputs and databases, such that trying to deploy the L2 blockchain will
-    proceed as though the chain hadn't been deployed previously.
+    Cleans up L2 deployment outputs.
     """
-    if os.path.exists(config.artifacts_dir):
-        lib.debug(f"Cleaning up {config.artifacts_dir}")
-        for file_path in pathlib.Path(config.artifacts_dir).iterdir():
-            if file_path.is_file() and file_path.name != "genesis-l1.json":
-                os.remove(file_path)
+    paths = [
+        os.path.join(config.artifacts_dir, "addresses.json"),
+        os.path.join(config.artifacts_dir, "genesis-l2.json"),
+        os.path.join(config.artifacts_dir, "rollup.json"),
+        os.path.join(config.jwt_secret_path),
+        os.path.join(config.dump_parameters_file),
+        os.path.join(config.logs_dir, "deploy_l1_contracts.log"),
+        os.path.join(config.logs_dir, "create_l1_artifacts.log"),
+        os.path.join(config.logs_dir, "l2_batcher.log"),
+        os.path.join(config.logs_dir, "l2_engine.log"),
+        os.path.join(config.logs_dir, "l2_node.log"),
+        os.path.join(config.logs_dir, "l2_proposer.log"),
+        config.deploy_config_path
+    ]
+
+    for path in paths:
+        if os.path.exists(path):
+            lib.debug(f"Removing {path}")
+            os.remove(path)
 
     l2_engine.clean(config)
     l2_node.clean()
 
-    lib.debug(f"Cleaning up {config.deployment_artifacts_gen_dir}")
+    lib.debug(f"Removing {config.deployment_artifacts_gen_dir}")
     shutil.rmtree(config.deployment_artifacts_gen_dir, ignore_errors=True)
 
 

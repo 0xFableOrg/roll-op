@@ -93,7 +93,7 @@ def deploy(config: Config):
            "PAYMASTER_PRIVATE_KEY": config.paymaster_key,
            "RPC_URL": config.l2_engine_rpc_url}
 
-    log_file = f"{config.logs_dir}/{config.deploy_aa_log_file_name}"
+    log_file = os.path.join(config.logs_dir, config.deploy_aa_log_file_name)
     print(f"Deploying account abstraction contracts. Logging to {log_file}")
 
     lib.run_roll_log(
@@ -188,11 +188,27 @@ def start_paymaster(config: Config):
 
 ####################################################################################################
 
-def clean():
+def clean(config: Config):
     """
-    Deletes the account abstraction deployment artifacts.
+    Deletes the account abstraction deployment outputs and build logs.
     """
-    shutil.rmtree("account-abstraction/deployments/opstack", ignore_errors=True)
+    paths = [
+        os.path.join(config.logs_dir, "build_aa_contracts.log"),
+        os.path.join(config.logs_dir, "stackup_bundler.log"),
+        os.path.join(config.logs_dir, "install_bundler.log"),
+        os.path.join(config.logs_dir, "build_paymaster.log"),
+        os.path.join(config.logs_dir, config.deploy_aa_log_file_name),
+        os.path.join(config.logs_dir, "paymaster_signer.log")
+    ]
+
+    for path in paths:
+        if os.path.exists(path):
+            lib.debug(f"Removing {path}")
+            os.remove(path)
+
+    path = "account-abstraction/deployments/opstack"
+    lib.debug(f"Removing {path}")
+    shutil.rmtree(path, ignore_errors=True)
 
 
 ####################################################################################################

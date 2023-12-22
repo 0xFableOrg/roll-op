@@ -6,6 +6,7 @@ invoking the appropriate commands.
 """
 
 import os
+import shutil
 
 import block_explorer
 import account_abstraction
@@ -152,15 +153,15 @@ p.delimiter("CLEANUP")
 
 p.command(
     "clean-build",
-    help="cleans up build outputs (but not deployment outputs or databases)",
-    description="Cleans up build outputs — leaves deployment outputs and databases intact, "
+    help="cleans up build outputs (but not deployment outputs)",
+    description="Cleans up build outputs — leaves deployment outputs intact, "
                 "as well as anything that was downloaded. "
-                "Mostly used to get the the download repos to rebuild. "
+                "Mostly used to get the the downloaded repos to rebuild. "
                 "Requires rerunning make setup after running!")
 
 p.command(
     "clean-l2",
-    help="cleans up deployment outputs & databases for L2, deploy config is preserved")
+    help="cleans up L2 deployment outputs")
 
 p.command(
     "clean-aa",
@@ -289,19 +290,6 @@ def start_addons(config: Config):
 
 ####################################################################################################
 
-def clean(config: Config):
-    """
-    Cleans up deployment outputs and databases.
-    """
-    if os.path.exists(config.deploy_config_path):
-        print(f"Removing {config.deploy_config_path}")
-        os.remove(config.deploy_config_path)
-    l1.clean(config)
-    l2.clean(config)
-
-
-####################################################################################################
-
 def main():
     lib.args = p.parse()
 
@@ -326,7 +314,8 @@ def main():
 
         if lib.args.command == "devnet":
             if lib.args.clean_first:
-                clean(config)
+                l1.clean(config)
+                l2.clean(config)
 
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
@@ -339,10 +328,12 @@ def main():
 
         elif lib.args.command == "clean":
             if lib.args.aa:
-                account_abstraction.clean()
+                account_abstraction.clean(config)
             if lib.args.explorer:
-                block_explorer.clean()
-            clean(config)
+                block_explorer.clean(config)
+            l1.clean(config)
+            l2.clean(config)
+            shutil.rmtree(config.deployment_dir, ignore_errors=True)
 
         elif lib.args.command == "l2":
             if lib.args.clean_first:
@@ -356,7 +347,7 @@ def main():
 
         elif lib.args.command == "aa":
             if lib.args.clean_first:
-                account_abstraction.clean()
+                account_abstraction.clean(config)
 
             account_abstraction.setup(config)
             account_abstraction.deploy(config)
@@ -365,7 +356,7 @@ def main():
 
         elif lib.args.command == "explorer":
             if lib.args.clean_first:
-                block_explorer.clean()
+                block_explorer.clean(config)
 
             block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
@@ -390,7 +381,7 @@ def main():
 
         elif lib.args.command == "start-l2":
             if lib.args.clean_first:
-                l2.clean(config)
+                raise Exception("Cleaning before running start-l2 doesn't make sense.")
 
             if not os.path.exists(config.paths.addresses_json_path):
                 raise Exception(f"Cannot find {config.paths.addresses_json_path}.\n"
@@ -436,10 +427,10 @@ def main():
             l2.clean(config)
 
         elif lib.args.command == "clean-aa":
-            account_abstraction.clean()
+            account_abstraction.clean(config)
 
         elif lib.args.command == "clean-explorer":
-            block_explorer.clean()
+            block_explorer.clean(config)
 
         print("Done.")
     except KeyboardInterrupt:
