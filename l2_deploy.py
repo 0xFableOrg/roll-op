@@ -17,8 +17,9 @@ def deploy(config: Config):
     """
     os.makedirs(config.artifacts_dir, exist_ok=True)
 
-    if not os.path.exists(config.deploy_config_path):
-        deploy_config.generate_deploy_config(config)
+    # Always regenerate the deploy config. This may override the devnet L1 settings, but those
+    # are ignored if using the deploy config only for L2.
+    deploy_config.generate_deploy_config(config)
 
     if not config.deploy_devnet_l1 or not os.path.exists(config.paths.l1_genesis_path):
         # Deploy contracts, but not on the devnet L1 which has them in the genesis state.
