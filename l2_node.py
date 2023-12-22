@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import sys
@@ -74,6 +75,10 @@ def start(config: Config, sequencer: bool = True):
     ]
 
     config.log_run_config("\n".join(command))
+
+    config.log_run_config(
+        "rollup config:\n"
+        + json.dumps(lib.read_json_file(config.paths.rollup_config_path), indent=4))
 
     PROCESS_MGR.start(
         "starting L2 node",
