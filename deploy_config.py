@@ -55,9 +55,12 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
     # Otherwise, we use cast to get the "latest" block from the configured RPC endpoint and use its
     # hash.
 
+    # If we're deploying a devnet L1, we need this.
+    # Otherwise, it also needs to be set to a value that can be parsed, but will be ignored.
+    deploy_config["l1GenesisBlockTimestamp"] = '{:#x}'.format(int(time.time()))
+
     if pre_l1_genesis:
         deploy_config["l1StartingBlockTag"] = "earliest"
-        deploy_config["l1GenesisBlockTimestamp"] = '{:#x}'.format(int(time.time()))
     else:
         out = lib.run(
             "get latest block",
