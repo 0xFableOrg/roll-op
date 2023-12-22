@@ -292,10 +292,6 @@ def main():
             p.print_help()
             exit()
 
-        if lib.args.show_help:
-            p.print_help(lib.args.command)
-            exit()
-
         deps.basic_setup()
         config = load_config()
         deps.create_paths(config)
