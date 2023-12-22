@@ -158,18 +158,9 @@ class Argparser:
             prog=self.program_name,
             description=self.description,
             formatter_class=NewlineFormatter,
-            allow_abbrev=False,
-            add_help=False)
+            allow_abbrev=False)
 
-        self.parser.add_argument(
-            # Suppressed via `add_help=False` but reintroduced here, undocumented.
-            "-h", "--help",
-            help=argparse.SUPPRESS,
-            default=False,
-            action="store_true",
-            dest="show_help")
-
-        self.parent_command_parser = argparse.ArgumentParser(add_help=False)
+        # self.parent_command_parser = argparse.ArgumentParser(add_help=False)
 
         self.subparsers = self.parser.add_subparsers(
             title="commands",
