@@ -73,7 +73,7 @@ def start(config: Config, sequencer: bool = True):
             f"--metrics.addr={config.l2_node_metrics_listen_addr}"])
     ]
 
-    config.dump_config_params("\n".join(command))
+    config.log_run_config("\n".join(command))
 
     PROCESS_MGR.start(
         "starting L2 node",

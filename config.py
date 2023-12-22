@@ -105,10 +105,12 @@ class Config:
         # ==========================================================================================
         # Diagnostic/Debug Options
 
-        self.dump_parameters_file = os.path.join(self.artifacts_dir, "dump_parameters.txt")
+        self.log_run_config_file = os.path.join(self.artifacts_dir, "run_config.log")
         """
-        Files in which the commands being run and generated config files are dumped.
-        `{self.artifacts_dir}/dump_parameters.txt` by default.
+        Files in which the commands being run and generated config files are logged.
+        `{self.artifacts_dir}/run_config.log` by default.
+
+        Use :py:method:`log_run_config` to write to this file.
         """
 
         # ==========================================================================================
@@ -1228,13 +1230,13 @@ class Config:
 
     # ----------------------------------------------------------------------------------------------
 
-    def dump_config_params(self, text: str):
+    def log_run_config(self, text: str):
         """
-        Append the text to :py:attribute:`dump_parameters_file`, prefixing it with a separator.
+        Append the text to :py:attribute:`log_run_config_file`, prefixing it with a separator.
         This should be used to log run commands and generated configuration files.
         """
         lib.append_to_file(
-            self.dump_parameters_file,
+            self.log_run_config_file,
             "\n################################################################################\n"
             + text)
 

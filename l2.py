@@ -77,7 +77,7 @@ def clean(config: Config):
         os.path.join(config.artifacts_dir, "genesis-l2.json"),
         os.path.join(config.artifacts_dir, "rollup.json"),
         os.path.join(config.jwt_secret_path),
-        os.path.join(config.dump_parameters_file),
+        os.path.join(config.log_run_config_file),
         os.path.join(config.logs_dir, "deploy_l1_contracts.log"),
         os.path.join(config.logs_dir, "create_l1_artifacts.log"),
         os.path.join(config.logs_dir, "l2_batcher.log"),
