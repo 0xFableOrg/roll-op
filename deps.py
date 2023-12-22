@@ -44,6 +44,9 @@ def create_paths(config: Config):
     os.makedirs(config.databases_dir, exist_ok=True)
     os.makedirs(config.logs_dir, exist_ok=True)
 
+    if os.path.exists(config.dump_parameters_file):
+        os.remove(config.dump_parameters_file)
+
 ####################################################################################################
 
 def post_setup():

@@ -44,8 +44,10 @@ The hallmark of a successfully running op-stack rollup is that the proposer is a
 roots to the L1 chain. You can check with
 
 ```
-cat logs/l2_proposer.log | grep "successfully published"
+cat deployments/rollup/logs/l2_proposer.log | grep "successfully published"
 ```
+
+(Substitute `rollup` for your actual deployment name, `rollup` being the default name.)
 
 Then you can run this command, which should be completely equivalent to the first, except the
 deployment outputs will be put in `deployments/test` instead of `deployments/rollup`:

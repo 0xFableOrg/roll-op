@@ -20,7 +20,6 @@ import l2_proposer
 import libroll as lib
 from argparsing import Argparser
 from config import Config
-from paths import OPPaths
 from processes import PROCESS_MGR
 import setup
 
@@ -207,7 +206,7 @@ def load_config() -> Config:
     deployment_name = deployment_name if deployment_name else lib.args.preset
     deployment_name = deployment_name if deployment_name else "rollup"
 
-    config = Config(lib.args.name)
+    config = Config(deployment_name)
 
     # Define config preset
     if lib.args.preset is None or lib.args.preset == "dev":

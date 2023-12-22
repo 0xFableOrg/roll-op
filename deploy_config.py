@@ -1,8 +1,9 @@
-from config import Config
-import libroll as lib
+import json
 import time
 
+from config import Config
 from deploy_config_templates import PRODUCTION_CONFIG, DEVNET_CONFIG
+import libroll as lib
 
 
 ####################################################################################################
@@ -101,5 +102,7 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
         lib.write_json_file(config.deploy_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate deploy config: ") from None
+
+    config.dump_config_params("deploy config:\n" + json.dumps(deploy_config, indent=4))
 
 ####################################################################################################

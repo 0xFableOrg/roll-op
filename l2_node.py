@@ -26,54 +26,58 @@ def start(config: Config, sequencer: bool = True):
     log_file = open(log_file_path, "w")
     sys.stdout.flush()
 
+    command = [
+        "op-node",
+
+        # Node-Specific Options
+        # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/flags.go
+        f"--l1={config.l1_rpc_for_node_url}",
+        f"--l2={config.l2_engine_authrpc_url}",
+        f"--l2.jwt-secret={os.path.join(config.jwt_secret_path)}",
+        f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
+        f"--rollup.config={os.path.join('..', config.paths.rollup_config_path)}",
+        f"--l1.rpckind={config.l2_node_l1_rpc_kind}",
+
+        # Sequencer Options
+
+        *([] if not sequencer else [
+            "--sequencer.enabled",
+            f"--sequencer.l1-confs={config.l2_node_sequencer_l1_confs}",
+        ]),
+
+        # RPC Options
+        # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
+
+        f"--rpc.addr={config.l2_node_rpc_listen_addr}",
+        f"--rpc.port={config.l2_node_rpc_listen_port}",
+
+        # P2P Flags
+        # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/p2p_flags.go
+
+        *(["--p2p.disable"] if not config.l2_node_p2p_enabled else [
+            f"--p2p.listen.ip={config.l2_node_p2p_listen_addr}",
+            f"--p2p.listen.tcp={config.l2_node_p2p_tcp_listen_port}",
+            f"--p2p.listen.udp={config.l2_node_p2p_udp_listen_port}",
+            f"--p2p.priv.path={config.p2p_peer_key_path}",
+            *([] if config.p2p_sequencer_key is None else [
+                f"--p2p.sequencer.key={config.p2p_sequencer_key}"
+            ])
+        ]),
+
+        # Metrics Options
+        # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
+
+        *([] if not config.l2_node_metrics else [
+            "--metrics.enabled",
+            f"--metrics.port={config.l2_node_metrics_listen_port}",
+            f"--metrics.addr={config.l2_node_metrics_listen_addr}"])
+    ]
+
+    config.dump_config_params("\n".join(command))
+
     PROCESS_MGR.start(
         "starting L2 node",
-        [
-            "op-node",
-
-            # Node-Specific Options
-            # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/flags.go
-            f"--l1={config.l1_rpc_for_node_url}",
-            f"--l2={config.l2_engine_authrpc_url}",
-            f"--l2.jwt-secret={os.path.join(config.jwt_secret_path)}",
-            f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
-            f"--rollup.config={os.path.join('..', config.paths.rollup_config_path)}",
-            f"--l1.rpckind={config.l2_node_l1_rpc_kind}",
-
-            # Sequencer Options
-
-            *([] if not sequencer else [
-                "--sequencer.enabled",
-                f"--sequencer.l1-confs={config.l2_node_sequencer_l1_confs}",
-            ]),
-
-            # RPC Options
-            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
-
-            f"--rpc.addr={config.l2_node_rpc_listen_addr}",
-            f"--rpc.port={config.l2_node_rpc_listen_port}",
-
-            # P2P Flags
-            # https://github.com/ethereum-optimism/optimism/blob/develop/op-node/flags/p2p_flags.go
-
-            *(["--p2p.disable"] if not config.l2_node_p2p_enabled else [
-                f"--p2p.listen.ip={config.l2_node_p2p_listen_addr}",
-                f"--p2p.listen.tcp={config.l2_node_p2p_tcp_listen_port}",
-                f"--p2p.listen.udp={config.l2_node_p2p_udp_listen_port}",
-                f"--p2p.priv.path={config.p2p_peer_key_path}",
-                *([] if config.p2p_sequencer_key is None else [
-                    f"--p2p.sequencer.key={config.p2p_sequencer_key}"
-                ])
-            ]),
-
-            # Metrics Options
-            # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
-
-            *([] if not config.l2_node_metrics else [
-                "--metrics.enabled",
-                f"--metrics.port={config.l2_node_metrics_listen_port}",
-                f"--metrics.addr={config.l2_node_metrics_listen_addr}"]),
-        ],
+        command,
         # so that `opnode_*_db` directories get created under the db directory
         cwd=config.databases_dir,
         forward="fd",
