@@ -47,6 +47,7 @@ def create_paths(config: Config):
     if os.path.exists(config.log_run_config_file):
         os.remove(config.log_run_config_file)
 
+
 ####################################################################################################
 
 def post_setup():
@@ -88,6 +89,17 @@ def _check_basic_prerequisites():
     """
     check basic prerequisites that we won't offer to install.
     """
+
+    python_version = sys.version_info
+    if python_version.major < 3 or (python_version.major == 3 and python_version.minor < 10):
+        raise Exception(
+            "Python 3.10+ is required. Please install it from your package manager.\n"
+            "e.g. `brew install python` or `sudo apt install python3-pip`")
+
+    if importlib.util.find_spec("pip") is None:
+        raise Exception(
+            "pip is not installed. Please make sure it is installed.\n"
+            "e.g. `brew install python` or `sudo apt install python3-pip`")
 
     if shutil.which("make") is None:
         raise Exception(
