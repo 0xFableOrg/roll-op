@@ -161,5 +161,5 @@ make fix && make check
 - Blockscout will show an indexing warning on the page. The indexing percentage only goes down with
   time, but restarting the explorer makes it jump up. Regardless, the explorer seems to work just
   fine.
-- When running the devnet, the deployment of the contracts to the temporary L1 will hang. Just abort
-  and restart the command.
+- When running the devnet, the deployment of the contracts to the temporary L1 might hang.
+  In that case, just abort and restart the command.

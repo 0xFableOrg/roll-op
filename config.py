@@ -103,6 +103,15 @@ class Config:
         """
 
         # ==========================================================================================
+        # Diagnostic/Debug Options
+
+        self.dump_parameters_file = os.path.join(self.artifacts_dir, "dump_parameters.txt")
+        """
+        Files in which the commands being run and generated config files are dumped.
+        `{self.artifacts_dir}/dump_parameters.txt` by default.
+        """
+
+        # ==========================================================================================
         # Private Keys
 
         self.contract_deployer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
@@ -1216,5 +1225,17 @@ class Config:
 
         self.batcher_num_confirmations = 10
         self.sub_safety_margin = 10
+
+    # ----------------------------------------------------------------------------------------------
+
+    def dump_config_params(self, text: str):
+        """
+        Append the text to :py:attribute:`dump_parameters_file`, prefixing it with a separator.
+        This should be used to log run commands and generated configuration files.
+        """
+        lib.append_to_file(
+            self.dump_parameters_file,
+            "\n################################################################################\n"
+            + text)
 
 ####################################################################################################

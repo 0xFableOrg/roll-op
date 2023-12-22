@@ -531,3 +531,12 @@ def edit_yaml_file(file_path: str, edit: Callable[[dict], None]):
 
 
 ####################################################################################################
+
+def append_to_file(file_path: str, text: str):
+    """
+    Appends the given text to the given file.
+    """
+    with open(file_path, "a") as file:
+        file.write(text)
+
+####################################################################################################
