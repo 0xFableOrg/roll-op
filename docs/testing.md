@@ -1,5 +1,8 @@
 # Testing
 
+> **WARNING**: This hasn't actually been run in a while and might be out of date.
+> To be updated next time it is tried.
+
 This document includes some rambling notes on how to test that everything is working properly.
 
 To test the repo on a completely virgin environment, we can use docker:
