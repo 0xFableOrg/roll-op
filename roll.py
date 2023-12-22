@@ -62,13 +62,6 @@ p.arg(
     action="store_true")
 
 p.arg(
-    "--trace",
-    help="display exception stack trace in case of failure",
-    default=False,
-    dest="show_stack_trace",
-    action="store_true")
-
-p.arg(
     "--no-ansi-esc",
     help="disable ANSI escape codes for terminal manipulation",
     default=True,
@@ -292,6 +285,7 @@ def start_addons(config: Config):
 
 def main():
     lib.args = p.parse()
+    config = None
 
     try:
         if lib.args.command is None or lib.args.command == "help":
@@ -437,12 +431,16 @@ def main():
         # Usually not triggered because we will exit via the exit hook handler.
         print("Interrupted by user.")
     except Exception as e:
-        if lib.args.show_stack_trace:
+        if config is None:
             raise e
         else:
-            trace_msg = " (rerun with --trace to show python stack trace)"
-            trace_msg = trace_msg if not lib.args.show_stack_trace else ""
-            print(f"Aborted with error{trace_msg}: {e}")
+            import traceback
+            trace_path = os.path.join(config.logs_dir, "trace.log")
+            with open(trace_path, "w") as f:
+                f.write(str(e))
+                f.write(traceback.format_exc())
+            print(f"Aborted with error: {e}\n"
+                  f"See log file for full trace: {trace_path}")
             exit(1)
 
 
