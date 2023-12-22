@@ -56,7 +56,7 @@ always for your permission before installing anything outside the current direct
 ## Usage
 
 ```
-usage: rollop [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--trace] [--no-ansi-esc] [--yes] <command> ...
+usage: rollop [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--no-ansi-esc] [--yes] <command> ...
 
 Helps you spin up an op-stack rollup.
 Use `rollop <command> --help` to get more detailed help for a command.
@@ -66,7 +66,6 @@ options:
   --preset {dev,prod}   use a preset rollup configuration
   --config CONFIG_PATH  path to the config file
   --clean               clean command-related output before running the specified command
-  --trace               display exception stack trace in case of failure
   --no-ansi-esc         disable ANSI escape codes for terminal manipulation
   --yes                 answer yes to all prompts (install all requested dependencies)
 
@@ -95,9 +94,8 @@ commands:
     
     -- CLEANUP --
 
-    clean-build         cleans up build outputs (but not deployment outputs or databases)
-    clean-l1            cleans up deployment outputs & databases for L1, deploy config is preserved
-    clean-l2            cleans up deployment outputs & databases for L2, deploy config is preserved
+    clean-build         cleans up build outputs (but not deployment outputs)
+    clean-l2            cleans up L2 deployment outputs
     clean-aa            cleans up deployment outputs for account abstraction
     clean-explorer      deletes the block explorer databases, logs, and containers
 ```
