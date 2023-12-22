@@ -159,10 +159,6 @@ p.command(
                 "Requires rerunning make setup after running!")
 
 p.command(
-    "clean-l1",
-    help="cleans up deployment outputs & databases for L1, deploy config is preserved")
-
-p.command(
     "clean-l2",
     help="cleans up deployment outputs & databases for L2, deploy config is preserved")
 
@@ -435,9 +431,6 @@ def main():
 
         elif lib.args.command == "clean-build":
             setup.clean_build()
-
-        elif lib.args.command == "clean-l1":
-            l1.clean(config)
 
         elif lib.args.command == "clean-l2":
             l2.clean(config)
