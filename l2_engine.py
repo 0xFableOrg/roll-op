@@ -96,7 +96,7 @@ def start(config: Config):
         f"--txlookuplimit={config.l2_engine_history_transactions}"
     ]
 
-    config.dump_config_params("\n".join(command))
+    config.log_run_config("\n".join(command))
 
     PROCESS_MGR.start(
         "starting op-geth",

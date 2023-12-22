@@ -60,7 +60,7 @@ def start(config: Config):
             f"--metrics.addr={config.proposer_metrics_listen_addr}"])
     ]
 
-    config.dump_config_params("\n".join(command))
+    config.log_run_config("\n".join(command))
 
     PROCESS_MGR.start(
         "starting L2 proposer",

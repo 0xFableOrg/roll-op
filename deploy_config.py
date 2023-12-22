@@ -106,6 +106,6 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate deploy config: ") from None
 
-    config.dump_config_params("deploy config:\n" + json.dumps(deploy_config, indent=4))
+    config.log_run_config("deploy config:\n" + json.dumps(deploy_config, indent=4))
 
 ####################################################################################################
