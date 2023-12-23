@@ -159,3 +159,8 @@ make fix && make check
   fine.
 - When running the devnet, the deployment of the contracts to the temporary L1 might hang.
   In that case, just abort and restart the command.
+
+## Debugging
+
+If you have an issue with your network, please inspect the actual configuration being used and
+recorded in the `deployments/NAME/logs/run_config.log` file.
