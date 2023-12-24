@@ -273,9 +273,9 @@ def start_addons(config: Config):
     """
     Starts a block explorer and/or an ERC4337 bundler and paymaster, if configured to do so.
     """
-    if hasattr(lib.args, "explorer") and lib.args.explorer:
+    if getattr(lib.args, "explorer", None):
         block_explorer.launch_blockscout(config)
-    if hasattr(lib.args, "aa") and lib.args.aa:
+    if getattr(lib.args, "aa", None):
         account_abstraction.setup(config)
         account_abstraction.deploy(config)
         account_abstraction.start(config)
@@ -317,9 +317,9 @@ def main():
             PROCESS_MGR.wait_all()
 
         elif lib.args.command == "clean":
-            if lib.args.aa:
+            if getattr(lib.args, "aa", None):
                 account_abstraction.clean(config)
-            if lib.args.explorer:
+            if getattr(lib.args, "explorer", None):
                 block_explorer.clean(config)
             l1.clean(config)
             l2.clean(config)
