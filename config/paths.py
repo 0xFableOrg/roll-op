@@ -21,6 +21,7 @@ class PathsConfig(ABC):
     # ==============================================================================================
 
     def __init__(self):
+        super().__init__()
 
         self.deployments_parent_dir = os.path.abspath("deployments")
         """

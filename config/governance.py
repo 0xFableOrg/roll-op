@@ -6,6 +6,8 @@ class GovernanceConfig:
     # ==============================================================================================
 
     def __init__(self):
+        super().__init__()
+
         self.enable_governance = False
         """
         Whether to deploy a governance token (False by default).
