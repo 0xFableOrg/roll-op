@@ -1,8 +1,9 @@
 import os.path
 import uuid
 
-from paths import OPPaths
 import libroll as lib
+
+from .paths import PathsConfig
 
 
 ####################################################################################################
@@ -66,7 +67,14 @@ import libroll as lib
 #
 ####################################################################################################
 
-class Config:
+class Config(PathsConfig):
+
+    # ==========================================================================================
+    # Ensure abstract properties are "implemented".
+
+    deployment_name = None
+
+    # ==========================================================================================
 
     def __init__(self, deployment_name: str = "rollup"):
 
@@ -84,34 +92,9 @@ class Config:
         # directory.
 
         # ==========================================================================================
-        # Paths (General)
+        # Mixin Constructors
 
-        self.deployments_parent_dir = os.path.abspath("deployments")
-        """
-        Parent directory under which to place all deployment-related outputs: deployment artifacts
-        (such a list of L1 addresses, genesis files, generated private keys, ...), logs, databases,
-        ...
-        
-        The paths for the L1 and L2 engine databases can be overriden by setting the
-        :py:attribute:`l1_data_dir` and :py:attribute:`l2_engine_data_dir` attributes.
-        """
-
-        self.paths = OPPaths(gen_dir=self.deployment_dir)
-        """
-        This object is a registry of paths into the optimism directory that we need to build &
-        deploy op-stack rollups.
-        """
-
-        # ==========================================================================================
-        # Diagnostic/Debug Options
-
-        self.log_run_config_file = os.path.join(self.artifacts_dir, "run_config.log")
-        """
-        Files in which the commands being run and generated config files are logged.
-        `{self.artifacts_dir}/run_config.log` by default.
-
-        Use :py:method:`log_run_config` to write to this file.
-        """
+        super().__init__()
 
         # ==========================================================================================
         # Private Keys
@@ -212,18 +195,6 @@ class Config:
         more details.
         By default, uses the 0th "test junk" account key.
         Do not prefix the key with 0x.
-        """
-
-        self.p2p_peer_key_path = os.path.join(self.artifacts_dir, "opnode_p2p_priv.txt")
-        """
-        Path to the hex-encoded 32-byte private key for the peer ID. Will be created if it does not
-        already exist.
-
-        It's important to persist to keep the same network identity after restarting, maintaining
-        the previous advertised identity.
-        
-        This is different than the sequencer key (which is only used by the sequencer).
-        Uses `{self.artifacts_dir}/opnode_p2p_priv.txt` by default.
         """
 
         self.l1_signer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
@@ -365,16 +336,6 @@ class Config:
         self.l2_node_rpc_host = "127.0.0.1"
         self.l2_node_rpc_port = 7545
 
-        self.jwt_secret_path = os.path.join(self.artifacts_dir, "jwt-secret.txt")
-        """
-        Path to the Jason Web Token secret file, which enable the l2 node to communicate with the
-        execution engine. Will be generated if it does not already exist.
-        
-        Uses `{self.artifacts_dir}/jwt-secret.txt` by default.
-        
-        This is also passed to the devnet L1 (if started) currently, but unclear if it's needed.
-        """
-
         self.deployments = None
         """
         Dictionary containing a mapping from rollup contract names to the address at which they're
@@ -408,9 +369,6 @@ class Config:
 
         # Any attribute defined in this section are only meaningful (used) if
         # :py:attribute:`deploy_devnet_l1` is True!
-
-        self.l1_data_dir = os.path.join(self.databases_dir, "devnet_l1")
-        """Geth data directory for devnet L1 node."""
 
         # See also the properties starting with `l1` below which are paths derived from
         # :py:attribute:`l1_data_dir`.
@@ -469,9 +427,6 @@ class Config:
 
         # ==========================================================================================
         # L2 Execution Engine Configuration
-
-        self.l2_engine_data_dir = os.path.join(self.databases_dir, "l2_engine")
-        """Geth data directory for the L2 engine."""
 
         # See also the properties starting with `l2_engine` below which are paths derived from
         # :py:attribute:`l2_engine_data_dir`.
@@ -813,101 +768,6 @@ class Config:
 
     # ==============================================================================================
 
-    @property
-    def deploy_config_path(self):
-        """
-        Returns the path to the deploy configuration file. This file to the deploy script, and also
-        used to generated the L2 genesis, the devnet L1 genesis if required, and the rollup config
-        passed to the L2 node.
-        """
-        return os.path.join(self.paths.deploy_config_dir, f"{self.deployment_name}.json")
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def deployment_artifacts_gen_dir(self):
-        """
-        Returns the directory where the deployment script will place the deployment artifacts
-        (contract addresses etc) for the L1 rollup contracts.
-        """
-        return os.path.join(self.paths.deployments_parent_dir, self.deployment_name)
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def deployment_dir(self):
-        """
-        The directory under which to place all deployment-related outputs for this deployment.
-        (See :py:attribute:`deployments_parent_dir` for more details.)
-
-        This is a directory with the same name as the deployment name
-        (:py:attribute:`deployment_name`), placed under
-        :py:attribute:`deployments_parent_dir`.
-        """
-        return f"{self.deployments_parent_dir}/{self.deployment_name}"
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def artifacts_dir(self):
-        """
-        Directory where the deployment artifacts are stored
-        """
-        return os.path.join(self.deployment_dir, "artifacts")
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def databases_dir(self):
-        """
-        Default path in which to store the various databases generated by the components (p2p
-        database for the L2 node, and node database for L1 and the L2 engine).
-
-        The paths for the L1 and L2 engine databases can be overriden by setting the
-        :py:attribute:`l1_data_dir` and :py:attribute:`l2_engine_data_dir` attributes. The location
-        of the L2 node's p2p database dir cannot be overriden.
-        """
-        return os.path.join(self.deployment_dir, "databases")
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def logs_dir(self):
-        """
-        Default path in which to store the various logs generated by the components.
-        """
-        return os.path.join(self.deployment_dir, "logs")
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def l1_keystore_dir(self):
-        """Keystore directory for devnet L1 node (each file stores an encrypted signer key)."""
-        return os.path.join(self.l1_data_dir, "keystore")
-
-    @property
-    def l1_chaindata_dir(self):
-        """Directory storing chain data."""
-        return os.path.join(self.l1_data_dir, "geth", "chaindata")
-
-    @property
-    def l1_password_path(self):
-        """Path to file storing the password for the signer key."""
-        return os.path.join(self.l1_data_dir, "password")
-
-    @property
-    def l1_tmp_signer_key_path(self):
-        """Path to file storing the signer key during the initial import."""
-        return os.path.join(self.l1_data_dir, "block-signer-key")
-
-    # ----------------------------------------------------------------------------------------------
-
-    @property
-    def l2_engine_chaindata_dir(self):
-        """Directory storing chain data for the L2 engine."""
-        return os.path.join(self.l2_engine_data_dir, "geth", "chaindata")
-
-    # ----------------------------------------------------------------------------------------------
     # These are the URLs that other components use to reach the specified components, which are
     # distinct form the addresses / ports that the components bind to.
     # Refer to the "Network Configuration" section for more details.
@@ -1087,7 +947,7 @@ class Config:
 
     # ----------------------------------------------------------------------------------------------
 
-    def use_devnet_config(self, paths: OPPaths):
+    def use_devnet_config(self):
         """
         Overrides the configuration values with those from the Optimism monorepo devnet.
 
@@ -1104,11 +964,11 @@ class Config:
 
         # === Network ===
 
-        self.jwt_secret_path = paths.jwt_test_secret_path
+        self.jwt_secret_path = os.path.join(self.paths.ops_bedrock_dir, "test-jwt-secret.txt")
 
         # === Node ===
 
-        self.p2p_peer_key_path = paths.p2p_key_path
+        self.p2p_peer_key_path = os.path.join(self.paths.ops_bedrock_dir, "p2p-node-key.txt")
 
     # ----------------------------------------------------------------------------------------------
 
@@ -1227,17 +1087,5 @@ class Config:
 
         self.batcher_num_confirmations = 10
         self.sub_safety_margin = 10
-
-    # ----------------------------------------------------------------------------------------------
-
-    def log_run_config(self, text: str):
-        """
-        Append the text to :py:attribute:`log_run_config_file`, prefixing it with a separator.
-        This should be used to log run commands and generated configuration files.
-        """
-        lib.append_to_file(
-            self.log_run_config_file,
-            "\n################################################################################\n"
-            + text)
 
 ####################################################################################################
