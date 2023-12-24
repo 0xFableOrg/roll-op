@@ -78,7 +78,8 @@ class DevnetL1Config:
 
     # ==============================================================================================
 
-    # See also
-    # :py:attribute:l1_data_dir in :py:class:`config.paths.PathConfig`.
+    # See also:
+    # :py:attribute:`l1_chain_id` in :py:class:`config.network.NetworkConfig`
+    # :py:attribute:`l1_data_dir` in :py:class:`config.paths.PathConfig`
 
     # ==============================================================================================
