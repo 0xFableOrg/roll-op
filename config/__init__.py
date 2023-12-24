@@ -3,6 +3,7 @@ import uuid
 
 import libroll as lib
 
+from .governance import GovernanceConfig
 from .paths import PathsConfig
 
 
@@ -67,7 +68,10 @@ from .paths import PathsConfig
 #
 ####################################################################################################
 
-class Config(PathsConfig):
+class Config(
+    PathsConfig,
+    GovernanceConfig
+):
 
     # ==========================================================================================
     # Ensure abstract properties are "implemented".
@@ -220,24 +224,6 @@ class Config(PathsConfig):
         can be capricious and don't react kindly to getting 30+ transactions at once.
         
         Defaults to True when the `--preset=prod` is passed, False otherwise.
-        """
-
-        # ==========================================================================================
-        # Governance
-
-        self.enable_governance = False
-        """
-        Whether to deploy a governance token (False by default).
-        """
-
-        self.governance_token_symbol = "STONK"
-        """
-        If :py:attribute:`enable_governance` is True, the symbol of the governance token to deploy.
-        """
-
-        self.governance_token_name = "Simple Token Op-chain Network Koin"
-        """
-        If :py:attribute:`enable_governance` is True, the name of the governance token to deploy.
         """
 
         # ==========================================================================================
