@@ -25,20 +25,6 @@ class OPPaths:
         self.ops_bedrock_dir = pjoin(self.monorepo_dir, "ops-bedrock")
         """ops-bedrock directory, used for docker files & config."""
 
-        # === Existing Files ===
-
-        self.p2p_key_path = pjoin(self.ops_bedrock_dir, "p2p-node-key.txt")
-        """
-        Paths to a file containing a private key used for the peer identity for the L2 node.
-        The origin of this key is unclear (it's not one of the ten "test junk" keys).FF
-        """
-
-        self.jwt_test_secret_path = pjoin(self.ops_bedrock_dir, "test-jwt-secret.txt")
-        """
-        Path to a file containing a TEST Jason Web Token secret used for the l2 node to communicate
-        with the execution engine. Not secure in production.
-        """
-
         # === Generated Files ===
 
         self.gen_dir = os.path.abspath(gen_dir)
