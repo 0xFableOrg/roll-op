@@ -1,5 +1,6 @@
 import os.path
 
+from .account_abstraction import AccountAbstractionConfig
 from .accounts_keys import AccountsKeysConfig
 from .devnet_l1 import DevnetL1Config
 from .explorer import ExplorerConfig
@@ -88,7 +89,8 @@ class Config(
     L2EngineConfig,
     L2ProposerConfig,
     L2BatcherConfig,
-    ExplorerConfig
+    ExplorerConfig,
+    AccountAbstractionConfig
 ):
 
     # ==========================================================================================
@@ -100,9 +102,6 @@ class Config(
 
     def __init__(self, deployment_name: str = "rollup"):
 
-        # ==========================================================================================
-        # Deployment Name
-
         self.deployment_name = deployment_name
         """
         Name for the rollup deployment, this will be set as the `DEPLOYMENT_CONTEXT` environment
@@ -113,44 +112,7 @@ class Config(
         # script, but required for other chains to put the deployment artifacts in their own
         # directory.
 
-        # ==========================================================================================
-        # Mixin Constructors
-
         super().__init__()
-
-        # ==========================================================================================
-        # Account Abstraction Configuration
-
-        self.aa_deployer_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-        """
-        Private key to use for deploying 4337 contracts.
-        Uses the 0th "test junk" mnemonnic key by default.
-        """
-
-        self.bundler_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-        """
-        Private key to use for submitting bundled transactions.
-        Uses the 0th "test junk" mnemonnic key by default.
-        """
-
-        self.paymaster_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-        """
-        Private key to use as paymaster signer.
-        Uses the 0th "test junk" mnemonnic key by default.
-        """
-
-        self.paymaster_validity = 300
-        """
-        Time validity (in seconds) for the sponsored transaction that is signed by paymaster.
-        """
-
-        self.deploy_aa_log_file_name = "deploy_aa_contracts.log"
-        """
-        File name for the log file that will be created when deploying the AA contracts.
-        
-        It's recommended not to mess with this, it's only in the config because it's written and
-        read in different locations, so it helps to maintain a single source of truth.
-        """
 
     # ==============================================================================================
 
