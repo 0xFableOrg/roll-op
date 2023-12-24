@@ -45,7 +45,7 @@ def start(config: Config):
         # Metrics Options
         # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
 
-        *([] if not config.proposer_metrics else [
+        *([] if not config.batcher_metrics else [
             "--metrics.enabled",
             f"--metrics.port={config.batcher_metrics_listen_port}",
             f"--metrics.addr={config.batcher_metrics_listen_addr}"]),
