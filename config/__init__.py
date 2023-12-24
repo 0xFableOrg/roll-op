@@ -5,6 +5,7 @@ import libroll as lib
 from .accounts_keys import AccountsKeysConfig
 from .devnet_l1 import DevnetL1Config
 from .governance import GovernanceConfig
+from .network import NetworkConfig
 from .paths import PathsConfig
 
 
@@ -73,7 +74,8 @@ class Config(
     PathsConfig,
     AccountsKeysConfig,
     GovernanceConfig,
-    DevnetL1Config
+    DevnetL1Config,
+    NetworkConfig
 ):
 
     # ==========================================================================================
@@ -121,45 +123,10 @@ class Config(
         Defaults to True when the `--preset=prod` is passed, False otherwise.
         """
 
-        # ==========================================================================================
-        #  Network Configuration
-
-        # NOTE: All URL configured in this section are used to instruct various services/nodes on
-        # how to reach the other services. This configuration mirrors the configuration of each of
-        # the individual services, which must specify on which port/address they listen.
-        #
-        # The reasons the configuration is not unique is that:
-        # - The actual software deployment might involve port mapping.
-        # - Binding to 0.0.0.0 (always the default) means listening to every single network
-        #   interface connected to the server.
-        #
-        # Anyhow, changing a port often involves changing a configuration in this section AND
-        # changing a configuration option in the service-specific section.
-
-        self.chain_name = f"roll-op <{self.deployment_name}>"
+        self.deploy_create2_deployer = False
         """
-        Name of the chain, notably used in the block explorer. Defaults to "roll-op
-        <{deployment_name}>".
-        """
-
-        self.chain_short_name = "roll-op"
-        """
-        Short version of :py:attribute:`chain_name`, used in the block explorer.
-        Defaults to "roll-op".
-        """
-
-        self.l1_chain_id = 1201101711
-        """
-        Chain ID of the L1 to use. If spinning an L1 devnet, it will use this chain ID.
-        Defaults to 1201101711 — 'rollop L1' in 1337 speak.
-        """
-
-        self.own_address = "127.0.0.1"
-        """
-        Remote address of the local machine. This is used to determine if multiple components are
-        running on the same machine, so they might reach each other via 127.0.0.1 instead of going
-        out to the internet and then back into them machine.
-        (Defaults to "127.0.0.1" — assuming a local-only setup.)
+        Whether to deploy the CREATE2 deployer contract on the L1 before deploying the L2 contracts.
+        (False by default).
         """
 
         self.deploy_salt = uuid.uuid4()
@@ -173,66 +140,19 @@ class Config(
         Default to a random UUID, but the value can be any string.
         """
 
-        # I'm not going to document all of these individually, but refer to their respective
-        # properties which string them together in a usable URL.
-        #
-        # These properties also have setters that allow setting the URL as a whole, which will
-        # then be split and assign the protocol, host and port parts.
-        #
-        # The L1 RPCs have a path part, to allow for JSON-RPC provider URLs. We assume you don't
-        # need those for the other components, so we eschew the path part.
+        # ==========================================================================================
+        #  Explorer Configuration
 
-        # See :py:attribute:`l1_rpc_url` for more details.
-        self.l1_rpc_protocol = "http"
-        self.l1_rpc_host = "127.0.0.1"
-        self.l1_rpc_path = ""
-        self.l1_rpc_port = 8545
-
-        # See :py:attribute:`l1_rpc_for_node_url` for more details.
-        self.l1_rpc_for_node_protocol = "ws"
-        self.l1_rpc_for_node_host = "127.0.0.1"
-        self.l1_rpc_for_node_path = ""
-        self.l1_rpc_for_node_port = 8546
-
-        # See :py:attribute:`l2_engine_rpc_http_url` for more details.
-        self.l2_engine_rpc_http_host = "127.0.0.1"
-        self.l2_engine_rpc_http_port = 9545
-
-        # See :py:attribute:`l2_engine_rpc_ws_url` for more details.
-        self.l2_engine_rpc_ws_host = "127.0.0.1"
-        self.l2_engine_rpc_ws_port = 9546
-
-        # See :py:attribute:`l2_engine_rpc_url` for more details.
-        self.l2_engine_rpc_protocol = "http"
-        self.l2_engine_rpc_host = self.l2_engine_rpc_http_host
-        self.l2_engine_rpc_port = self.l2_engine_rpc_http_port
-
-        # See :py:attribute:`l2_engine_authrpc_url` for more details.
-        self.l2_engine_authrpc_protocol = "http"
-        self.l2_engine_authrpc_host = "127.0.0.1"
-        self.l2_engine_authrpc_port = 9551
-
-        # See :py:attribute:`l2_node_rpc_url` for more details.
-        self.l2_node_rpc_protocol = "http"
-        self.l2_node_rpc_host = "127.0.0.1"
-        self.l2_node_rpc_port = 7545
-
-        self.deployments = None
+        self.chain_name = f"roll-op <{self.deployment_name}>"
         """
-        Dictionary containing a mapping from rollup contract names to the address at which they're
-        deployed on L1. None before initialization.
+        Name of the chain, notably used in the block explorer. Defaults to "roll-op
+        <{deployment_name}>".
         """
 
-        self.batch_inbox_address = "0xff00000000000000000000000000000000000000"
+        self.chain_short_name = "roll-op"
         """
-        Address of the batch inbox contract on L1. (0xff00000000000000000000000000000000000000 by
-        default).
-        """
-
-        self.deploy_create2_deployer = False
-        """
-        Whether to deploy the CREATE2 deployer contract on the L1 before deploying the L2 contracts.
-        (False by default).
+        Short version of :py:attribute:`chain_name`, used in the block explorer.
+        Defaults to "roll-op".
         """
 
         # ==========================================================================================
@@ -240,9 +160,6 @@ class Config(
 
         # See also the properties starting with `l2_engine` below which are paths derived from
         # :py:attribute:`l2_engine_data_dir`.
-
-        self.l2_chain_id = 1201101712
-        """Chain ID of the local L2 (default: 1201101712 — 'rollop L2' in 1337 speak)."""
 
         self.l2_engine_verbosity = 3
         """Geth verbosity level (from 0 to 5, see op-geth --help)."""
