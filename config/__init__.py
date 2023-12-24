@@ -3,6 +3,7 @@ import os.path
 import libroll as lib
 from .accounts_keys import AccountsKeysConfig
 from .devnet_l1 import DevnetL1Config
+from .explorer import ExplorerConfig
 from .governance import GovernanceConfig
 from .l1_contracts_deploy import L1ContractsDeployConfig
 from .network import NetworkConfig
@@ -76,7 +77,8 @@ class Config(
     GovernanceConfig,
     DevnetL1Config,
     L1ContractsDeployConfig,
-    NetworkConfig
+    NetworkConfig,
+    ExplorerConfig
 ):
 
     # ==========================================================================================
@@ -105,21 +107,6 @@ class Config(
         # Mixin Constructors
 
         super().__init__()
-
-        # ==========================================================================================
-        #  Explorer Configuration
-
-        self.chain_name = f"roll-op <{self.deployment_name}>"
-        """
-        Name of the chain, notably used in the block explorer. Defaults to "roll-op
-        <{deployment_name}>".
-        """
-
-        self.chain_short_name = "roll-op"
-        """
-        Short version of :py:attribute:`chain_name`, used in the block explorer.
-        Defaults to "roll-op".
-        """
 
         # ==========================================================================================
         # L2 Execution Engine Configuration
