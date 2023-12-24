@@ -236,7 +236,7 @@ def clean(config: Config):
         os.path.join(config.logs_dir, "l1_node.log"),
         os.path.join(config.logs_dir, "temp_geth.log"),
         os.path.join(config.artifacts_dir, "genesis-l1.json"),
-        os.path.join(config.artifacts_dir, "l1_allocs.json")
+        os.path.join(config.artifacts_dir, "allocs-l1.json")
     ]
 
     for path in paths:
