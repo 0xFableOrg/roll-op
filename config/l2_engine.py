@@ -78,9 +78,9 @@ class L2EngineConfig:
 
     # ==============================================================================================
 
-    # See also:
-    # :py:attribute:`l2_chain_id` in :py:class:`config.network.NetworkConfig`
-    # :py:attribute:`l2_engine_data_dir` in :py:class:`config.paths.PathConfig`
-    # :py:attribute:`jwt_secret_path` in :py:class:`config.paths.PathConfig`
+    # Also needed to configure the L2 engine:
+    # :py:attribute:`l2_chain_id` in :py:class:`config.NetworkConfig`
+    # :py:attribute:`l2_engine_data_dir` in :py:class:`config.PathConfig`
+    # :py:attribute:`jwt_secret_path` in :py:class:`config.PathConfig`
 
     # ==============================================================================================

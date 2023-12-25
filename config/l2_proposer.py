@@ -65,7 +65,9 @@ class L2ProposerConfig:
 
     # ==============================================================================================
 
-    # See also:
-    # :py:attribute:`deployments` in :py:class:`config.network.NetworkConfig`
+    # Also needed to configure the L2 proposer:
+    # :py:attribute:`deployments` in :py:class:`config.NetworkConfig`
+    # :py:attribute:`l1_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attribute:`l2_node_rpc_url` in :py:class:`config.NetworkConfig`
 
     # ==============================================================================================
