@@ -93,7 +93,7 @@ def deploy(config: Config):
            "PAYMASTER_PRIVATE_KEY": config.paymaster_key,
            "RPC_URL": config.l2_engine_rpc_url}
 
-    log_file = os.path.join(config.logs_dir, config.deploy_aa_log_file_name)
+    log_file = str(os.path.join(config.logs_dir, config.deploy_aa_log_file_name))
     print(f"Deploying account abstraction contracts. Logging to {log_file}")
 
     lib.run_roll_log(
