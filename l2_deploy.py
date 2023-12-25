@@ -21,12 +21,12 @@ def deploy(config: Config):
     # are ignored if using the deploy config only for L2.
     deploy_config.generate_deploy_config(config)
 
-    if not config.deploy_devnet_l1 or not os.path.exists(config.paths.l1_genesis_path):
+    if not config.deploy_devnet_l1 or not os.path.exists(config.l1_genesis_path):
         # Deploy contracts, but not on the devnet L1 which has them in the genesis state.
         deploy_contracts_on_l1(config)
 
     _generate_l2_genesis(config)
-    config.deployments = lib.read_json_file(config.paths.addresses_json_path)
+    config.deployments = lib.read_json_file(config.addresses_json_path)
 
     if config.deployments.get("L2OutputOracleProxy") is None:
         raise Exception(
@@ -42,7 +42,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     node with the goal of dumping the contracts for inclusion in devnet L1 genesis.
     """
 
-    if not tmp_l1 and os.path.exists(config.paths.addresses_json_path):
+    if not tmp_l1 and os.path.exists(config.addresses_json_path):
         print("L1 contracts already deployed.")
         return
 
@@ -87,7 +87,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             unlocked_arg,
             "--value 1ether",
             "0x3fAB184622Dc19b6109349B94811493BF2a45362"  # create2 deployer account
-        ], cwd=config.paths.contracts_dir)
+        ], cwd=config.op_contracts_dir)
 
         create2_deployer_deploy_tx \
             = "0xf8a58085174876e800830186a08080b853604580600e600039806000f350fe7" \
@@ -100,7 +100,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             "cast publish",
             f"--rpc-url {l1_rpc_url}",
             create2_deployer_deploy_tx
-        ], cwd=config.paths.contracts_dir)
+        ], cwd=config.op_contracts_dir)
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 
@@ -126,12 +126,12 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         slow_arg,
         unlocked_arg
     ],
-        cwd=config.paths.contracts_dir,
+        cwd=config.op_contracts_dir,
         env=env,
         log_file=log_file)
 
     shutil.copy(os.path.join(config.deployment_artifacts_gen_dir, ".deploy"),
-                config.paths.addresses_json_path)
+                config.addresses_json_path)
 
     log_file = f"{config.logs_dir}/create_l1_artifacts.log"
     print(f"Creating L1 deployment artifacts. Logging to {log_file}")
@@ -141,7 +141,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         "--sig 'sync()'",
         f"--rpc-url {l1_rpc_url}",
     ],
-        cwd=config.paths.contracts_dir,
+        cwd=config.op_contracts_dir,
         env=env,
         log_file=log_file)
 
@@ -152,7 +152,7 @@ def _generate_l2_genesis(config: Config):
     """
     Generate the L2 genesis file and rollup configs.
     """
-    if os.path.exists(config.paths.l2_genesis_path):
+    if os.path.exists(config.l2_genesis_path):
         print("L2 genesis and rollup configs already generated.")
     else:
         print("Generating L2 genesis and rollup configs.")
@@ -160,11 +160,11 @@ def _generate_l2_genesis(config: Config):
             lib.run("generate L2 genesis and rollup configs", [
                 "go run cmd/main.go genesis l2",
                 f"--l1-rpc={config.l1_rpc_url}",
-                f"--deploy-config={config.deploy_config_path}",
+                f"--deploy-config={config.op_deploy_config_path}",
                 f"--deployment-dir={config.deployment_artifacts_gen_dir}",
-                f"--outfile.l2={config.paths.l2_genesis_path}",
-                f"--outfile.rollup={config.paths.rollup_config_path}"],
-                cwd=config.paths.op_node_dir)
+                f"--outfile.l2={config.l2_genesis_path}",
+                f"--outfile.rollup={config.rollup_config_path}"],
+                cwd=config.op_node_dir)
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ") from None

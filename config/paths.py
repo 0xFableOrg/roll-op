@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import os
 
-from paths import OPPaths
 import libroll as lib
 
 
@@ -23,6 +22,9 @@ class PathsConfig(ABC):
     def __init__(self):
         super().__init__()
 
+        # ------------------------------------------------------------------------------------------
+        # Deployments Parent Directory
+
         self.deployments_parent_dir = os.path.abspath("deployments")
         """
         Parent directory under which to place all deployment-related outputs: deployment artifacts
@@ -33,11 +35,14 @@ class PathsConfig(ABC):
         :py:attribute:`l1_data_dir` and :py:attribute:`l2_engine_data_dir` attributes.
         """
 
-        self.paths = OPPaths(gen_dir=self.deployment_dir)
-        """
-        This object is a registry of paths into the optimism directory that we need to build &
-        deploy op-stack rollups.
-        """
+        # ------------------------------------------------------------------------------------------
+        # Optimism Monorepo
+
+        self.op_monorepo_dir = os.path.abspath("optimism")
+        """The root directory of the Optimism monorepo."""
+
+        # ------------------------------------------------------------------------------------------
+        # Databases
 
         self.l1_data_dir = os.path.join(self.databases_dir, "devnet_l1")
         """
@@ -49,13 +54,8 @@ class PathsConfig(ABC):
         Geth data directory for the L2 engine, if deployed.
         """
 
-        self.log_run_config_file = os.path.join(self.artifacts_dir, "run_config.log")
-        """
-        Files in which the commands being run and generated config files are logged.
-        `{self.artifacts_dir}/run_config.log` by default.
-    
-        Use :py:method:`log_run_config` to write to this file.
-        """
+        # ------------------------------------------------------------------------------------------
+        # Other Generated Files
 
         self.jwt_secret_path = os.path.join(self.artifacts_dir, "jwt-secret.txt")
         """
@@ -80,18 +80,38 @@ class PathsConfig(ABC):
         Uses `{self.artifacts_dir}/opnode_p2p_priv.txt` by default.
         """
 
+        # ------------------------------------------------------------------------------------------
+        # Logs
+
+        self.log_run_config_file = os.path.join(self.artifacts_dir, "run_config.log")
+        """
+        Files in which the commands being run and generated config files are logged.
+        `{self.artifacts_dir}/run_config.log` by default.
+    
+        Use :py:method:`log_run_config` to write to this file.
+        """
+
     # ==============================================================================================
+    # Optimism Monorepo Paths
 
     @property
-    def deploy_config_path(self):
-        """
-        Returns the path to the deploy configuration file. This file to the deploy script, and also
-        used to generated the L2 genesis, the devnet L1 genesis if required, and the rollup config
-        passed to the L2 node.
-        """
-        return os.path.join(self.paths.deploy_config_dir, f"{self.deployment_name}.json")
+    def op_contracts_dir(self):
+        """OP stack contracts source directory."""
+        return os.path.join(self.op_monorepo_dir, "packages", "contracts-bedrock")
 
-    # ----------------------------------------------------------------------------------------------
+    @property
+    def op_node_dir(self):
+        """op-node source directory."""
+        return os.path.join(self.op_monorepo_dir, "op-node")
+
+    @property
+    def op_deploy_config_path(self):
+        """
+        Path (within the Optimism monrepo) at which the OP stack deployment script will look for
+        the deploy configuration file. This file is also used to generated the L2 genesis, the
+        devnet L1 genesis if required, and the rollup config passed to the L2 node.
+        """
+        return os.path.join(self.op_contracts_dir, "deploy-config", f"{self.deployment_name}.json")
 
     @property
     def deployment_artifacts_gen_dir(self):
@@ -99,9 +119,10 @@ class PathsConfig(ABC):
         Returns the directory where the deployment script will place the deployment artifacts
         (contract addresses etc) for the L1 rollup contracts.
         """
-        return os.path.join(self.paths.deployments_parent_dir, self.deployment_name)
+        return os.path.join(self.op_contracts_dir, "deployments", self.deployment_name)
 
-    # ----------------------------------------------------------------------------------------------
+    # ==============================================================================================
+    # Deployment Outputs Directories
 
     @property
     def deployment_dir(self):
@@ -113,18 +134,12 @@ class PathsConfig(ABC):
         (:py:attribute:`deployment_name`), placed under
         :py:attribute:`deployments_parent_dir`.
         """
-        return f"{self.deployments_parent_dir}/{self.deployment_name}"
-
-    # ----------------------------------------------------------------------------------------------
+        return os.path.join(self.deployments_parent_dir, self.deployment_name)
 
     @property
     def artifacts_dir(self):
-        """
-        Directory where the deployment artifacts are stored
-        """
+        """Directory where the deployment artifacts are stored"""
         return os.path.join(self.deployment_dir, "artifacts")
-
-    # ----------------------------------------------------------------------------------------------
 
     @property
     def databases_dir(self):
@@ -138,16 +153,48 @@ class PathsConfig(ABC):
         """
         return os.path.join(self.deployment_dir, "databases")
 
-    # ----------------------------------------------------------------------------------------------
-
     @property
     def logs_dir(self):
-        """
-        Default path in which to store the various logs generated by the components.
-        """
+        """Default path in which to store the various logs generated by the components."""
         return os.path.join(self.deployment_dir, "logs")
 
-    # ----------------------------------------------------------------------------------------------
+    # ==============================================================================================
+    # L1 Artifacts Paths
+
+    @property
+    def l1_genesis_path(self):
+        """Path to use for the devnet L1 genesis file path."""
+        return os.path.join(self.artifacts_dir, "genesis-l1.json")
+
+    @property
+    def l1_allocs_path(self):
+        """
+        Path to use for the devnet L1 account pre-allocations filepath. This includes ETH
+        pre-allocation to test accounts, and possibly the pre-deployed L2 contracts if
+        :py:attribute`contracts_in_l1_genesis` is true.
+        """
+        return os.path.join(self.artifacts_dir, "allocs-l1.json")
+
+    # ==============================================================================================
+    # L2 Artifacts Paths
+
+    @property
+    def addresses_json_path(self):
+        """File mapping L1 contracts to their deployed addresses."""
+        return os.path.join(self.artifacts_dir, "addresses.json")
+
+    @property
+    def l2_genesis_path(self):
+        """L2 genesis file path."""
+        return os.path.join(self.artifacts_dir, "genesis-l2.json")
+
+    @property
+    def rollup_config_path(self):
+        """L2 rollup config file path."""
+        return os.path.join(self.artifacts_dir, "rollup.json")
+
+    # ==============================================================================================
+    # Derived Database Paths
 
     @property
     def l1_keystore_dir(self):
@@ -168,8 +215,6 @@ class PathsConfig(ABC):
     def l1_tmp_signer_key_path(self):
         """Path to file storing the signer key during the initial import."""
         return os.path.join(self.l1_data_dir, "block-signer-key")
-
-    # ----------------------------------------------------------------------------------------------
 
     @property
     def l2_engine_chaindata_dir(self):

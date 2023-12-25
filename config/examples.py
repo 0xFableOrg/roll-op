@@ -25,13 +25,15 @@ def use_devnet_config(config: Config):
     https://github.com/ethereum-optimism/optimism/blob/op-node/v1.3.1/op-service/txmgr/cli.go
     """
 
+    ops_bedrock = os.path.join(config.op_monorepo_dir, "ops-bedrock")
+
     # === Network ===
 
-    config.jwt_secret_path = os.path.join(config.paths.ops_bedrock_dir, "test-jwt-secret.txt")
+    config.jwt_secret_path = os.path.join(ops_bedrock, "test-jwt-secret.txt")
 
     # === Node ===
 
-    config.p2p_peer_key_path = os.path.join(config.paths.ops_bedrock_dir, "p2p-node-key.txt")
+    config.p2p_peer_key_path = os.path.join(ops_bedrock, "p2p-node-key.txt")
 
 
 ####################################################################################################

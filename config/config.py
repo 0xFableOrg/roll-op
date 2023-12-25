@@ -1,5 +1,3 @@
-import os.path
-
 from .account_abstraction import AccountAbstractionConfig
 from .accounts_keys import AccountsKeysConfig
 from .devnet_l1 import DevnetL1Config

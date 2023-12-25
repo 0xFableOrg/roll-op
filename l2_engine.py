@@ -35,7 +35,7 @@ def start(config: Config):
              f"--verbosity={config.l2_engine_verbosity}",
              "init",
              f"--datadir={config.l2_engine_data_dir}",
-             config.paths.l2_genesis_path])
+             config.l2_genesis_path])
 
     log_file_path = f"{config.logs_dir}/l2_engine.log"
     print(f"Starting op-geth node. Logging to {log_file_path}")
