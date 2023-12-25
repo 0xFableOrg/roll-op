@@ -91,11 +91,11 @@ def use_op_doc_config(config: Config):
 
     # === Proposer ===
 
-    config.proposer_poll_interval = 12
-    config.proposer_num_confirmations = 10
+    config.l2_proposer_poll_interval = 12
+    config.l2_proposer_num_confirmations = 10
     # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
-    config.allow_non_finalized = False
-    config.proposer_rpc_listen_port = 8560
+    config.l2_proposer_allow_non_finalized = False
+    config.l2_proposer_rpc_listen_port = 8560
 
     # === Batcher ===
 
@@ -121,10 +121,10 @@ def use_production_config(config: Config):
 
     # === Proposer ===
 
-    config.proposer_poll_interval = 12
-    config.proposer_num_confirmations = 10
+    config.l2_proposer_poll_interval = 12
+    config.l2_proposer_num_confirmations = 10
     # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
-    config.allow_non_finalized = False
+    config.l2_proposer_allow_non_finalized = False
 
     # === Batcher ===
 
@@ -145,10 +145,10 @@ def use_upnode_config(config: Config):
 
     # === Proposer ===
 
-    config.proposer_poll_interval = 6
-    config.proposer_num_confirmations = 10
+    config.l2_proposer_poll_interval = 6
+    config.l2_proposer_num_confirmations = 10
     # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
-    config.allow_non_finalized = False
+    config.l2_proposer_allow_non_finalized = False
 
     #  === Batcher ===
 
