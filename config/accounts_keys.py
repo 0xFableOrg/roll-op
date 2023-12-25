@@ -8,6 +8,19 @@ class AccountsKeysConfig:
     def __init__(self):
         super().__init__()
 
+        # ------------------------------------------------------------------------------------------
+        # Devnet L1
+
+        self.l1_signer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        """Address of the devnet L1 block signer."""
+
+        self.l1_signer_private_key = \
+            "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        """Private key of the devnet L1 block signer."""
+
+        # ------------------------------------------------------------------------------------------
+        # L1 Contracts Deployment
+
         self.contract_deployer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
         """
         Account used to deploy contracts to L1.
@@ -19,6 +32,32 @@ class AccountsKeysConfig:
         Private key used to deploy contracts to L1.
         Uses the 0th "test junk" mnemonnic key by default.
         """
+
+        self.admin_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        """
+        Account used for various roles in the rollup system:
+        - It owns all the contracts that have an owner.
+        - It takes on all the privileged roles in the system.
+            - challenger for the (yet to be implemented) fault proof
+            - final system owner, portal guardian, and controller
+                - TODO: figure out what these do
+        - It is the recipient for all fees (basefees, l1 fees, sequencer fees).
+        
+        By default, uses the 0th "test junk" account.
+        
+        Later, we should split this to granular roles.
+        """
+
+        self.admin_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        """
+        Private key corresponding to :py:attribute:`admin_account`, see its documentation for
+        more details.
+        By default, uses the 0th "test junk" account key.
+        Do not prefix the key with 0x.
+        """
+
+        # ------------------------------------------------------------------------------------------
+        # L2 Batcher
 
         self.batcher_account = "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
         """
@@ -45,6 +84,9 @@ class AccountsKeysConfig:
         Ignored if :py:attribute:`proposer_key` is set.
         """
 
+        # ------------------------------------------------------------------------------------------
+        # L2 Proposer
+
         self.proposer_account = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         """
         Account used to propose output roots
@@ -70,6 +112,9 @@ class AccountsKeysConfig:
         Ignored if :py:attribute:`proposer_key` is set.
         """
 
+        # ------------------------------------------------------------------------------------------
+        # L2 Sequencer
+
         self.p2p_sequencer_account = "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"
         """
         If provided, account used by the sequencer to sign blocks gossiped over p2p.
@@ -83,34 +128,25 @@ class AccountsKeysConfig:
         Do not prefix the key with 0x.
         """
 
-        self.admin_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        # ------------------------------------------------------------------------------------------
+        # Account Abstraction
+
+        self.aa_deployer_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
         """
-        Account used for various roles in the rollup system:
-        - It owns all the contracts that have an owner.
-        - It takes on all the privileged roles in the system.
-            - challenger for the (yet to be implemented) fault proof
-            - final system owner, portal guardian, and controller
-                - TODO: figure out what these do
-        - It is the recipient for all fees (basefees, l1 fees, sequencer fees).
-        
-        By default, uses the 0th "test junk" account.
-        
-        Later, we should split this to granular roles.
+        Private key to use for deploying 4337 contracts.
+        Uses the 0th "test junk" mnemonnic key by default.
         """
 
-        self.admin_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        self.bundler_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
         """
-        Private key corresponding to :py:attribute:`admin_account`, see its documentation for
-        more details.
-        By default, uses the 0th "test junk" account key.
-        Do not prefix the key with 0x.
+        Private key to use for submitting bundled transactions.
+        Uses the 0th "test junk" mnemonnic key by default.
         """
 
-        self.l1_signer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-        """Address of the devnet L1 block signer."""
-
-        self.l1_signer_private_key = \
-            "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-        """Private key of the devnet L1 block signer."""
+        self.paymaster_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        """
+        Private key to use as paymaster signer.
+        Uses the 0th "test junk" mnemonnic key by default.
+        """
 
     # ==============================================================================================
