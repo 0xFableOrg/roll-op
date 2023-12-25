@@ -20,7 +20,7 @@ import l2_node
 import l2_proposer
 import libroll as lib
 from argparsing import Argparser
-from config import Config
+from config import Config, use_production_config
 from processes import PROCESS_MGR
 import setup
 
@@ -202,7 +202,7 @@ def load_config() -> Config:
     if lib.args.preset is None or lib.args.preset == "dev":
         pass
     elif lib.args.preset == "prod":
-        config.use_production_config()
+        use_production_config(config)
     else:
         # Should never happen, as correct preset is validated by argparse.
         raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'dev', 'prod'.")
