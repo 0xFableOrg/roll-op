@@ -15,7 +15,9 @@ def start(config: Config):
         raise Exception("Deployments not set!")
 
     lib.ensure_port_unoccupied(
-        "L2 proposer", config.proposer_rpc_listen_addr, config.proposer_rpc_listen_port)
+        "L2 proposer",
+        config.l2_proposer_rpc_listen_addr,
+        config.l2_proposer_rpc_listen_port)
 
     log_file_path = f"{config.logs_dir}/l2_proposer.log"
     print(f"Starting L2 proposer. Logging to {log_file_path}")
@@ -31,20 +33,20 @@ def start(config: Config):
 
         f"--l1-eth-rpc='{config.l1_rpc_url}'",
         f"--rollup-rpc='{config.l2_node_rpc_url}'",
-        f"--poll-interval={config.proposer_poll_interval}s",
+        f"--poll-interval={config.l2_proposer_poll_interval}s",
         f"--l2oo-address={config.deployments['L2OutputOracleProxy']}",
-        *(["--allow-non-finalized"] if config.allow_non_finalized else []),
+        *(["--allow-non-finalized"] if config.l2_proposer_allow_non_finalized else []),
 
         # RPC Options
         # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/rpc/cli.go
 
-        f"--rpc.addr={config.proposer_rpc_listen_addr}",
-        f"--rpc.port={config.proposer_rpc_listen_port}",
+        f"--rpc.addr={config.l2_proposer_rpc_listen_addr}",
+        f"--rpc.port={config.l2_proposer_rpc_listen_port}",
 
         # Tx Manager Options
         # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/txmgr/cli.go
 
-        f"--num-confirmations={config.proposer_num_confirmations}",
+        f"--num-confirmations={config.l2_proposer_num_confirmations}",
         *([f"--private-key={config.proposer_key}"] if config.proposer_key else [
             f"--mnemonic='{config.proposer_mnemonic}'",
             f"--hd-path=\"{config.proposer_hd_path}\""]),
@@ -52,10 +54,10 @@ def start(config: Config):
         # Metrics Options
         # https://github.com/ethereum-optimism/optimism/blob/develop/op-service/metrics/cli.go
 
-        *([] if not config.proposer_metrics else [
+        *([] if not config.l2_proposer_metrics else [
             "--metrics.enabled",
-            f"--metrics.port={config.proposer_metrics_listen_port}",
-            f"--metrics.addr={config.proposer_metrics_listen_addr}"])
+            f"--metrics.port={config.l2_proposer_metrics_listen_port}",
+            f"--metrics.addr={config.l2_proposer_metrics_listen_addr}"])
     ]
 
     config.log_run_config("\n".join(command))
