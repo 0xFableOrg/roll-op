@@ -36,7 +36,7 @@ def start(config: Config, sequencer: bool = True):
         f"--l2={config.l2_engine_authrpc_url}",
         f"--l2.jwt-secret={os.path.join(config.jwt_secret_path)}",
         f"--verifier.l1-confs={config.l2_node_verifier_l1_confs}",
-        f"--rollup.config={os.path.join('..', config.paths.rollup_config_path)}",
+        f"--rollup.config={os.path.join('..', config.rollup_config_path)}",
         f"--l1.rpckind={config.l2_node_l1_rpc_kind}",
 
         # Sequencer Options
@@ -78,7 +78,7 @@ def start(config: Config, sequencer: bool = True):
 
     config.log_run_config(
         "rollup config:\n"
-        + json.dumps(lib.read_json_file(config.paths.rollup_config_path), indent=4))
+        + json.dumps(lib.read_json_file(config.rollup_config_path), indent=4))
 
     PROCESS_MGR.start(
         "starting L2 node",

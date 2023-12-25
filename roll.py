@@ -373,10 +373,10 @@ def main():
             if lib.args.clean_first:
                 raise Exception("Cleaning before running start-l2 doesn't make sense.")
 
-            if not os.path.exists(config.paths.addresses_json_path):
-                raise Exception(f"Cannot find {config.paths.addresses_json_path}.\n"
+            if not os.path.exists(config.addresses_json_path):
+                raise Exception(f"Cannot find {config.addresses_json_path}.\n"
                                 "Did you deploy the rollup? (`rollop deploy-l2`)")
-            config.deployments = lib.read_json_file(config.paths.addresses_json_path)
+            config.deployments = lib.read_json_file(config.addresses_json_path)
 
             l2.start(config)
             if hasattr(lib.args, "explorer") and lib.args.explorer:
@@ -406,7 +406,7 @@ def main():
 
         elif lib.args.command == "l2-proposer":
             # nothing to clean
-            config.deployments = lib.read_json_file(config.paths.addresses_json_path)
+            config.deployments = lib.read_json_file(config.addresses_json_path)
             l2_proposer.start(config)
             PROCESS_MGR.wait_all()
 

@@ -102,7 +102,7 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
     # in the devnet. These are all standard "test junk" mnemonic accounts.
 
     try:
-        lib.write_json_file(config.deploy_config_path, deploy_config)
+        lib.write_json_file(config.op_deploy_config_path, deploy_config)
     except Exception as err:
         raise lib.extend_exception(err, prefix="Failed to generate deploy config: ") from None
 

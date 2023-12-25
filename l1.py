@@ -36,7 +36,7 @@ def _generate_devnet_l1_genesis(config: Config):
     Generates the L1 genesis file. The genesis file will include the L2 pre-deployed contracts, so
     it's not necessary to redeploy them to the devnet L1 later.
     """
-    if os.path.exists(config.paths.l1_genesis_path):
+    if os.path.exists(config.l1_genesis_path):
         print("L1 genesis already generated.")
         return
 
@@ -44,16 +44,16 @@ def _generate_devnet_l1_genesis(config: Config):
 
     deploy_config.generate_deploy_config(config, pre_l1_genesis=True)
 
-    if not os.path.exists(config.paths.l1_allocs_path):
+    if not os.path.exists(config.l1_allocs_path):
         _create_devnet_l1_genesis_allocs(config)
 
     lib.run("generate l1 genesis", [
         "go run cmd/main.go genesis l1",
-        f"--deploy-config {config.deploy_config_path}",
-        f"--l1-allocs {config.paths.l1_allocs_path}",
-        f"--l1-deployments {config.paths.addresses_json_path}",
-        f"--outfile.l1 {config.paths.l1_genesis_path}"
-    ], cwd=config.paths.op_node_dir)
+        f"--deploy-config {config.op_deploy_config_path}",
+        f"--l1-allocs {config.l1_allocs_path}",
+        f"--l1-deployments {config.addresses_json_path}",
+        f"--outfile.l1 {config.l1_genesis_path}"
+    ], cwd=config.op_node_dir)
 
 
 ####################################################################################################
@@ -74,7 +74,7 @@ def _create_devnet_l1_genesis_allocs(config: Config):
         res = lib.send_json_rpc_request(host, 3, "debug_dumpBlock", ["latest"])
         response = json.loads(res)
         allocs = response['result']
-        lib.write_json_file(config.paths.l1_allocs_path, allocs)
+        lib.write_json_file(config.l1_allocs_path, allocs)
     finally:
         PROCESS_MGR.kill(geth, ensure=True)
 
@@ -151,7 +151,7 @@ def _start_devnet_l1_node(config: Config):
             f"--verbosity={config.l1_verbosity}",
             "init",
             f"--datadir={config.l1_data_dir}",
-            config.paths.l1_genesis_path
+            config.l1_genesis_path
         ])
 
     log_file_path = f"{config.logs_dir}/l1_node.log"

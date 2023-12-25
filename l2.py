@@ -83,7 +83,7 @@ def clean(config: Config):
         os.path.join(config.logs_dir, "l2_engine.log"),
         os.path.join(config.logs_dir, "l2_node.log"),
         os.path.join(config.logs_dir, "l2_proposer.log"),
-        config.deploy_config_path
+        config.op_deploy_config_path
     ]
 
     for path in paths:
