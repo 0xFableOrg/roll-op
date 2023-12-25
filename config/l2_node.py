@@ -99,13 +99,16 @@ class L2NodeConfig:
 
     # ==============================================================================================
 
-    # See also:
-    # :py:attribute:`jwt_secret_path` in :py:class:`config.paths.PathConfig`
-    # :py:attribute:`rollup_config_path` in :py:class:`config.paths.PathConfig`
-    # :py:attribute:`p2p_peer_key_path` in :py:class:`config.paths.PathConfig`
-    # :py:attribute:`p2p_sequencer_key` in :py:class:`config.paths.AccountsKeysConfig`
+    # Other options needed to configure the L2 node:
+    # :py:attribute:`jwt_secret_path` in :py:class:`config.PathConfig`
+    # :py:attribute:`rollup_config_path` in :py:class:`config.PathConfig`
+    # :py:attribute:`p2p_peer_key_path` in :py:class:`config.PathConfig`
+    # :py:attribute:`p2p_sequencer_key` in :py:class:`config.AccountsKeysConfig`
+    # :py:attribute:`l1_rpc_for_node_url` in :py:class:`config.NetworkConfig`
+    # :py:attribute:`l2_engine_authrpc_url` in :py:class:`config.NetworkConfig`
 
-    # :py:attribute:`l2_chain_id` in :py:class:`config.network.NetworkConfig`
+    # See also:
+    # :py:attribute:`l2_chain_id` in :py:class:`config.NetworkConfig`
     #   (This is not configured on the node, but on the engine!)
 
     # ==============================================================================================

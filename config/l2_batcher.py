@@ -84,3 +84,10 @@ class L2BatcherConfig:
         """
 
     # ==============================================================================================
+
+    # Also needed to configure the L2 batcher:
+    # :py:attribute:`l1_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attribute:`l2_engine_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attribute:`l2_node_rpc_url` in :py:class:`config.NetworkConfig`
+
+    # ==============================================================================================
