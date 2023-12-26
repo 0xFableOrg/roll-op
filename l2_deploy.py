@@ -21,7 +21,7 @@ def deploy(config: Config):
     # are ignored if using the deploy config only for L2.
     deploy_config.generate_deploy_config(config)
 
-    if not config.deploy_devnet_l1 or not os.path.exists(config.l1_genesis_path):
+    if not config.run_devnet_l1 or not os.path.exists(config.l1_genesis_path):
         # Deploy contracts, but not on the devnet L1 which has them in the genesis state.
         deploy_contracts_on_l1(config)
 
@@ -87,7 +87,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             unlocked_arg,
             "--value 1ether",
             "0x3fAB184622Dc19b6109349B94811493BF2a45362"  # create2 deployer account
-        ], cwd=config.op_contracts_dir)
+        ])
 
         create2_deployer_deploy_tx \
             = "0xf8a58085174876e800830186a08080b853604580600e600039806000f350fe7" \
@@ -100,7 +100,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             "cast publish",
             f"--rpc-url {l1_rpc_url}",
             create2_deployer_deploy_tx
-        ], cwd=config.op_contracts_dir)
+        ])
 
     deploy_script = "scripts/Deploy.s.sol:Deploy"
 

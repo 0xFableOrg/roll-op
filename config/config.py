@@ -122,6 +122,8 @@ class Config(
         if not isinstance(self.deployment_name, str) or self.deployment_name == "":
             raise ValueError("deployment_name must be a non-empty string")
 
+        self._validate_devnet_l1()
+
         # In the future, verify that if we deploy services to the same target, they listen on
         # different ports.
 

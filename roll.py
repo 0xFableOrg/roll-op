@@ -310,7 +310,7 @@ def main():
             deps.check_or_install_geth()
             deps.check_or_install_foundry()
 
-            if config.deploy_devnet_l1:
+            if config.run_devnet_l1:
                 l1.deploy_devnet_l1(config)
             l2.deploy_and_start(config)
             start_addons(config)

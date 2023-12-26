@@ -8,9 +8,9 @@ class DevnetL1Config:
     def __init__(self):
         super().__init__()
 
-        self.deploy_devnet_l1 = True
+        self.run_devnet_l1 = True
         """
-        When using the "devnet" command, whether to deploy a local L1 devnet (True by default).
+        When using the "devnet" command, whether to run a local L1 chain (True by default).
         If false, it means deploying on an existing L1 blockchain, specified by
         :py:attribute:`l1_rpc`.
         
@@ -21,8 +21,19 @@ class DevnetL1Config:
         # Any attribute defined in this section are only meaningful (used) if
         # :py:attribute:`deploy_devnet_l1` is True!
 
-        # See also the properties starting with `l1` below which are paths derived from
-        # :py:attribute:`l1_data_dir`.
+        self.l1_contracts_in_genesis = True
+        """
+        Whether to include the L2 contracts in the genesis state of the devnet L1 (True by default).
+        
+        (Currently, only True is supported, as the OP monorepo L1 genesis file creation script does
+        not support this options. We will implement this on our own in the future.)
+        
+        This saves time when running multiple devnets in succession, as there is no need to redeploy
+        the contracts every time. The Optimism monorepo does this to speed up testing.
+        
+        To create the genesis file, a temporary L1 node is started, the contracts are deployed to it,
+        and then dumped to the genesis file.
+        """
 
         self.l1_verbosity = 3
         """Geth verbosity level (from 0 to 5, see geth --help)."""
@@ -81,5 +92,11 @@ class DevnetL1Config:
     # See also:
     # :py:attribute:`l1_chain_id` in :py:class:`config.network.NetworkConfig`
     # :py:attribute:`l1_data_dir` in :py:class:`config.paths.PathConfig`
+
+    # ==============================================================================================
+
+    def _validate_devnet_l1(self):
+        if not self.l1_contracts_in_genesis:
+            raise NotImplementedError("Only l1_contracts_in_genesis=True is currently supported.")
 
     # ==============================================================================================
