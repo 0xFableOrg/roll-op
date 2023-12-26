@@ -114,12 +114,22 @@ class PathsConfig(ABC):
         return os.path.join(self.op_contracts_dir, "deploy-config", f"{self.deployment_name}.json")
 
     @property
-    def deployment_artifacts_gen_dir(self):
+    def op_deployment_artifacts_dir(self):
         """
         Returns the directory where the deployment script will place the deployment artifacts
-        (contract addresses etc) for the L1 rollup contracts.
+        (list of contract address, ABIs & chain ID) for the L1 rollup contracts.
         """
         return os.path.join(self.op_contracts_dir, "deployments", self.deployment_name)
+
+    @property
+    def op_rollup_l1_contracts_addresses_path(self):
+        """
+        Returns the path to the file containing the addresses of the L1 rollup contracts.
+        This file is temporary in nature: it is created by the first deployment script run (which
+        deploys the contracts), and deleted by the second run (which creates the contract ABI
+        files).
+        """
+        return os.path.join(self.op_deployment_artifacts_dir, ".deploy")
 
     # ==============================================================================================
     # Deployment Outputs Directories
