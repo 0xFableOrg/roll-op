@@ -38,7 +38,7 @@ def launch_blockscout(config: Config):
     log_file_name = f"{config.logs_dir}/launch_blockscout.log"
     log_file = open(log_file_name, "w")
     print(f"Launching the blockscout block explorer. Logging to {log_file_name}\n"
-          "Explorer available at http://localhost/ in a little bit.")
+          "Explorer available at http://localhost:80 in a little bit.")
 
     http_url = config.l2_engine_rpc_http_url.replace("127.0.0.1", "host.docker.internal")
     ws_url = config.l2_engine_rpc_ws_url.replace("127.0.0.1", "host.docker.internal")
