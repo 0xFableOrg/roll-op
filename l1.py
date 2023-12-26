@@ -61,7 +61,7 @@ def _generate_devnet_l1_genesis(config: Config):
 def _create_devnet_l1_genesis_allocs(config: Config):
     """
     Create the "allocs" for the L1 genesis, i.e. the pre-existing state, in this case the
-    pre-deployed L2 contracts.
+    pre-deployed L2 contracts, as well as a file containing the addresses of the L2 contracts.
     """
 
     geth = _start_temporary_geth_node(config)
