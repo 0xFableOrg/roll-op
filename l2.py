@@ -94,8 +94,8 @@ def clean(config: Config):
     l2_engine.clean(config)
     l2_node.clean()
 
-    lib.debug(f"Removing {config.deployment_artifacts_gen_dir}")
-    shutil.rmtree(config.deployment_artifacts_gen_dir, ignore_errors=True)
+    lib.debug(f"Removing {config.op_deployment_artifacts_dir}")
+    shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
 
 
 ####################################################################################################

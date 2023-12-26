@@ -130,7 +130,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         env=env,
         log_file=log_file)
 
-    shutil.copy(os.path.join(config.deployment_artifacts_gen_dir, ".deploy"),
+    shutil.copy(config.op_rollup_l1_contracts_addresses_path,
                 config.addresses_json_path)
 
     log_file = f"{config.logs_dir}/create_l1_artifacts.log"
@@ -161,7 +161,7 @@ def _generate_l2_genesis(config: Config):
                 "go run cmd/main.go genesis l2",
                 f"--l1-rpc={config.l1_rpc_url}",
                 f"--deploy-config={config.op_deploy_config_path}",
-                f"--deployment-dir={config.deployment_artifacts_gen_dir}",
+                f"--deployment-dir={config.op_deployment_artifacts_dir}",
                 f"--outfile.l2={config.l2_genesis_path}",
                 f"--outfile.rollup={config.rollup_config_path}"],
                 cwd=config.op_node_dir)
