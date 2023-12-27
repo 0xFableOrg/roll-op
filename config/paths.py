@@ -117,7 +117,7 @@ class PathsConfig(ABC):
     def op_deployment_artifacts_dir(self):
         """
         Returns the directory where the deployment script will place the deployment artifacts
-        (list of contract address, ABIs & chain ID) for the L1 rollup contracts.
+        (list of contract addresses, ABIs & chain ID) for the L1 rollup contracts.
         """
         return os.path.join(self.op_contracts_dir, "deployments", self.deployment_name)
 
@@ -202,6 +202,24 @@ class PathsConfig(ABC):
     def rollup_config_path(self):
         """L2 rollup config file path."""
         return os.path.join(self.artifacts_dir, "rollup.json")
+
+    @property
+    def deploy_config_path(self):
+        """
+        Location where the deploy config is stored.
+
+        The file will need to be copied at :py:attribute:`op_deploy_config_path` for the rollup
+        contract deployment script to use it.
+        """
+        return os.path.join(self.artifacts_dir, "deploy-config.json")
+
+    @property
+    def abi_dir(self):
+        """
+        Directory where the rollup contracts ABIs are stored for stored, after
+        moving them there from :py:attribute:`op_deployment_artifacts_dir`.
+        """
+        return os.path.join(self.artifacts_dir, "abi")
 
     # ==============================================================================================
     # Derived Database Paths

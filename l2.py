@@ -21,7 +21,6 @@ def deploy_and_start(config: Config):
     Deploys the rollup contracts to L1, create the L2 genesis then runs all components of the L2
     system (the L2 engine, the L2 node, the L2 batcher, and the L2 proposer).
     """
-
     l2_deploy.deploy(config)
     start(config)
 
@@ -72,18 +71,19 @@ def clean(config: Config):
     Cleans up L2 deployment outputs.
     """
     paths = [
-        os.path.join(config.artifacts_dir, "addresses.json"),
-        os.path.join(config.artifacts_dir, "genesis-l2.json"),
-        os.path.join(config.artifacts_dir, "rollup.json"),
-        os.path.join(config.jwt_secret_path),
-        os.path.join(config.log_run_config_file),
+        config.addresses_json_path,
+        config.l2_genesis_path,
+        config.rollup_config_path,
+        config.deploy_config_path,
+        config.jwt_secret_path,
+        config.log_run_config_file,
+        config.op_deploy_config_path,
         os.path.join(config.logs_dir, "deploy_l1_contracts.log"),
         os.path.join(config.logs_dir, "create_l1_artifacts.log"),
         os.path.join(config.logs_dir, "l2_batcher.log"),
         os.path.join(config.logs_dir, "l2_engine.log"),
         os.path.join(config.logs_dir, "l2_node.log"),
-        os.path.join(config.logs_dir, "l2_proposer.log"),
-        config.op_deploy_config_path
+        os.path.join(config.logs_dir, "l2_proposer.log")
     ]
 
     for path in paths:
@@ -94,8 +94,13 @@ def clean(config: Config):
     l2_engine.clean(config)
     l2_node.clean()
 
-    lib.debug(f"Removing {config.op_deployment_artifacts_dir}")
-    shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
+    if os.path.exists(config.op_deployment_artifacts_dir):
+        lib.debug(f"Removing {config.op_deployment_artifacts_dir}")
+        shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
+
+    if os.path.exists(config.abi_dir):
+        lib.debug(f"Removing {config.abi_dir}")
+        shutil.rmtree(config.abi_dir, ignore_errors=True)
 
 
 ####################################################################################################
