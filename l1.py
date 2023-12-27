@@ -20,8 +20,7 @@ from processes import PROCESS_MGR
 
 def deploy_devnet_l1(config: Config):
     """
-    Spin the devnet L1 node, doing whatever tasks are necessary, including generating the genesis
-    file and config files, and deploying the L1 contracts.
+    Starts a devnet L1 node, generating the L1 genesis file if necessary.
     """
     os.makedirs(config.artifacts_dir, exist_ok=True)
     _generate_devnet_l1_genesis(config)
@@ -44,12 +43,15 @@ def _generate_devnet_l1_genesis(config: Config):
 
     deploy_config.generate_deploy_config(config, pre_l1_genesis=True)
 
-    if not os.path.exists(config.l1_allocs_path):
-        _create_devnet_l1_genesis_allocs(config)
+    if os.path.exists(config.l1_allocs_path):
+        # This shouldn't happen in normal operation, but be safe.
+        os.remove(config.l1_allocs_path)
+
+    _create_devnet_l1_genesis_allocs(config)
 
     lib.run("generate l1 genesis", [
         "go run cmd/main.go genesis l1",
-        f"--deploy-config {config.op_deploy_config_path}",
+        f"--deploy-config {config.deploy_config_path}",
         f"--l1-allocs {config.l1_allocs_path}",
         f"--l1-deployments {config.addresses_json_path}",
         f"--outfile.l1 {config.l1_genesis_path}"
@@ -232,11 +234,11 @@ def clean(config: Config):
     Cleans up L1 deployment outputs.
     """
     paths = [
-        os.path.join(config.artifacts_dir, "genesis-l1.json"),
         os.path.join(config.logs_dir, "l1_node.log"),
         os.path.join(config.logs_dir, "temp_geth.log"),
-        os.path.join(config.artifacts_dir, "genesis-l1.json"),
-        os.path.join(config.artifacts_dir, "allocs-l1.json")
+        config.l1_genesis_path,
+        config.l1_allocs_path,
+        config.op_deploy_config_path
     ]
 
     for path in paths:
@@ -247,6 +249,17 @@ def clean(config: Config):
     if os.path.exists(config.l1_data_dir):
         lib.debug(f"Removing {config.l1_data_dir}")
         shutil.rmtree(config.l1_data_dir, ignore_errors=True)
+
+    if os.path.exists(config.op_deployment_artifacts_dir):
+        lib.debug(f"Removing {config.op_deployment_artifacts_dir}")
+        shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
+
+    if config.l1_contracts_in_genesis:
+        print(
+            "The rollup contracts were baked into the L1 genesis.\n"
+            "You may want to run the `clean-l2` roll-op command to remove the deployment outputs.\n"
+            "These are not removed by default, as they could have been overriden "
+            "by a later deployment.")
 
 
 ####################################################################################################

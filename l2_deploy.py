@@ -16,15 +16,7 @@ def deploy(config: Config):
     not start the software components.
     """
     os.makedirs(config.artifacts_dir, exist_ok=True)
-
-    # Always regenerate the deploy config. This may override the devnet L1 settings, but those
-    # are ignored if using the deploy config only for L2.
-    deploy_config.generate_deploy_config(config)
-
-    if not config.run_devnet_l1 or not os.path.exists(config.l1_genesis_path):
-        # Deploy contracts, but not on the devnet L1 which has them in the genesis state.
-        deploy_contracts_on_l1(config)
-
+    deploy_contracts_on_l1(config)
     _generate_l2_genesis(config)
     config.deployments = lib.read_json_file(config.addresses_json_path)
 
@@ -42,9 +34,21 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     node with the goal of dumping the contracts for inclusion in devnet L1 genesis.
     """
 
-    if not tmp_l1 and os.path.exists(config.addresses_json_path):
-        print("L1 contracts already deployed.")
-        return
+    if not tmp_l1:
+        if os.path.exists(config.deploy_config_path) and os.path.exists(config.addresses_json_path):
+            print("L2 contracts already deployed.")
+            return
+        deploy_config.generate_deploy_config(config)
+
+    # Copy the deploy config to where the deploy script can find it.
+    shutil.copy(config.deploy_config_path, config.op_deploy_config_path)
+    try:
+        _deploy_contracts_on_l1(config, tmp_l1)
+    finally:
+        os.remove(config.op_deploy_config_path)
+
+
+def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
 
     if tmp_l1:
         l1_rpc_protocol = "http"
@@ -130,6 +134,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         env=env,
         log_file=log_file)
 
+    # copy now because the sync() invocation will delete the file
     shutil.copy(config.op_rollup_l1_contracts_addresses_path,
                 config.addresses_json_path)
 
@@ -144,6 +149,8 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
         cwd=config.op_contracts_dir,
         env=env,
         log_file=log_file)
+
+    shutil.move(config.op_deployment_artifacts_dir, config.abi_dir)
 
 
 ####################################################################################################
@@ -160,8 +167,8 @@ def _generate_l2_genesis(config: Config):
             lib.run("generate L2 genesis and rollup configs", [
                 "go run cmd/main.go genesis l2",
                 f"--l1-rpc={config.l1_rpc_url}",
-                f"--deploy-config={config.op_deploy_config_path}",
-                f"--deployment-dir={config.op_deployment_artifacts_dir}",
+                f"--deploy-config={config.deploy_config_path}",
+                f"--deployment-dir={config.abi_dir}",
                 f"--outfile.l2={config.l2_genesis_path}",
                 f"--outfile.rollup={config.rollup_config_path}"],
                 cwd=config.op_node_dir)
