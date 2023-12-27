@@ -96,7 +96,7 @@ p.command(
 
 cmd_l2 = p.command(
     "l2",
-    help="deploys and starts a local L2 blockchain")
+    help="starts an L2 blockchain, deploying the contracts if needed")
 
 p.command(
     "aa",
@@ -119,10 +119,6 @@ p.command(
     help="deploys but does not start an L2 chain",
     description="Deploys but does not start an L2 chain: "
                 "creates the genesis and deploys the contracts to L1.")
-
-p.command(
-    "start-l2",
-    help="start all components of the rollup system (see below)")
 
 p.command(
     "l2-engine",
@@ -368,20 +364,6 @@ def main():
             deps.check_or_install_foundry()
 
             l2_deploy.deploy(config)
-
-        elif lib.args.command == "start-l2":
-            if lib.args.clean_first:
-                raise Exception("Cleaning before running start-l2 doesn't make sense.")
-
-            if not os.path.exists(config.addresses_json_path):
-                raise Exception(f"Cannot find {config.addresses_json_path}.\n"
-                                "Did you deploy the rollup? (`rollop deploy-l2`)")
-            config.deployments = lib.read_json_file(config.addresses_json_path)
-
-            l2.start(config)
-            if hasattr(lib.args, "explorer") and lib.args.explorer:
-                block_explorer.launch_blockscout(config)
-            PROCESS_MGR.wait_all()
 
         elif lib.args.command == "l2-engine":
             if lib.args.clean_first:

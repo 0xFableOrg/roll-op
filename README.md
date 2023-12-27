@@ -54,12 +54,13 @@ always for your permission before installing anything outside the current direct
 ## Usage
 
 ```
-usage: rollop [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--no-ansi-esc] [--yes] <command> ...
+usage: rollop [-h] [--name NAME] [--preset {dev,prod}] [--config CONFIG_PATH] [--clean] [--no-ansi-esc] [--yes] <command> ...
 
 Helps you spin up an op-stack rollup.
 Use `rollop <command> --help` to get more detailed help for a command.
 
 options:
+  -h, --help            show this help message and exit
   --name NAME           name of the rollup deployment
   --preset {dev,prod}   use a preset rollup configuration
   --config CONFIG_PATH  path to the config file
@@ -69,14 +70,14 @@ options:
 
 commands:
   <command>
-
+    
     -- MAIN COMMANDS --
 
     help                show this help message and exit
     setup               installs prerequisites and builds the optimism repository
     devnet              starts a local devnet, comprising an L1 node and all L2 components
     clean               cleans up deployment outputs and databases
-    l2                  deploys and starts a local L2 blockchain
+    l2                  starts an L2 blockchain, deploying the contracts if needed
     aa                  starts an ERC-4337 bundler and a paymaster signer service
     explorer            starts a block explorer
     
@@ -84,7 +85,6 @@ commands:
 
     l1                  starts a local L1 node
     deploy-l2           deploys but does not start an L2 chain
-    start-l2            start all components of the rollup system (see below)
     l2-engine           starts a local L2 execution engine (op-geth) node
     l2-sequencer        starts a local L2 node (op-node) in sequencer mode
     l2-batcher          starts a local L2 transaction batcher
@@ -116,11 +116,11 @@ repository and can be symlinked if required.
 ./rollop --clean --name=my-prod-rollup --preset=prod --config=config.toml l2
 
 # resume previously create rollup (e.g. after killing previous command)
-./rollop --name=my-prod-rollup --preset=prod --config=config.toml start-l2
+./rollop --name=my-prod-rollup --preset=prod --config=config.toml l2
 
-# deploy rollup on existing L1, then start it
+# deploy rollup on existing L1, then start it later
 ./rollop --name=my-prod-rollup --preset=prod --config=config.toml deploy-l2
-./rollop --name=my-prod-rollup --preset=prod --config=config.toml start-l2
+./rollop --name=my-prod-rollup --preset=prod --config=config.toml l2
 
 # start block explorer (blockscout) for a running rollup
 ./rollop explorer --config=config.toml
