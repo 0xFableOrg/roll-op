@@ -1,9 +1,9 @@
-l2_chain_id = 42069
+l2_chain_id = 1201101712
 
 ## Devnet
 
 # (same as defaults)
-l1_chain_id = 900
+l1_chain_id = 1201101711
 l1_rpc_url = "http://127.0.0.1:8545"
 
 ## For Goerli
