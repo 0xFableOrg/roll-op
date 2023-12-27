@@ -145,16 +145,18 @@ def _start_devnet_l1_node(config: Config):
         os.remove(f"{config.l1_data_dir}/block-signer-key")
 
     if not os.path.exists(config.l1_chaindata_dir):
-        log_file = f"{config.logs_dir}/init_l1_genesis.log"
-        print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node."
-              f"Logging to {log_file}")
+        log_file_path = f"{config.logs_dir}/init_l1_genesis.log"
+        print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node.\n"
+              f"Logging to {log_file_path}")
         lib.run("initializing genesis", [
             "geth",
             f"--verbosity={config.l1_verbosity}",
             "init",
             f"--datadir={config.l1_data_dir}",
             config.l1_genesis_path
-        ])
+        ],
+            forward="fd",
+            stdout=open(log_file_path, "w"))
 
     log_file_path = f"{config.logs_dir}/l1_node.log"
     print(f"Starting L1 node. Logging to {log_file_path}")
