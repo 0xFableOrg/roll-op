@@ -82,11 +82,22 @@ class NetworkConfig:
         self.l2_node_rpc_host = "127.0.0.1"
         self.l2_node_rpc_port = 7545
 
-        self.batch_inbox_address = "0xff00000000000000000000000000000000000000"
+        self.batch_inbox_address = "0xff69000000000000000000000000001201101712"
         """
-        Address of the batch inbox contract on L1. (0xff00000000000000000000000000000000000000 by
-        default).
+        Address of the batch inbox contract on L1.
+        
+        By default, this is the result of taking the 0xff69000000000000000000000000000000000000
+        address and replacing up to 10 of its last digits
+        with the chain id. So the batch inbox address for
+        the default chain id is 0xff69000000000000000000000000001201101712.
+        
+        (The logic that performs this computation in case the L2 chain id is overriden by the config
+        file is in `load_config` in `roll.py`.)
         """
+
+
+        # Derive a unique batch inbox address from the chain id.
+
 
         self.deployments = None
         """
