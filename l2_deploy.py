@@ -40,6 +40,10 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
             return
         deploy_config.generate_deploy_config(config)
 
+    # Remove existing ABI files.
+    shutil.rmtree(config.abi_dir, ignore_errors=True)
+    shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
+
     # Copy the deploy config to where the deploy script can find it.
     shutil.copy(config.deploy_config_path, config.op_deploy_config_path)
     try:
