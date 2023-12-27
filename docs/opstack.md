@@ -197,7 +197,7 @@ So you would do the following:
 ./rollop --name=myrollup --config=config.toml l2-proposer
 
 # or run on cloud (same server)
- ./rollop --name=myrollup --config=config.toml start-l2
+ ./rollop --name=myrollup --config=config.toml l2
 ```
 
 ## Devnet L1
