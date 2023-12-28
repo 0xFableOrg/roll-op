@@ -71,7 +71,7 @@ def clean(config: Config):
     Cleans up L2 deployment outputs.
     """
     paths = [
-        config.addresses_json_path,
+        config.addresses_path,
         config.l2_genesis_path,
         config.rollup_config_path,
         config.deploy_config_path,

@@ -189,7 +189,7 @@ class PathsConfig(ABC):
     # L2 Artifacts Paths
 
     @property
-    def addresses_json_path(self):
+    def addresses_path(self):
         """File mapping L1 contracts to their deployed addresses."""
         return os.path.join(self.artifacts_dir, "addresses.json")
 

@@ -53,7 +53,7 @@ def _generate_devnet_l1_genesis(config: Config):
         "go run cmd/main.go genesis l1",
         f"--deploy-config {config.deploy_config_path}",
         f"--l1-allocs {config.l1_allocs_path}",
-        f"--l1-deployments {config.addresses_json_path}",
+        f"--l1-deployments {config.addresses_path}",
         f"--outfile.l1 {config.l1_genesis_path}"
     ], cwd=config.op_node_dir)
 
