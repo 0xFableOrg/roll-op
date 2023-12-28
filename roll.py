@@ -189,7 +189,6 @@ def load_config() -> Config:
     """
 
     deployment_name = lib.args.name
-    deployment_name = deployment_name if deployment_name else lib.args.preset
     deployment_name = deployment_name if deployment_name else "rollup"
 
     config = Config(deployment_name)
