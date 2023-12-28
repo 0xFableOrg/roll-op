@@ -95,10 +95,6 @@ class NetworkConfig:
         file is in `load_config` in `roll.py`.)
         """
 
-
-        # Derive a unique batch inbox address from the chain id.
-
-
         self.deployments = None
         """
         Dictionary containing a mapping from rollup contract names to the address at which they're
