@@ -19,13 +19,15 @@ class L2DeployConfig:
         default, which is the Foundry default).
         """
 
-        self.deploy_slowly = lib.args.preset == "prod"
+        self.deploy_slowly = \
+            lib.args.preset == "prod" and getattr(self, "l1_rpc_host") != "127.0.0.1"
         """
         Whether to deploy contracts "slowly", i.e. wait for each transaction to succeed before
         submitting the next one. This is recommended for production deployments, since RPC nodes
         can be capricious and don't react kindly to getting 30+ transactions at once.
         
-        Defaults to True when the `--preset=prod` is passed, False otherwise.
+        Defaults to True when the `--preset=prod` is passed and the L1 is not running locally, False
+        otherwise.
         """
 
         self.deploy_create2_deployer = False
