@@ -6,6 +6,7 @@ matches some well-known configuration example.
 import os
 
 from config import Config
+import libroll as lib
 
 
 ####################################################################################################
@@ -126,7 +127,7 @@ def use_production_config(config: Config):
     config.l2_proposer_poll_interval = 12
     config.l2_proposer_num_confirmations = 10
     # Must be true if using the devnet L1 or any L1 that doesn't mark blocks as finalized!
-    config.l2_proposer_allow_non_finalized = False
+    config.l2_proposer_allow_non_finalized = lib.args.command == "devnet"
 
     # === Batcher ===
 
