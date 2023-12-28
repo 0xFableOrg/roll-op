@@ -59,7 +59,7 @@ def start(config: Config):
         f"--rpc.port={config.batcher_rpc_listen_port}"
     ]
 
-    config.log_run_config("\n".join(command))
+    config.log_l2_command("\n".join(command))
 
     PROCESS_MGR.start(
         "starting L2 batcher",

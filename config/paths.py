@@ -83,12 +83,12 @@ class PathsConfig(ABC):
         # ------------------------------------------------------------------------------------------
         # Logs
 
-        self.log_run_config_file = os.path.join(self.artifacts_dir, "run_config.log")
+        self.log_l2_commands_file = os.path.join(self.logs_dir, "l2_commands.log")
         """
-        Files in which the commands being run and generated config files are logged.
-        `{self.artifacts_dir}/run_config.log` by default.
+        Files in which the L2 components commands being run are logged.
+        `{self.logs_dir}/run_config.log` by default.
     
-        Use :py:method:`log_run_config` to write to this file.
+        Use :py:method:`log_command` to write to this file.
         """
 
     # ==============================================================================================
@@ -251,14 +251,13 @@ class PathsConfig(ABC):
 
     # ==============================================================================================
 
-    def log_run_config(self, text: str):
+    def log_l2_command(self, command: str):
         """
-        Append the text to :py:attribute:`log_run_config_file`, prefixing it with a separator.
-        This should be used to log run commands and generated configuration files.
+        Append the command to :py:attribute:`log_l2_commands_file`, prefixing it with a separator.
         """
         lib.append_to_file(
-            self.log_run_config_file,
+            self.log_l2_commands_file,
             "\n################################################################################\n"
-            + text)
+            + command)
 
     # ==============================================================================================

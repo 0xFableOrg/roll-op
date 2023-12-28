@@ -76,7 +76,7 @@ def clean(config: Config):
         config.rollup_config_path,
         config.deploy_config_path,
         config.jwt_secret_path,
-        config.log_run_config_file,
+        config.log_l2_commands_file,
         config.op_deploy_config_path,
         os.path.join(config.logs_dir, "deploy_l1_contracts.log"),
         os.path.join(config.logs_dir, "create_l1_artifacts.log"),
