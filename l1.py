@@ -171,7 +171,7 @@ def _start_devnet_l1_node(config: Config):
     # starting the node. This could be an issue if the op-node is brought down or restarted later,
     # or if the sequencing window is larger than the time-to-prune.
 
-    PROCESS_MGR.start("starting geth", [
+    command = [
         "geth",
 
         f"--datadir={config.l1_data_dir}",
@@ -226,7 +226,14 @@ def _start_devnet_l1_node(config: Config):
             "--metrics",
             f"--metrics.port={config.l1_metrics_listen_port}",
             f"--metrics.addr={config.l1_metrics_listen_addr}"]),
-    ],
+    ]
+
+    with open(os.path.join(config.logs_dir, "l1_command.log"), "w") as f:
+        f.write("\n".join(command))
+
+    PROCESS_MGR.start(
+        "starting geth",
+        command,
         forward="fd",
         stdout=log_file)
 
