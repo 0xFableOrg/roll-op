@@ -3,7 +3,7 @@ from .accounts_keys import AccountsKeysConfig
 from .devnet_l1 import DevnetL1Config
 from .explorer import ExplorerConfig
 from .governance import GovernanceConfig
-from .l1_contracts_deploy import L1ContractsDeployConfig
+from .l2_deploy import L2DeployConfig
 from .l2_batcher import L2BatcherConfig
 from .l2_engine import L2EngineConfig
 from .l2_node import L2NodeConfig
@@ -17,7 +17,7 @@ class Config(
     AccountsKeysConfig,
     GovernanceConfig,
     DevnetL1Config,
-    L1ContractsDeployConfig,
+    L2DeployConfig,
     NetworkConfig,
     L2NodeConfig,
     L2EngineConfig,
