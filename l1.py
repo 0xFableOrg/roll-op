@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import sys
+import time
 from subprocess import Popen
 
 import l2_deploy
@@ -116,6 +117,7 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         on_exit=early_exit_handler)
 
     lib.wait_for_rpc_server("127.0.0.1", config.temp_l1_rpc_listen_port)
+    time.sleep(5)  # give it a bit more time to be ready
 
     return popen
 
