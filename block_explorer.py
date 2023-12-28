@@ -17,12 +17,29 @@ import libroll as lib
 _GITHUB_URL = "https://github.com/blockscout/blockscout.git"
 
 # Docker image tag for the latest tested Optimism-compatible "backend" component of blockscout
-_DOCKER_TAG = "5.3.3-postrelease-d53f5a75"
+# https://hub.docker.com/r/blockscout/blockscout-optimism/tags
+_DOCKER_TAG = "5.4.0-postrelease-63747320"
 
 # Commit corresponding to the Docker image
-_GIT_HASH = "d53f5a7575a6af892bad69d80e8e23a5e54e8eea"
+_GIT_HASH = "6374732056677a557f2b9b1e0b94e92b299bfbed"
 
-# Project name for docker compose
+# https://ghcr.io/blockscout/frontend
+# See here for frontend/backend compatibility:
+#   https://docs.blockscout.com/for-developers/information-and-settings/requirements/back-front-compatibility-matrix
+_FRONTEND_DOCKER_TAG = "v1.20.0"
+
+# https://ghcr.io/blockscout/sig-provider
+_SIG_PROVIDER_DOCKER_TAG = "v1.0.0"
+
+# https://ghcr.io/blockscout/smart-contract-verifier
+_SMART_CONTRACT_VERIFIER_DOCKER_TAG = "v1.6.0"
+
+# https://ghcr.io/blockscout/stats
+_STATS_DOCKER_TAG = "v1.5.0"
+
+# https://ghcr.io/blockscout/visualizer
+_VISUALIZER_DOCKER_TAG = "v0.2.0"
+
 _COMPOSE_PROJECT_NAME = "blockscout"
 
 
@@ -76,17 +93,11 @@ def launch_blockscout(config: Config):
            "NEXT_PUBLIC_NETWORK_ID": str(config.l2_chain_id),
            "DOCKER_REPO": "blockscout-optimism",
            "DOCKER_TAG": _DOCKER_TAG,
-           # https://hub.docker.com/r/blockscout/blockscout-optimism/tags
-           "FRONTEND_DOCKER_TAG": "v1.19.0",
-           # ghcr.io/blockscout/frontend
-           "SIG_PROVIDER_DOCKER_TAG": "v1.0.0",
-           # ghcr.io/blockscout/sig-provider
-           "SMART_CONTRACT_VERIFIER_DOCKER_TAG": "v1.6.0",
-           # ghcr.io/blockscout/smart-contract-verifier
-           "STATS_DOCKER_TAG": "v1.5.0",
-           #  ghcr.io/blockscout/stats
-           "VISUALIZER_DOCKER_TAG": "v0.2.0"
-           # ghcr.io/blockscout/visualizer
+           "FRONTEND_DOCKER_TAG": _FRONTEND_DOCKER_TAG,
+           "SIG_PROVIDER_DOCKER_TAG": _SIG_PROVIDER_DOCKER_TAG,
+           "SMART_CONTRACT_VERIFIER_DOCKER_TAG": _SMART_CONTRACT_VERIFIER_DOCKER_TAG,
+           "STATS_DOCKER_TAG": _STATS_DOCKER_TAG,
+           "VISUALIZER_DOCKER_TAG": _VISUALIZER_DOCKER_TAG
            }
 
     if config.enable_governance:
@@ -120,6 +131,8 @@ def setup_blockscout_repo():
         cwd="blockscout")
 
     if head_hash != _GIT_HASH:
+        lib.run("discard changes in repo", "git reset --hard", cwd="blockscout")
+        lib.run("fetch blockscout repo", "git fetch", cwd="blockscout")
         lib.run(
             "checkout blockscout version",
             f"git checkout --detach {_GIT_HASH}",
