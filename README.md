@@ -159,10 +159,6 @@ make fix && make check
 
 - Blockscout
 
-  - Blockscout will show an indexing warning on the page. The indexing percentage only goes down with
-    time, but restarting the explorer makes it jump up. Regardless, the explorer seems to work just
-    fine.
-
   - There are A LOT of warnings saying "header not found" and "genesis is not traceable". The
     explorer still works, but this annoying and makes the log file very large. We're investigating.
 
