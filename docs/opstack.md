@@ -20,8 +20,8 @@ First the L1 chain. It of course has its own actors, but for our purposes we can
 abstract entity that we interact with and do not control.
 
 roll-op does allow you to spin your own L1 for testing purposes (a "devnet L1"), and that is made of
-a single geth node using the *clique* proof-of-authority consensus. More on this in the last section
-of this document.
+a single geth node using the *clique* proof-of-authority consensus. More on this in the [Devnet
+L1](#devnet-L1) of this document.
 
 The second actor is the L2 sequencer, of which there can (at present) only be one. The sequencer
 runs an L2 node in sequencing mode, an L2 execution engine, as well as the L2 batcher and the L2
@@ -221,3 +221,20 @@ rollup contracts in the genesis file.
 
 When creating the L1 genesis files with pre-deploys, a temporary L1 node is started, the contracts
 are deployed to it, and then dumped to the genesis file.
+
+## Redeployments
+
+Whether the `rollop l2` deploys the rollup contracts and re-generates the L2 genesis is controlled
+by the presence of the deploy config file (which we currently store in
+`deployments/$DEPLOYMENT_NAME/artifacts/deploy-config.json`). If it is missing, it is generated
+and the rollup contracts are deployed on L1.
+
+When running the Devnet L1 with baked-in rollup contracts, a deploy config is generated when running
+the L1, and so running `rollop l2` after that does not redeploy the contracts.
+
+If you want to force the contracts to be redeployed, you can run `rollop l2 --clean` (or
+equivalently `rollop clean-l2 && rollop l2` — do supply your deployment name and config file to the
+command of course).
+
+The clean command will remove the deployment artifacts including the deploy config, as well as the
+L2 databases, enabling the rollup from being re-deployed for the given deployment name.
