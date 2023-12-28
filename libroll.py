@@ -415,8 +415,8 @@ def wait_for_rpc_server(
         port: int,
         path: str = "/",
         protocol: str = "http",
-        retries: int = 5,
-        wait_secs=3):
+        retries: int = 10,
+        wait_secs=5):
     """
     Waits for a JSON-RPC server to be available at `url` (ascertained by asking for the chain ID).
     Retries until the server responds with a successful status code, waiting `wait_secs` in between
