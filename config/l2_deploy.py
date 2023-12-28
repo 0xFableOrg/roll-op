@@ -3,7 +3,7 @@ import uuid
 import libroll as lib
 
 
-class L1ContractsDeployConfig:
+class L2DeployConfig:
     """
     Configuration options related to the deployment of the L2 contracts on the L1 chain.
     """
