@@ -102,6 +102,11 @@ You can also use the `roll.py` script directly as `./roll.py` or `python3 roll.p
 alternative. However `rollop` is recommended, as it will guarantee it is run from the rollop
 repository and can be symlinked if required.
 
+IMPORTANT: The block explorer is not currently scoped to deployments — so it can only run for a
+deployment at a time from a `roll-op` repository. When switching between deployments or even
+redeploying within the same deployment, you must clean the explorer with `rollop clean-explorer` or
+`rollop explorer --clean`.
+
 ### Examples
 
 ```bash
@@ -154,13 +159,7 @@ make fix && make check
 
 ## Known Issues
 
-- Blockscout
-
-  - There are A LOT of warnings saying "header not found". The
-    explorer still works, but this makes the log file very large. We're investigating.
-
-  - There are a number of blocks with high block numbers that appear on top of the actual blocks and
-    don't actually belong to the chain. We're investigating too.
+None at the moment.
 
 ## Debugging
 
