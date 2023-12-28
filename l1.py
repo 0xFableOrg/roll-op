@@ -100,7 +100,7 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         # noinspection PyUnresolvedReferences,PyProtectedMember
         os._exit(1)  # we have to use this one to exit from a thread
 
-    return PROCESS_MGR.start("run temporary geth instance", [
+    popen = PROCESS_MGR.start("run temporary geth instance", [
         "geth",
         "--dev",
         "--http",
@@ -114,6 +114,10 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         forward="fd",
         stdout=log_file,
         on_exit=early_exit_handler)
+
+    lib.wait_for_rpc_server("127.0.0.1", config.temp_l1_rpc_listen_port)
+
+    return popen
 
 
 ####################################################################################################

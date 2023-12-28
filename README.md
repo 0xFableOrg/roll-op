@@ -154,9 +154,6 @@ make fix && make check
 
 ## Known Issues
 
-- When running the devnet, the deployment of the contracts to the temporary L1 might hang.
-  In that case, just abort and restart the command.
-
 - Blockscout
 
   - There are A LOT of warnings saying "header not found" and "genesis is not traceable". The
