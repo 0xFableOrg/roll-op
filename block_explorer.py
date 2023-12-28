@@ -74,8 +74,9 @@ def launch_blockscout(config: Config):
         r"^ETHEREUM_JSONRPC_HTTP_URL=.*": f"ETHEREUM_JSONRPC_HTTP_URL={http_url}",
         r"^ETHEREUM_JSONRPC_TRACE_URL=.*": f"ETHEREUM_JSONRPC_TRACE_URL={http_url}",
         r"^ETHEREUM_JSONRPC_WS_URL=.*": f"ETHEREUM_JSONRPC_WS_URL={ws_url}",
-        # because this line is commented by default!
+        # because these lines are commented by default!
         r"^# ETHEREUM_JSONRPC_WS_URL=.*": f"ETHEREUM_JSONRPC_WS_URL={ws_url}",
+        r"^# TRACE_FIRST_BLOCK=.*": "TRACE_FIRST_BLOCK=1",  # avoids "genesis is not traceable"
     }, regex=True)
 
     lib.replace_in_file("blockscout/docker-compose/envs/common-frontend.env", {

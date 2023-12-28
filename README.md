@@ -156,12 +156,18 @@ make fix && make check
 
 - Blockscout
 
-  - There are A LOT of warnings saying "header not found" and "genesis is not traceable". The
-    explorer still works, but this annoying and makes the log file very large. We're investigating.
+  - There are A LOT of warnings saying "header not found". The
+    explorer still works, but this makes the log file very large. We're investigating.
 
-  - The reported block times are way off. Looking into it as well.
+  - There are a number of blocks with high block numbers that appear on top of the actual blocks and
+    don't actually belong to the chain. We're investigating too.
 
 ## Debugging
 
-If you have an issue with your network, please inspect the actual configuration being used and
-recorded in the `deployments/NAME/logs/run_config.log` file.
+If you have an issue with your network, please inspect the following files to find out about
+the actual configuration that the rollup runs with:
+
+- `deployments/NAME/logs/l1_commands.log`
+- `deployments/NAME/logs/l2_commands.log`
+- `deployments/NAME/artifacts/deploy-config.json`
+- `deployments/NAME/artifacts/rollup-config.json`
