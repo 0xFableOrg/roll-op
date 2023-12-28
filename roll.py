@@ -388,7 +388,7 @@ def main():
 
         elif lib.args.command == "l2-proposer":
             # nothing to clean
-            config.deployments = lib.read_json_file(config.addresses_json_path)
+            config.deployments = lib.read_json_file(config.addresses_path)
             l2_proposer.start(config)
             PROCESS_MGR.wait_all()
 

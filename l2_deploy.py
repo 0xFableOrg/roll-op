@@ -18,7 +18,7 @@ def deploy(config: Config):
     os.makedirs(config.artifacts_dir, exist_ok=True)
     deploy_contracts_on_l1(config)
     _generate_l2_genesis(config)
-    config.deployments = lib.read_json_file(config.addresses_json_path)
+    config.deployments = lib.read_json_file(config.addresses_path)
 
     if config.deployments.get("L2OutputOracleProxy") is None:
         raise Exception(
@@ -35,7 +35,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
     """
 
     if not tmp_l1:
-        if os.path.exists(config.deploy_config_path) and os.path.exists(config.addresses_json_path):
+        if os.path.exists(config.deploy_config_path) and os.path.exists(config.addresses_path):
             print("L2 contracts already deployed.")
             return
         deploy_config.generate_deploy_config(config)
@@ -140,7 +140,7 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
 
     # copy now because the sync() invocation will delete the file
     shutil.copy(config.op_rollup_l1_contracts_addresses_path,
-                config.addresses_json_path)
+                config.addresses_path)
 
     log_file = f"{config.logs_dir}/create_l1_artifacts.log"
     print(f"Creating L1 deployment artifacts. Logging to {log_file}")
