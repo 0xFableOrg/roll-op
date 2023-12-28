@@ -201,7 +201,7 @@ class PathsConfig(ABC):
     @property
     def rollup_config_path(self):
         """L2 rollup config file path."""
-        return os.path.join(self.artifacts_dir, "rollup.json")
+        return os.path.join(self.artifacts_dir, "rollup-config.json")
 
     @property
     def deploy_config_path(self):
