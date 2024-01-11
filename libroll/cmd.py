@@ -94,9 +94,11 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     missing = object()
     # when forward == "fd", the "stdout" and "stderr" options are popped out of kwargs
     if kwargs.get("stdout", missing) is not missing:
-        raise AssertionError("You can an only specify the `stdout` option when using `forward='fd'`")
+        raise AssertionError(
+            "You can an only specify the `stdout` option when using `forward='fd'`")
     if kwargs.get("stderr", missing) is not missing:
-        raise AssertionError("You can only specify the `stderr` option when using `forward='fd'`")
+        raise AssertionError(
+            "You can only specify the `stderr` option when using `forward='fd'`")
 
     if forward == "capture" and not wait:
         raise AssertionError("Cannot use `forward='capture'` with `wait=False`")

@@ -3,7 +3,7 @@ This modules contains classes defining "writeable streams", which implement the 
 `flush()` methods, as well as `close()` and `closed` (though those do not seem required), making
 them usable in place of file descriptors for functions such as subprocess.Popen, or assignable to
 `sys.stdout`.
-"""g
+"""
 
 ####################################################################################################
 
@@ -42,7 +42,7 @@ class Tee:
         for file in self.files:
             try:
                 file.close()
-            except:
+            except:  # noqa: E722
                 pass  # best effort + streams might not support operation
         self._closed = True
 
