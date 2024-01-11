@@ -234,7 +234,7 @@ def _start_devnet_l1_node(config: Config):
         f.write("\n".join(command))
 
     PROCESS_MGR.start(
-        "starting geth",
+        "running geth",
         command,
         forward="fd",
         stdout=log_file)
