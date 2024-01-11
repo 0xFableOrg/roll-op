@@ -56,7 +56,7 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
 
     We also introduce keyword arg `check` which is `True` by default (unless `wait=False`) and will
     throw an exception if the process doesn't complete successfully (non-zero return code). This is
-    analogous to the same option is :py:func:`subprocess.run`.
+    analogous to the same option in :py:func:`subprocess.run`.
     """
     if kwargs.get("shell") is not False and isinstance(command, list):
         command = " ".join(command)
@@ -95,10 +95,11 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
             "Must specify `stream` option when using the `forward='stream'` option.")
 
     missing = object()
+    # when forward == "fd", the "stdout" and "stderr" options are popped out of kwargs
     if kwargs.get("stdout", missing) is not missing:
-        raise AssertionError("Cannot only specify `stdout` option when using `forward='fd'`")
+        raise AssertionError("You can an only specify the `stdout` option when using `forward='fd'`")
     if kwargs.get("stderr", missing) is not missing:
-        raise AssertionError("Cannot only specify `stderr` option when using `forward='fd'`")
+        raise AssertionError("You can only specify the `stderr` option when using `forward='fd'`")
 
     if forward == "capture" and not wait:
         raise AssertionError("Cannot use `forward='capture'` with `wait=False`")
@@ -127,10 +128,8 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
 
         returncode = process.wait()
 
-        # NOTE: I believe this isn't required (given we daemonized the thread), but including it
-        # from abundance of caution. Including this prevented errors in the buggy scenario where it
-        # was allowed to capture both the output and forward it to the terminal (leading to
-        # contention on the stdout pipe).
+        # NOTE: I believe this isn't required (given we daemonized the thread), but including it out
+        # of an abundance of caution.
         if thread is not None:
             thread.join()
 
@@ -196,10 +195,9 @@ def forward_output(input_stream, output_stream):
     Prefixes the given `prefix` string if given.
     """
     while True:
-        sys.stdout.flush()
         line = input_stream.readline()
         if line == "":  # EOF
-            sys.stdout.flush()
+            output_stream.flush()
             break
         output_stream.write(line)
         output_stream.flush()
