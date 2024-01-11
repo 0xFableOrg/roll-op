@@ -104,7 +104,13 @@ class BackgroundProcessManager:
         if isinstance(process, Process):
             return process.is_alive()
         else:
-            return process.poll() is None
+            # We have to use this internal method because `process.poll()` can return None from
+            # a terminated process!
+            # See https://bugs.python.org/issue2475 and
+            # https://github.com/python/cpython/issues/46727 for details.
+
+            # noinspection PyUnresolvedReferences,PyProtectedMember
+            return process._internal_poll(_deadstate="dead") is None
 
     ################################################################################################
 
@@ -188,7 +194,7 @@ class BackgroundProcessManager:
 
     ################################################################################################
 
-    def _exit_hook(self, _exitcode: int):
+    def _exit_hook(self, _signum: int):
         self.kill_all()
 
     ################################################################################################
