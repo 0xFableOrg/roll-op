@@ -1,6 +1,6 @@
 import uuid
 
-import libroll as lib
+import state
 
 
 class L2DeployConfig:
@@ -20,7 +20,7 @@ class L2DeployConfig:
         """
 
         self.deploy_slowly = \
-            lib.args.preset == "prod" and getattr(self, "l1_rpc_host") != "127.0.0.1"
+            state.args.preset == "prod" and getattr(self, "l1_rpc_host") != "127.0.0.1"
         """
         Whether to deploy contracts "slowly", i.e. wait for each transaction to succeed before
         submitting the next one. This is recommended for production deployments, since RPC nodes

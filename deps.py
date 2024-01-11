@@ -10,6 +10,7 @@ import shutil
 import sys
 
 import libroll as lib
+import state
 import term
 from config import Config
 
@@ -24,7 +25,7 @@ def basic_setup():
 
     lib.prepend_to_path("bin")
 
-    if lib.args.use_ansi_esc and not term.is_well_known_term():
+    if state.args.use_ansi_esc and not term.is_well_known_term():
         print(
             "\nWARNING: Your terminal is weird.\n"
             "This may cause it to not handle ANSI escape codes well.\n"

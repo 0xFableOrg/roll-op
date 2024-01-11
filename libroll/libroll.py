@@ -5,15 +5,8 @@ import time
 from dataclasses import dataclass
 from typing import Callable
 
+import state
 from .cmd import run_roll_log
-
-####################################################################################################
-# GLOBALS
-
-args = object()
-"""Container for parsed program arguments (cf. roll.py)"""
-
-debug_mode = os.getenv("DEBUG") is not None
 
 
 ####################################################################################################
@@ -23,7 +16,7 @@ def ask_yes_no(question: str) -> bool:
     Prompts the user with a yes/no question and returns the results as a boolean.
     """
     # noinspection PyUnresolvedReferences
-    if hasattr(args, "always_yes") and args.always_yes:
+    if hasattr(state.args, "always_yes") and state.args.always_yes:
         return True
     while True:
         response = input(f"{question} (yes/no): ").strip().lower()
@@ -83,10 +76,9 @@ def replace_in_file(file_path: str, replacements: dict, regex: bool = False):
 
 def debug(string: str):
     """
-    Prints the given string to stdout if `debug_mode` is `True`.
+    Prints the given string to stdout if `libroll.debug_mode` is `True`.
     """
-    global debug_mode
-    if debug_mode:
+    if state.debug_mode:
         print(f"[DEBUG] {string}")
 
 

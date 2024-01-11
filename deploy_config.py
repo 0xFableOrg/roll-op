@@ -1,5 +1,6 @@
 import time
 
+import state
 from config import Config
 from deploy_config_templates import PRODUCTION_CONFIG, DEVNET_CONFIG
 import libroll as lib
@@ -21,7 +22,7 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
     # Get base config, default is the devnet config, but can overriden to production config via
     # the --preset flag.
 
-    if lib.args.preset == "prod":
+    if state.args.preset == "prod":
         deploy_config = PRODUCTION_CONFIG.copy()
     else:
         deploy_config = DEVNET_CONFIG.copy()
