@@ -9,6 +9,7 @@ import subprocess
 import sys
 from threading import Thread
 
+import state
 from .exceptions import extend_exception
 from .streams import Tee
 
@@ -168,7 +169,7 @@ def run_roll_log(descr: str, command: str | list[str], log_file: str | None, **k
     max_lines = kwargs.pop("max_lines", -3)
     prefix = kwargs.pop("prefix", "| ")
     # noinspection PyUnresolvedReferences
-    use_ansi_esc = kwargs.pop("use_ansi_esc", args.use_ansi_esc)
+    use_ansi_esc = kwargs.pop("use_ansi_esc", state.args.use_ansi_esc)
 
     if kwargs.get("forward", None) is not None or kwargs.get("stream", None) is not None:
         raise AssertionError("Cannot specify `forward` or `stream`")

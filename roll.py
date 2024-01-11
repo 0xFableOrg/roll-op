@@ -23,6 +23,7 @@ from argparsing import Argparser
 from config import Config, use_production_config
 from processes import PROCESS_MGR
 import setup
+import state
 
 ####################################################################################################
 
@@ -184,38 +185,38 @@ for cmd in [cmd_l2, cmd_devnet]:
 
 def load_config() -> Config:
     """
-    Uses the program arguments (found at `lib.args`) to create and populate a :py:class:`Config`
+    Uses the program arguments (found at `state.args`) to create and populate a :py:class:`Config`
     object.
     """
 
-    deployment_name = lib.args.name
+    deployment_name = state.args.name
     deployment_name = deployment_name if deployment_name else "rollup"
 
     config = Config(deployment_name)
 
     # Define config preset
-    if lib.args.preset is None or lib.args.preset == "dev":
+    if state.args.preset is None or state.args.preset == "dev":
         pass
-    elif lib.args.preset == "prod":
+    elif state.args.preset == "prod":
         use_production_config(config)
     else:
         # Should never happen, as correct preset is validated by argparse.
-        raise Exception(f"Unknown preset: '{lib.args.preset}'. Valid: 'dev', 'prod'.")
+        raise Exception(f"Unknown preset: '{state.args.preset}'. Valid: 'dev', 'prod'.")
 
     config.deployment_name = deployment_name
 
     # Parse config file if specified
-    if lib.args.config_path:
+    if state.args.config_path:
         try:
             import tomli
         except Exception:
             raise Exception(
                 "Missing dependencies. Try running `rollop setup` first.")
-        if os.path.exists(lib.args.config_path):
-            with open(lib.args.config_path, mode="rb") as f:
+        if os.path.exists(state.args.config_path):
+            with open(state.args.config_path, mode="rb") as f:
                 config_file = tomli.load(f)
         else:
-            raise Exception(f"Cannot find config file at {lib.args.config_path}")
+            raise Exception(f"Cannot find config file at {state.args.config_path}")
 
         try:
             for key, value in config_file.items():
@@ -268,9 +269,9 @@ def start_addons(config: Config):
     """
     Starts a block explorer and/or an ERC4337 bundler and paymaster, if configured to do so.
     """
-    if getattr(lib.args, "explorer", None):
+    if getattr(state.args, "explorer", None):
         block_explorer.launch_blockscout(config)
-    if getattr(lib.args, "aa", None):
+    if getattr(state.args, "aa", None):
         account_abstraction.setup(config)
         account_abstraction.deploy(config)
         account_abstraction.start(config)
@@ -279,11 +280,11 @@ def start_addons(config: Config):
 ####################################################################################################
 
 def main():
-    lib.args = p.parse()
+    state.args = p.parse()
     config = None
 
     try:
-        if lib.args.command is None or lib.args.command == "help":
+        if state.args.command is None or state.args.command == "help":
             p.print_help()
             exit()
 
@@ -291,14 +292,14 @@ def main():
         config = load_config()
         deps.create_paths(config)
 
-        if lib.args.command == "setup":
+        if state.args.command == "setup":
             setup.setup(config)
             return
 
         deps.post_setup()
 
-        if lib.args.command == "devnet":
-            if lib.args.clean_first:
+        if state.args.command == "devnet":
+            if state.args.clean_first:
                 l1.clean(config)
                 l2.clean(config)
 
@@ -311,17 +312,17 @@ def main():
             start_addons(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "clean":
-            if getattr(lib.args, "aa", None):
+        elif state.args.command == "clean":
+            if getattr(state.args, "aa", None):
                 account_abstraction.clean(config)
-            if getattr(lib.args, "explorer", None):
+            if getattr(state.args, "explorer", None):
                 block_explorer.clean(config)
             l1.clean(config)
             l2.clean(config)
             shutil.rmtree(config.deployment_dir, ignore_errors=True)
 
-        elif lib.args.command == "l2":
-            if lib.args.clean_first:
+        elif state.args.command == "l2":
+            if state.args.clean_first:
                 l2.clean(config)
 
             deps.check_or_install_foundry()
@@ -330,8 +331,8 @@ def main():
             start_addons(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "aa":
-            if lib.args.clean_first:
+        elif state.args.command == "aa":
+            if state.args.clean_first:
                 account_abstraction.clean(config)
 
             account_abstraction.setup(config)
@@ -339,15 +340,15 @@ def main():
             account_abstraction.start(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "explorer":
-            if lib.args.clean_first:
+        elif state.args.command == "explorer":
+            if state.args.clean_first:
                 block_explorer.clean(config)
 
             block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "l1":
-            if lib.args.clean_first:
+        elif state.args.command == "l1":
+            if state.args.clean_first:
                 l1.clean(config)
 
             deps.check_or_install_geth()
@@ -356,51 +357,51 @@ def main():
             l1.deploy_devnet_l1(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "deploy-l2":
-            if lib.args.clean_first:
+        elif state.args.command == "deploy-l2":
+            if state.args.clean_first:
                 l2.clean(config)
 
             deps.check_or_install_foundry()
 
             l2_deploy.deploy(config)
 
-        elif lib.args.command == "l2-engine":
-            if lib.args.clean_first:
+        elif state.args.command == "l2-engine":
+            if state.args.clean_first:
                 l2_engine.clean(config)
 
             l2_engine.start(config)
-            if hasattr(lib.args, "explorer") and lib.args.explorer:
+            if hasattr(state.args, "explorer") and state.args.explorer:
                 block_explorer.launch_blockscout(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "l2-sequencer":
-            if lib.args.clean_first:
+        elif state.args.command == "l2-sequencer":
+            if state.args.clean_first:
                 l2_node.clean()
 
             l2_node.start(config, sequencer=True)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "l2-batcher":
+        elif state.args.command == "l2-batcher":
             # nothing to clean
             l2_batcher.start(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "l2-proposer":
+        elif state.args.command == "l2-proposer":
             # nothing to clean
             config.deployments = lib.read_json_file(config.addresses_path)
             l2_proposer.start(config)
             PROCESS_MGR.wait_all()
 
-        elif lib.args.command == "clean-build":
+        elif state.args.command == "clean-build":
             setup.clean_build()
 
-        elif lib.args.command == "clean-l2":
+        elif state.args.command == "clean-l2":
             l2.clean(config)
 
-        elif lib.args.command == "clean-aa":
+        elif state.args.command == "clean-aa":
             account_abstraction.clean(config)
 
-        elif lib.args.command == "clean-explorer":
+        elif state.args.command == "clean-explorer":
             block_explorer.clean(config)
 
         print("Done.")
