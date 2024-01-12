@@ -134,12 +134,18 @@ def start_bundler(config: Config):
     log_file = open(log_file_path, "w")
     print(f"Starting the stackup bundler. Logging to {log_file_path}.")
 
+    def on_exit():
+        print(f"AA bundler exited. Check {log_file_path} for details.\n"
+              "You can re-run with `./rollop aa` in another terminal\n"
+              "(!! Make sure to specify the same config file and flags!)")
+
     PROCESS_MGR.start(
         "start bundler",
         "stackup-bundler start --mode private",
         env=env,
         forward="fd",
-        stdout=log_file)
+        stdout=log_file,
+        on_exit=on_exit)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -184,13 +190,19 @@ def start_paymaster(config: Config):
     log_file = open(log_file_path, "w")
     print(f"Starting paymaster signer service. Logging to {log_file_path}")
 
+    def on_exit():
+        print(f"AA paymaster exited. Check {log_file_path} for details.\n"
+              "You can re-run with `./rollop aa` in another terminal\n"
+              "(!! Make sure to specify the same config file and flags!)")
+
     PROCESS_MGR.start(
         "start paymaster signer service",
         "pnpm run start",
         cwd="paymaster",
         env=env,
         forward="fd",
-        stdout=log_file)
+        stdout=log_file,
+        on_exit=on_exit)
 
 
 ####################################################################################################

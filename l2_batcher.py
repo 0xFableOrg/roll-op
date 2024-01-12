@@ -61,10 +61,16 @@ def start(config: Config):
 
     config.log_l2_command("\n".join(command))
 
+    def on_exit():
+        print(f"L2 batcher exited. Check {log_file_path} for details.\n"
+              "You can re-run with `./rollop l2-batcher` in another terminal\n"
+              "(!! Make sure to specify the same config file and flags!)")
+
     PROCESS_MGR.start(
         "starting L2 batcher",
         command,
         forward="fd",
-        stdout=log_file)
+        stdout=log_file,
+        on_exit=on_exit)
 
 ####################################################################################################
