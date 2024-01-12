@@ -26,12 +26,19 @@ class ExitHooksManager:
         self.hooks = []
         """List of functions to call when exiting."""
 
+        self.signal_fired = False
+        """
+        Record when a signal has been fired to avoid calling hooks again with the atexit handler.
+        """
+
         atexit.register(self._run_hooks)
         signal.signal(signal.SIGTERM, self._signal_handler)
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGQUIT, self._signal_handler)
 
     def _run_hooks(self):
+        if self.signal_fired:
+            return
         for hook in self.hooks:
             hook(0)
 
@@ -42,6 +49,7 @@ class ExitHooksManager:
         finally:
             if signum == signal.SIGINT:
                 print("Interrupted by SIGINT (most likely Ctrl-C).")
+            self.signal_fired = True
             exit(signum)
 
     def register(self, hook: Callable[[int], None]):
