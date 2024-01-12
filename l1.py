@@ -233,11 +233,17 @@ def _start_devnet_l1_node(config: Config):
     with open(os.path.join(config.logs_dir, "l1_command.log"), "w") as f:
         f.write("\n".join(command))
 
+    def on_exit():
+        print(f"L1 node exited. Check {log_file_path} for details.\n"
+              "You can re-run with `./rollop l1` in another terminal\n"
+              "(!! Make sure to specify the same config file and flags!)")
+
     PROCESS_MGR.start(
         "running geth",
         command,
         forward="fd",
-        stdout=log_file)
+        stdout=log_file,
+        on_exit=on_exit)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_listen_port)
 
