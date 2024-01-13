@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deposit": "npx ts-node script/deposit.ts",
     "start": "tsc && node dist/src/server.js",
     "test": "npx ts-node test/tests.ts"
   },

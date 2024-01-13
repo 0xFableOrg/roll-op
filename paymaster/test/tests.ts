@@ -9,15 +9,13 @@ async function main() {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
     const signer = new ethers.Wallet(process.env.PRIVATE_KEY as string, provider);
 
-    // Paymaster first needs to have funds in Entrypoint contract
+    // Initialize paymaster contract
     const paymasterAddress = process.env.PAYMASTER_ADDRESS as string;
     const paymaster = new ethers.Contract(
         paymasterAddress,
         paymasterAbi,
-        signer
+        provider
     );
-    await (await paymaster.deposit({ value: ethers.parseEther('3')})).wait();
-    await (await paymaster.addStake(3000, { value: ethers.parseEther('3')})).wait();
 
     // Generate initcode
     const simpleAccountFactoryAddress = process.env.SIMPLE_ACCOUNT_FACTORY_ADDRESS as string;

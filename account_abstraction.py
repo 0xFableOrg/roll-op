@@ -170,7 +170,14 @@ def start_paymaster(config: Config):
            "SIMPLE_ACCOUNT_FACTORY_ADDRESS": simple_account_factory_address,
            "PAYMASTER_ADDRESS": paymaster_address,
            "TIME_VALIDITY": str(config.paymaster_validity),
+           "INITIAL_DEPOSIT": config.paymaster_initial_deposit,
            "PRIVATE_KEY": config.paymaster_key}
+
+    lib.run(
+        "deposit initial funds for paymaster",
+        command=deps.cmd_with_node("pnpm run deposit"),
+        cwd="paymaster",
+        env=env)
 
     # start paymaster signer service
     log_file_path = f"{config.logs_dir}/paymaster_signer.log"
