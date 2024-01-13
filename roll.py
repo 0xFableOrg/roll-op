@@ -19,6 +19,7 @@ import l2_engine
 import l2_node
 import l2_proposer
 import libroll as lib
+import logrotate
 from argparsing import Argparser
 from config import Config, use_production_config
 from processes import PROCESS_MGR
@@ -279,6 +280,17 @@ def start_addons(config: Config):
 
 ####################################################################################################
 
+def wait(config: Config):
+    """
+    Prevents the main process from shutdowning while subprocesses are running, and also
+    starts the logrotate thread.
+    """
+    logrotate.start_thread(config)
+    PROCESS_MGR.wait_all()
+
+
+####################################################################################################
+
 def main():
     state.args = p.parse()
     config = None
@@ -310,7 +322,7 @@ def main():
                 l1.deploy_devnet_l1(config)
             l2.deploy_and_start(config)
             start_addons(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "clean":
             if getattr(state.args, "aa", None):
@@ -329,7 +341,7 @@ def main():
 
             l2.deploy_and_start(config)
             start_addons(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "aa":
             if state.args.clean_first:
@@ -338,14 +350,14 @@ def main():
             account_abstraction.setup(config)
             account_abstraction.deploy(config)
             account_abstraction.start(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "explorer":
             if state.args.clean_first:
                 block_explorer.clean(config)
 
             block_explorer.launch_blockscout(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "l1":
             if state.args.clean_first:
@@ -355,7 +367,7 @@ def main():
             deps.check_or_install_foundry()
 
             l1.deploy_devnet_l1(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "deploy-l2":
             if state.args.clean_first:
@@ -372,25 +384,25 @@ def main():
             l2_engine.start(config)
             if hasattr(state.args, "explorer") and state.args.explorer:
                 block_explorer.launch_blockscout(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "l2-sequencer":
             if state.args.clean_first:
                 l2_node.clean()
 
             l2_node.start(config, sequencer=True)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "l2-batcher":
             # nothing to clean
             l2_batcher.start(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "l2-proposer":
             # nothing to clean
             config.deployments = lib.read_json_file(config.addresses_path)
             l2_proposer.start(config)
-            PROCESS_MGR.wait_all()
+            wait(config)
 
         elif state.args.command == "clean-build":
             setup.clean_build()

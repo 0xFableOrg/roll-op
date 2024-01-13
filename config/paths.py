@@ -91,6 +91,29 @@ class PathsConfig(ABC):
         Use :py:method:`log_command` to write to this file.
         """
 
+        self.logrotate_config_file = os.path.join(self.logs_dir, "logrotate.conf")
+        """
+        The logrotate configuration file.
+        """
+
+        self.logrotate_status_file = os.path.join(self.logs_dir, "logrotate.status")
+        """
+        The logrotate status file (must be specified, otherwise logrotate will use the global status
+        file).
+        """
+
+        self.logrotate_tmp_file = os.path.join(self.logs_dir, "logrotate.tmp")
+        """
+        File used to avoid data loss when rotating logs when :py:attr:`prevent_log_data_loss` is
+        true.
+        """
+
+        self.logrotate_pid_file = os.path.join(self.logs_dir, "logrotate.pid")
+        """
+        File used to store the PID of a temporary process when :py:attr:`prevent_log_data_loss` is
+        true.
+        """
+
     # ==============================================================================================
     # Optimism Monorepo Paths
 
@@ -259,5 +282,11 @@ class PathsConfig(ABC):
             self.log_l2_commands_file,
             "\n################################################################################\n"
             + command)
+
+    # ==============================================================================================
+
+    # See also:
+    # :py:attribute:`log_files` in :py:class:`config.logs.LogsConfig`
+    # `*_log_file` in :py:class:`config.logs.LogsConfig`
 
     # ==============================================================================================
