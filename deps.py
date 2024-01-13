@@ -132,6 +132,11 @@ def _check_basic_prerequisites():
             "grep is not installed. Please install it from your package manager.\n"
             "e.g. `sudo apt install grep`")
 
+    if shutil.which("logrotate") is None:
+        raise Exception(
+            "logrotate is not installed. Please install it from your package manager.\n"
+            "e.g. `brew install logrotate` or `sudo apt install logrotate`")
+
 
 ####################################################################################################
 

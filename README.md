@@ -27,21 +27,23 @@ The current version of simple-op-stack-rollup deploys software pinned to the fol
   - `sudo apt install python3-pip` on Debian-based systems
   - `brew install python` on macOS with Homebrew
 
-The following dependencies will be checked by `roll.py`:
+You also need the following installed, `rollop` will warn you if these are missing:
 
 - Some common command line utilities: `make`, `curl`, `tar`, `awk` and `grep`.
+- [`logrotate`](https://github.com/logrotate/logrotate)
+  - `sudo apt install logrotate` on Debian-based systems
+  - `brew install logrotate` on macOS with Homebrew
 - Git
 - Docker (if you wish to run the Blockscout block explorer)
 
-`roll.py` will check the following dependencies and install them for you if needed (the script will
-always for your permission before installing anything outside the current directory):
+`rollop` will check the following dependencies and install them for you if needed (the script will
+always ask for your permission before installing anything outside the current directory):
 
 - Python libraries
   - [Tomli](https://pypi.org/project/tomli/)
   - [PyYAML](https://pypi.org/project/PyYAML/) (for block explorer support)
-  - These will be installed globally by default
-  - install them locally instead (in a venv within the roll-op directory), you can run `source
-    devenv.sh` before running `rollop`.
+  - These will be installed globally by default. To install them locally instead (in a venv within
+    the roll-op directory), you can run `source devenv.sh` before running `rollbop`.
 - Node.js 20.9.0
 - pnpm (`pnpm install -g pnpm`)
 - Yarn (for account abstraction support)

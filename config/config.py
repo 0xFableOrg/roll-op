@@ -10,6 +10,7 @@ from .l2_node import L2NodeConfig
 from .l2_proposer import L2ProposerConfig
 from .network import NetworkConfig
 from .paths import PathsConfig
+from .logs import LogsConfig
 
 
 class Config(
@@ -24,7 +25,8 @@ class Config(
     L2ProposerConfig,
     L2BatcherConfig,
     ExplorerConfig,
-    AccountAbstractionConfig
+    AccountAbstractionConfig,
+    LogsConfig,
 ):
 
     # ==========================================================================================
