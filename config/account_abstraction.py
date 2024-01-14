@@ -8,7 +8,7 @@ class AccountAbstractionConfig:
     def __init__(self):
         super().__init__()
 
-        self.paymaster_initial_deposit = "3"
+        self.paymaster_initial_deposit = 3
         """
         Initial deposit amount (in Ether) for the paymaster contract.
         """

@@ -170,7 +170,7 @@ def start_paymaster(config: Config):
            "SIMPLE_ACCOUNT_FACTORY_ADDRESS": simple_account_factory_address,
            "PAYMASTER_ADDRESS": paymaster_address,
            "TIME_VALIDITY": str(config.paymaster_validity),
-           "INITIAL_DEPOSIT": config.paymaster_initial_deposit,
+           "INITIAL_DEPOSIT": str(config.paymaster_initial_deposit),
            "PRIVATE_KEY": config.paymaster_key}
 
     lib.run(
