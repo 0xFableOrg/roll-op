@@ -11,6 +11,7 @@ from subprocess import Popen
 
 import l2_deploy
 import libroll as lib
+import state
 from config import Config
 import deploy_config
 from processes import PROCESS_MGR
@@ -264,7 +265,8 @@ def clean(config: Config):
         config.op_deployment_artifacts_dir,
     ])
 
-    if config.l1_contracts_in_genesis:
+    if config.l1_contracts_in_genesis and state.args.command != "clean":
+        # When the comman is "clean", we do remove those files anyway.
         print(
             "The rollup contracts were baked into the L1 genesis.\n"
             "You may want to run the `clean-l2` roll-op command to remove the deployment outputs.\n"
