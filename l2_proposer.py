@@ -19,7 +19,7 @@ def start(config: Config):
         config.l2_proposer_rpc_listen_addr,
         config.l2_proposer_rpc_listen_port)
 
-    log_file = f"{config.logs_dir}/l2_proposer.log"
+    log_file = config.l2_proposer_log_file
     print(f"Starting L2 proposer. Logging to {log_file}")
 
     command = [

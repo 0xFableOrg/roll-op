@@ -39,7 +39,7 @@ def start(config: Config):
             ],
             file=log_file)
 
-    log_file = f"{config.logs_dir}/l2_engine.log"
+    log_file = config.l2_engine_log_file
     print(f"Starting op-geth node. Logging to {log_file}")
 
     command = [
