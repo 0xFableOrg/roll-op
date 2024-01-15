@@ -80,50 +80,31 @@ class FileStream(WriteableStream):
     """
     A stream (cf. :py:mod:`libroll.streams`) that forwards all writes to a file.
 
-    Compared to using a file descriptor, this stream ensures that the contents will be written to a
-    file with the given path, even if the original file was deleted, moved, or even re-created.
+    Compared to using a file descriptor, this stream reopens the file every time it is written to.
+    This ensures that the contents will always be appended at the end of the file currently at the
+    given path, even if the original file was deleted, moved, re-created, or truncated.
 
-    (However, this does not handle truncation — if the file is truncated, we will keep writing at
-    the same offset a before, leading a file starting with a nul prelude.)
-
-    If `truncate_on_reopen=True` (the default is `False`) is passed to the constructor, the file
-    will be truncated when re-opened (which is relevant in case the old file was deleted or moved
-    and a new file exists at the same path in its stead). Otherwise, we will append to it.
+    (It is possible to detect deletion pretty easily, but not moves and truncation, which require
+    multiple system calls.)
     """
 
-    def __init__(self, path: str, truncate_on_reopen=False):
+    def __init__(self, path: str):
         self.path = path
-        self.mode = "w" if truncate_on_reopen else "a"
-        self.file = open(path, self.mode)
         self._closed = False
-
-    def _connected_to_file(self):
-        # check if the file descriptor is still connected to a file on disk
-        return os.fstat(self.file.fileno()).st_nlink > 0
 
     def write(self, s):
         if self._closed:
             raise ValueError("I/O operation on closed stream.")
 
-        if not self._connected_to_file():
-            self.file.close()
-            self.file = open(self.path, "a")
-
-        self.file.write(s)
-
-    def flush(self):
-        if self._closed:
-            raise ValueError("I/O operation on closed stream.")
-
-        if not self.file.closed:
-            self.file.flush()
+        with(open(self.path, "a")) as f:
+            f.write(s)
 
     def close(self):
         self._closed = True
-        self.file.close()
 
     @property
     def closed(self):
         return self._closed
+
 
 ####################################################################################################
