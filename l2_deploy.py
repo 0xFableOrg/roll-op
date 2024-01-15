@@ -128,17 +128,18 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
     else:
         slow_arg = ""
 
-    lib.run_roll_log("deploy the L2 contracts on L1", [
-        "forge script",
-        deploy_script,
-        "--sender", deployer_account,
-        private_key_arg,
-        f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
-        f"--rpc-url {l1_rpc_url}",
-        "--broadcast",
-        slow_arg,
-        unlocked_arg
-    ],
+    lib.run_roll_log(
+        "deploy the L2 contracts on L1", [
+            "forge script",
+            deploy_script,
+            "--sender", deployer_account,
+            private_key_arg,
+            f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
+            f"--rpc-url {l1_rpc_url}",
+            "--broadcast",
+            slow_arg,
+            unlocked_arg
+        ],
         cwd=config.op_contracts_dir,
         env=env,
         log_file=log_file)
@@ -149,12 +150,13 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
 
     log_file = f"{config.logs_dir}/create_l1_artifacts.log"
     print(f"Creating L1 deployment artifacts. Logging to {log_file}")
-    lib.run_roll_log("create L1 deployment artifacts", [
-        "forge script",
-        deploy_script,
-        "--sig 'sync()'",
-        f"--rpc-url {l1_rpc_url}",
-    ],
+    lib.run_roll_log(
+        "create L1 deployment artifacts", [
+            "forge script",
+            deploy_script,
+            "--sig 'sync()'",
+            f"--rpc-url {l1_rpc_url}",
+        ],
         cwd=config.op_contracts_dir,
         env=env,
         log_file=log_file)
@@ -173,13 +175,15 @@ def _generate_l2_genesis(config: Config):
     else:
         print("Generating L2 genesis and rollup configs.")
         try:
-            lib.run("generate L2 genesis and rollup configs", [
-                "go run cmd/main.go genesis l2",
-                f"--l1-rpc={config.l1_rpc_url}",
-                f"--deploy-config={config.deploy_config_path}",
-                f"--deployment-dir={config.abi_dir}",
-                f"--outfile.l2={config.l2_genesis_path}",
-                f"--outfile.rollup={config.rollup_config_path}"],
+            lib.run(
+                "generate L2 genesis and rollup configs", [
+                    "go run cmd/main.go genesis l2",
+                    f"--l1-rpc={config.l1_rpc_url}",
+                    f"--deploy-config={config.deploy_config_path}",
+                    f"--deployment-dir={config.abi_dir}",
+                    f"--outfile.l2={config.l2_genesis_path}",
+                    f"--outfile.rollup={config.rollup_config_path}"
+                ],
                 cwd=config.op_node_dir)
         except Exception as err:
             raise lib.extend_exception(

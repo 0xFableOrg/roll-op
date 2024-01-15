@@ -49,13 +49,15 @@ def _generate_devnet_l1_genesis(config: Config):
 
     _create_devnet_l1_genesis_allocs(config)
 
-    lib.run("generate l1 genesis", [
-        "go run cmd/main.go genesis l1",
-        f"--deploy-config {config.deploy_config_path}",
-        f"--l1-allocs {config.l1_allocs_path}",
-        f"--l1-deployments {config.addresses_path}",
-        f"--outfile.l1 {config.l1_genesis_path}"
-    ], cwd=config.op_node_dir)
+    lib.run(
+        "generate l1 genesis", [
+            "go run cmd/main.go genesis l1",
+            f"--deploy-config {config.deploy_config_path}",
+            f"--l1-allocs {config.l1_allocs_path}",
+            f"--l1-deployments {config.addresses_path}",
+            f"--outfile.l1 {config.l1_genesis_path}"
+        ],
+        cwd=config.op_node_dir)
 
 
 ####################################################################################################
@@ -99,20 +101,21 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         # noinspection PyUnresolvedReferences,PyProtectedMember
         os._exit(1)  # we have to use this one to exit from a thread
 
-    popen = PROCESS_MGR.start("run temporary geth instance", [
-        "geth",
-        "--dev",
-        "--http",
-        "--http.api eth,debug",
-        f"--http.port={config.temp_l1_rpc_listen_port}",
-        "--verbosity 4",
-        "--gcmode archive",
-        "--dev.gaslimit 30000000",
-        # Mine a block every second — without this the L2 contracts deployment can hang because
-        # the basefees climbed too high and geth doesn't mine any blocks so it never goes down.
-        "--dev.period 1",
-        "--rpc.allow-unprotected-txs"
-    ],
+    popen = PROCESS_MGR.start(
+        "run temporary geth instance", [
+            "geth",
+            "--dev",
+            "--http",
+            "--http.api eth,debug",
+            f"--http.port={config.temp_l1_rpc_listen_port}",
+            "--verbosity 4",
+            "--gcmode archive",
+            "--dev.gaslimit 30000000",
+            # Mine a block every second — without this the L2 contracts deployment can hang because
+            # the basefees climbed too high and geth doesn't mine any blocks so it never goes down.
+            "--dev.period 1",
+            "--rpc.allow-unprotected-txs"
+        ],
         file=log_file,
         on_exit=early_exit_handler)
 
@@ -153,13 +156,14 @@ def _start_devnet_l1_node(config: Config):
         log_file = f"{config.logs_dir}/init_l1_genesis.log"
         print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node.\n"
               f"Logging to {log_file}")
-        lib.run("initializing genesis", [
-            "geth",
-            f"--verbosity={config.l1_verbosity}",
-            "init",
-            f"--datadir={config.l1_data_dir}",
-            config.l1_genesis_path
-        ],
+        lib.run(
+            "initializing genesis", [
+                "geth",
+                f"--verbosity={config.l1_verbosity}",
+                "init",
+                f"--datadir={config.l1_data_dir}",
+                config.l1_genesis_path
+            ],
             file=log_file)
 
     log_file = config.l1_node_log_file
