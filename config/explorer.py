@@ -27,7 +27,7 @@ class ExplorerConfig(ABC):
 
         self.chain_short_name = "roll-op"
         """
-        Short version of :py:attribute:`chain_name`, used in the block explorer.
+        Short version of :py:attr:`chain_name`, used in the block explorer.
         Defaults to "roll-op".
         """
 

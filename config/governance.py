@@ -15,12 +15,12 @@ class GovernanceConfig:
 
         self.governance_token_symbol = "STONK"
         """
-        If :py:attribute:`enable_governance` is True, the symbol of the governance token to deploy.
+        If :py:attr:`enable_governance` is True, the symbol of the governance token to deploy.
         """
 
         self.governance_token_name = "Simple Token Op-chain Network Koin"
         """
-        If :py:attribute:`enable_governance` is True, the name of the governance token to deploy.
+        If :py:attr:`enable_governance` is True, the name of the governance token to deploy.
         """
 
     # ==============================================================================================

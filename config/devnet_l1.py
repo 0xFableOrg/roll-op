@@ -12,14 +12,14 @@ class DevnetL1Config:
         """
         When using the "devnet" command, whether to run a local L1 chain (True by default).
         If false, it means deploying on an existing L1 blockchain, specified by
-        :py:attribute:`l1_rpc`.
+        :py:attr:`l1_rpc`.
         
-        Note that you can/should stil set :py:attribute:`l1_rpc` when this is True, if you want to
+        Note that you can/should stil set :py:attr:`l1_rpc` when this is True, if you want to
         deploy the the devnet L1 on another IP or port.
         """
 
         # Any attribute defined in this section are only meaningful (used) if
-        # :py:attribute:`deploy_devnet_l1` is True!
+        # :py:attr:`deploy_devnet_l1` is True!
 
         self.l1_contracts_in_genesis = True
         """
@@ -78,20 +78,20 @@ class DevnetL1Config:
         self.l1_metrics_listen_port = 7060
         """
         Port to the L1 node metrics server should bind to (7060 by default).
-        Ignored if :py:attribute:`node_metrics` is False.
+        Ignored if :py:attr:`node_metrics` is False.
         """
 
         self.l1_metrics_listen_addr = "0.0.0.0"
         """
         Address the L1 node metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attribute:`node_metrics` is False.
+        Ignored if :py:attr:`node_metrics` is False.
         """
 
     # ==============================================================================================
 
     # See also:
-    # :py:attribute:`l1_chain_id` in :py:class:`config.network.NetworkConfig`
-    # :py:attribute:`l1_data_dir` in :py:class:`config.paths.PathConfig`
+    # :py:attr:`l1_chain_id` in :py:class:`config.network.NetworkConfig`
+    # :py:attr:`l1_data_dir` in :py:class:`config.paths.PathConfig`
 
     # ==============================================================================================
 

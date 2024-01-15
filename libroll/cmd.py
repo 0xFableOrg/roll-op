@@ -18,7 +18,7 @@ from .exceptions import extend_exception
 
 def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Popen | None:
     """
-    Runs a command using the :py:module:`subprocess` module. Keyword arguments are forwarded to
+    Runs a command using the :py:mod:`subprocess` module. Keyword arguments are forwarded to
     the :py:class:`subprocess.Popen` constructor directly and can be used to override the defaults
     used. Be careful, as some overrides will be incompatible with the processing done by this
     function, read the rest to know more.

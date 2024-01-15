@@ -44,7 +44,7 @@ class L2NodeConfig:
         
         Used for the "optimism" namespace API
         (https://community.optimism.io/docs/developers/build/json-rpc/) and the "admin" namespace
-        (cf. :py:attribute:`node_enable_admin`).
+        (cf. :py:attr:`node_enable_admin`).
         """
 
         self.l2_node_rpc_listen_port = 7545
@@ -53,7 +53,7 @@ class L2NodeConfig:
         
         Used for the "optimism" namespace API
         (https://community.optimism.io/docs/developers/build/json-rpc/) and the "admin" namespace
-        (cf. :py:attribute:`node_enable_admin`).
+        (cf. :py:attr:`node_enable_admin`).
         """
 
         # === P2P Options ===
@@ -88,27 +88,27 @@ class L2NodeConfig:
         self.l2_node_metrics_listen_port = 7300
         """
         Port to the l2 node metrics server should bind to (7300 by default).
-        Ignored if :py:attribute:`node_metrics` is False.
+        Ignored if :py:attr:`node_metrics` is False.
         """
 
         self.l2_node_metrics_listen_addr = "0.0.0.0"
         """
         Address the L2 node metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attribute:`node_metrics` is False.
+        Ignored if :py:attr:`node_metrics` is False.
         """
 
     # ==============================================================================================
 
     # Other options needed to configure the L2 node:
-    # :py:attribute:`jwt_secret_path` in :py:class:`config.PathConfig`
-    # :py:attribute:`rollup_config_path` in :py:class:`config.PathConfig`
-    # :py:attribute:`p2p_peer_key_path` in :py:class:`config.PathConfig`
-    # :py:attribute:`p2p_sequencer_key` in :py:class:`config.AccountsKeysConfig`
-    # :py:attribute:`l1_rpc_for_node_url` in :py:class:`config.NetworkConfig`
-    # :py:attribute:`l2_engine_authrpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`jwt_secret_path` in :py:class:`config.PathConfig`
+    # :py:attr:`rollup_config_path` in :py:class:`config.PathConfig`
+    # :py:attr:`p2p_peer_key_path` in :py:class:`config.PathConfig`
+    # :py:attr:`p2p_sequencer_key` in :py:class:`config.AccountsKeysConfig`
+    # :py:attr:`l1_rpc_for_node_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l2_engine_authrpc_url` in :py:class:`config.NetworkConfig`
 
     # See also:
-    # :py:attribute:`l2_chain_id` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l2_chain_id` in :py:class:`config.NetworkConfig`
     #   (This is not configured on the node, but on the engine!)
 
     # ==============================================================================================
