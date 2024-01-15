@@ -78,13 +78,13 @@ class DevnetL1Config:
         self.l1_metrics_listen_port = 7060
         """
         Port to the L1 node metrics server should bind to (7060 by default).
-        Ignored if :py:attr:`node_metrics` is False.
+        Ignored if :py:attr:`l1_metrics` is False.
         """
 
         self.l1_metrics_listen_addr = "0.0.0.0"
         """
         Address the L1 node metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attr:`node_metrics` is False.
+        Ignored if :py:attr:`l1_metrics` is False.
         """
 
     # ==============================================================================================

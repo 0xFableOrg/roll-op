@@ -88,13 +88,13 @@ class L2NodeConfig:
         self.l2_node_metrics_listen_port = 7300
         """
         Port to the l2 node metrics server should bind to (7300 by default).
-        Ignored if :py:attr:`node_metrics` is False.
+        Ignored if :py:attr:`l2_node_metrics` is False.
         """
 
         self.l2_node_metrics_listen_addr = "0.0.0.0"
         """
         Address the L2 node metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attr:`node_metrics` is False.
+        Ignored if :py:attr:`l2_node_metrics` is False.
         """
 
     # ==============================================================================================

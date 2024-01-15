@@ -67,13 +67,13 @@ class L2EngineConfig:
         self.l2_engine_metrics_listen_port = 8060
         """
         Port to the L2 engine metrics server should bind to (8060 by default).
-        Ignored if :py:attr:`node_metrics` is False.
+        Ignored if :py:attr:`l2_engine_metrics` is False.
         """
 
         self.l2_engine_metrics_listen_addr = "0.0.0.0"
         """
         Address the L2 engine metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attr:`node_metrics` is False.
+        Ignored if :py:attr:`l2_engine_metrics` is False.
         """
 
     # ==============================================================================================
