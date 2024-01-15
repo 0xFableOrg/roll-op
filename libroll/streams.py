@@ -5,10 +5,6 @@ them usable in place of file descriptors for functions such as subprocess.Popen,
 `sys.stdout`.
 """
 
-####################################################################################################
-
-import os
-
 
 ####################################################################################################
 
@@ -96,7 +92,7 @@ class FileStream(WriteableStream):
         if self._closed:
             raise ValueError("I/O operation on closed stream.")
 
-        with(open(self.path, "a")) as f:
+        with (open(self.path, "a")) as f:
             f.write(s)
 
     def close(self):

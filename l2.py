@@ -3,7 +3,6 @@ This module defines functions related to spinning an op-geth node.
 """
 
 import os
-import shutil
 
 import l2_batcher
 import l2_deploy

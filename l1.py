@@ -5,8 +5,6 @@ on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 
 import json
 import os
-import shutil
-import time
 from subprocess import Popen
 
 import l2_deploy

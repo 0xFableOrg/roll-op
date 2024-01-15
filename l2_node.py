@@ -1,5 +1,4 @@
 import os
-import shutil
 
 import l2
 from config import Config
