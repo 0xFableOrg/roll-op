@@ -54,7 +54,7 @@ def _generate_logrotate_config(config: Config):
     with open(config.logrotate_config_file, "w") as f:
         f.write(_generate_logrorate_config_prelude(config))
         f.write("\n\n")
-        for file in config.log_files:
+        for file in config.rotating_log_files:
             f.write(_generate_logrotate_config_for_file(file, config))
             f.write("\n\n")
 

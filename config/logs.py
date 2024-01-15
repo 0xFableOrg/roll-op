@@ -45,6 +45,16 @@ class LogsConfig:
         Filename (not path!) for the global log file for the blockscout services.
         """
 
+        self.paymaster_log_filename = "paymaster.log"
+        """
+        Filename (not path!) for the log file of the paymaster.
+        """
+
+        self.stackup_bundler_log_filename = "stackup_bundler.log"
+        """
+        Filename (not path!) for the log file of the stackup bundler.
+        """
+
         # ------------------------------------------------------------------------------------------
         # Logrotate
 
@@ -99,7 +109,19 @@ class LogsConfig:
         return os.path.join(self.logs_dir, self.blockscout_log_filename)
 
     @property
-    def log_files(self):
+    def paymaster_log_file(self):
+        return os.path.join(self.logs_dir, self.paymaster_log_filename)
+
+    @property
+    def stackup_bundler_log_file(self):
+        return os.path.join(self.logs_dir, self.stackup_bundler_log_filename)
+
+    @property
+    def rotating_log_files(self):
+        """
+        List of all the log files that should be rotated
+        (these should be all log files of long-running services).
+        """
         return [
             self.l1_node_log_file,
             self.l2_node_log_file,
@@ -107,6 +129,8 @@ class LogsConfig:
             self.l2_batcher_log_file,
             self.l2_proposer_log_file,
             self.blockscout_log_file,
+            self.paymaster_log_file,
+            self.stackup_bundler_log_file,
         ]
 
     # ----------------------------------------------------------------------------------------------
