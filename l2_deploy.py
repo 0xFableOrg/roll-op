@@ -86,7 +86,7 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
         private_key_arg = f"--private-key {config.contract_deployer_key}"
         unlocked_arg = ""
 
-    if tmp_l1 or config.deploy_create2_deployer:
+    if tmp_l1 or config.deploy_deterministic_deployment_proxy:
         lib.run("send some ether to the create2 deployer account", [
             "cast send",
             f"--from {deployer_account}",
@@ -94,7 +94,7 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
             f"--rpc-url {l1_rpc_url}",
             unlocked_arg,
             "--value 1ether",
-            "0x3fAB184622Dc19b6109349B94811493BF2a45362"  # create2 deployer account
+            "0x3fAB184622Dc19b6109349B94811493BF2a45362"  # deployer of the proxy
         ])
 
         create2_deployer_deploy_tx \
