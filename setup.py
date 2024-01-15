@@ -164,7 +164,5 @@ def clean_build():
         cwd="account-abstraction",
         forward="self")
 
-    # NOTE: Need to cleanup blockscout when properly integrated.
-
 
 ####################################################################################################
