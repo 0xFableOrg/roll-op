@@ -112,12 +112,14 @@ def setup_op_geth_repo(config: Config):
         cwd="optimism").strip()
 
     if head_tag != git_tag:
-        lib.run("[op-geth] fetch",
-                "git fetch",
-                cwd="op-geth")
-        lib.run("[op-geth] checkout stable version",
-                f"git checkout --detach {git_tag}",
-                cwd="op-geth")
+        lib.run(
+            "[op-geth] fetch",
+            "git fetch",
+            cwd="op-geth")
+        lib.run(
+            "[op-geth] checkout stable version",
+            f"git checkout --detach {git_tag}",
+            cwd="op-geth")
 
     log_file = f"{config.logs_dir}/build_op_geth.log"
     print(f"Starting to build the op-geth repository. Logging to {log_file}\n"
