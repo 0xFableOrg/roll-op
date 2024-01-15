@@ -10,8 +10,8 @@ import sys
 from threading import Thread
 
 import state
+from . import streams
 from .exceptions import extend_exception
-from .streams import Tee
 
 
 ####################################################################################################
@@ -37,12 +37,17 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     - "fd" (for "file descriptor"): the output is redirected to the provided `stdout` and `stderr`.
       If those aren't provided, this will behave similarly to "self". If only `stdout` is provided,
       `stderr` is redirected to it.
+    - "file": the output is redirected to the file at the path given in the `file` option. This is
+      different from "fd" as the writes will always be made to the file at the given path, even
+      if the original file is deleted or moved away. This is notably useful for log files, because
+      it enables log file rotation by moving the original away.
 
-    The default is "stream" if the `stream` option is specified, "self" if `wait=False` and
-    "capture" otherwise.
+    The default is "file" if `file` option is specified, otherwise "stream" if the `stream` option
+    is specified, otherwise "self" if `wait=False` and "capture" otherwise.
 
     You can only specify `stdout` and `stderr` when using `forward='fd'` (the other modes will set
-    them explicitly according to their purpose).
+    them explicitly according to their purpose). The stream and file options will redirect stderr to
+    stdout.
 
     Examples of possible values for `stream` options are :py:class:`libroll.Tee`. and
     :py:class:`term.FixedTermSizeStream`.
@@ -60,14 +65,19 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
 
     wait = kwargs.pop("wait", True)
     check = kwargs.pop("check", True if wait else False)
-    stream = kwargs.pop("stream", None)
-    forward_default = "stream" if stream is not None else "capture" if wait else "self"
+    stream = kwargs.pop("stream", None)  # type: streams.WriteableStream | None
+    file = kwargs.pop("file", None)      # type: str | None
+    forward_default = \
+        "file" if file is not None else \
+        "stream" if stream is not None else \
+        "capture" if wait else \
+        "self"
     forward = kwargs.pop("forward", forward_default)
 
     if forward == "self":
         stdout = None
         stderr = None
-    elif forward in ("capture", "stream"):
+    elif forward in ("capture", "stream", "file"):
         stdout = subprocess.PIPE
         stderr = subprocess.STDOUT
     elif forward == "discard":
@@ -84,6 +94,13 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     if not isinstance(wait, bool):
         raise AssertionError("`wait` option must be a boolean")
 
+    if file is not None and forward != "file":
+        raise AssertionError(
+            "`forward` option must be 'file' or omitted when using the `file` option.")
+    if file is None and forward == "file":
+        raise AssertionError(
+            "Must specify `file` option when using the `forward='file'` option.")
+
     if stream is not None and forward != "stream":
         raise AssertionError(
             "`forward` option must be 'stream' or omitted when using the `stream` option.")
@@ -96,14 +113,18 @@ def run(descr: str, command: str | list[str], **kwargs) -> str | subprocess.Pope
     if kwargs.get("stdout", missing) is not missing:
         raise AssertionError(
             "You can an only specify the `stdout` option when using `forward='fd'`")
-    if kwargs.get("stderr", missing) is not missing:
+    if kwargs.get("stderr", missing) is not missing or stderr is not subprocess.STDOUT:
         raise AssertionError(
-            "You can only specify the `stderr` option when using `forward='fd'`")
+            "You can only set the `stderr` option to something else than `subprocess.STDOUT` "
+            "option when using `forward='fd'`")
 
     if forward == "capture" and not wait:
         raise AssertionError("Cannot use `forward='capture'` with `wait=False`")
     if check and not wait:
         raise AssertionError("Cannot use `check=True` with `wait=False`")
+
+    if file is not None:
+        stream = streams.FileStream(file)
 
     keywords = {
         "stdout": stdout,
@@ -180,7 +201,7 @@ def run_roll_log(descr: str, command: str | list[str], log_file: str | None, **k
     if use_ansi_esc:
         stream = term.FixedTermSizeStream(stream, max_lines=max_lines, prefix=prefix)
     if log_file is not None:
-        stream = Tee(stream, open(log_file, "w"))
+        stream = streams.Tee(stream, open(log_file, "w"))
     run(descr, command, **kwargs, stream=stream)
     if use_ansi_esc:
         term.clear_from_saved()
