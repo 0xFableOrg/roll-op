@@ -70,7 +70,7 @@ def clean(config: Config):
     """
     Cleans up L2 deployment outputs.
     """
-    paths = [
+    lib.remove_paths(config, [
         config.addresses_path,
         config.l2_genesis_path,
         config.rollup_config_path,
@@ -80,27 +80,18 @@ def clean(config: Config):
         config.op_deploy_config_path,
         os.path.join(config.logs_dir, "deploy_l1_contracts.log"),
         os.path.join(config.logs_dir, "create_l1_artifacts.log"),
-        os.path.join(config.logs_dir, "l2_batcher.log"),
-        os.path.join(config.logs_dir, "l2_engine.log"),
-        os.path.join(config.logs_dir, "l2_node.log"),
-        os.path.join(config.logs_dir, "l2_proposer.log")
-    ]
-
-    for path in paths:
-        if os.path.exists(path):
-            lib.debug(f"Removing {path}")
-            os.remove(path)
+        os.path.join(config.logs_dir, "init_l2_genesis.log"),
+        config.l2_batcher_log_file,
+        config.l2_engine_log_file,
+        config.l2_node_log_file,
+        config.l2_proposer_log_file,
+        # dirs
+        config.op_deployment_artifacts_dir,
+        config.abi_dir,
+    ])
 
     l2_engine.clean(config)
-    l2_node.clean()
-
-    if os.path.exists(config.op_deployment_artifacts_dir):
-        lib.debug(f"Removing {config.op_deployment_artifacts_dir}")
-        shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
-
-    if os.path.exists(config.abi_dir):
-        lib.debug(f"Removing {config.abi_dir}")
-        shutil.rmtree(config.abi_dir, ignore_errors=True)
+    l2_node.clean(config)
 
 
 ####################################################################################################

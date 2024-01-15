@@ -117,8 +117,6 @@ def clean(config: Config):
     """
     Cleans up L2 execution engine's databases.
     """
-    if os.path.exists(config.l2_engine_data_dir):
-        lib.debug(f"Removing {config.l2_engine_data_dir}")
-        shutil.rmtree(config.l2_engine_data_dir, ignore_errors=True)
+    lib.remove_paths(config, [config.l2_engine_data_dir])
 
 ####################################################################################################

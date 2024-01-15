@@ -150,22 +150,14 @@ def clean(config: Config):
     """
     Deletes the block explorer databases, logs, and containers.
     """
-
-    dir_paths = [
+    lib.remove_paths(config, [
+        config.blockscout_log_file,
+        # dirs
         "blockscout/docker-compose/services/blockscout-db-data",
         "blockscout/docker-compose/services/logs",
         "blockscout/docker-compose/services/redis-data",
         "blockscout/docker-compose/services/stats-db-data",
-    ]
-
-    for path in dir_paths:
-        lib.debug(f"Removing {path}")
-        shutil.rmtree(path, ignore_errors=True)
-
-    path = config.blockscout_log_file
-    if os.path.exists(path):
-        lib.debug(f"Removing {path}")
-        os.remove(path)
+    ])
 
     lib.run("remove blockscout containers",
             f"docker compose --project-name {_COMPOSE_PROJECT_NAME} rm --stop --force")
