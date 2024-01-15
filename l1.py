@@ -6,7 +6,6 @@ on an L1 blockchain (for now only devnet, but in the future, any kind of L1).
 import json
 import os
 import shutil
-import sys
 import time
 from subprocess import Popen
 
@@ -92,12 +91,11 @@ def _start_temporary_geth_node(config: Config) -> Popen:
 
     lib.ensure_port_unoccupied("temporary geth", "127.0.0.1", config.temp_l1_rpc_listen_port)
 
-    log_file_path = f"{config.logs_dir}/temp_geth.log"
-    log_file = open(log_file_path, "w")
-    print(f"Starting temporary geth node. Logging to {log_file_path}")
+    log_file = f"{config.logs_dir}/temp_geth.log"
+    print(f"Starting temporary geth node. Logging to {log_file}")
 
     def early_exit_handler():
-        print(f"Temporary geth node exited early. Check {log_file_path} for details.")
+        print(f"Temporary geth node exited early. Check {log_file} for details.")
         # noinspection PyUnresolvedReferences,PyProtectedMember
         os._exit(1)  # we have to use this one to exit from a thread
 
@@ -112,8 +110,7 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         "--dev.gaslimit 30000000",
         "--rpc.allow-unprotected-txs"
     ],
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=early_exit_handler)
 
     lib.wait_for_rpc_server("127.0.0.1", config.temp_l1_rpc_listen_port)
@@ -151,9 +148,9 @@ def _start_devnet_l1_node(config: Config):
         os.remove(f"{config.l1_data_dir}/block-signer-key")
 
     if not os.path.exists(config.l1_chaindata_dir):
-        log_file_path = f"{config.logs_dir}/init_l1_genesis.log"
+        log_file = f"{config.logs_dir}/init_l1_genesis.log"
         print(f"Directory {config.l1_chaindata_dir} missing, importing genesis in L1 node.\n"
-              f"Logging to {log_file_path}")
+              f"Logging to {log_file}")
         lib.run("initializing genesis", [
             "geth",
             f"--verbosity={config.l1_verbosity}",
@@ -161,13 +158,10 @@ def _start_devnet_l1_node(config: Config):
             f"--datadir={config.l1_data_dir}",
             config.l1_genesis_path
         ],
-            forward="fd",
-            stdout=open(log_file_path, "w"))
+            file=log_file)
 
-    log_file_path = f"{config.logs_dir}/l1_node.log"
-    print(f"Starting L1 node. Logging to {log_file_path}")
-    sys.stdout.flush()
-    log_file = open(log_file_path, "w")
+    log_file = f"{config.logs_dir}/l1_node.log"
+    print(f"Starting L1 node. Logging to {log_file}")
 
     # NOTE: The devnet L1 node must be an archive node, otherwise pruning happens within minutes of
     # starting the node. This could be an issue if the op-node is brought down or restarted later,
@@ -234,15 +228,14 @@ def _start_devnet_l1_node(config: Config):
         f.write("\n".join(command))
 
     def on_exit():
-        print(f"L1 node exited. Check {log_file_path} for details.\n"
+        print(f"L1 node exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop l1` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
     PROCESS_MGR.start(
         "running geth",
         command,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l1_rpc_listen_port)

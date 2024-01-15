@@ -130,12 +130,11 @@ def start_bundler(config: Config):
            "ERC4337_BUNDLER_ETH_CLIENT_URL": config.l2_engine_rpc_url,
            "ERC4337_BUNDLER_PRIVATE_KEY": bundler_key}
 
-    log_file_path = f"{config.logs_dir}/stackup_bundler.log"
-    log_file = open(log_file_path, "w")
-    print(f"Starting the stackup bundler. Logging to {log_file_path}.")
+    log_file = config.stackup_bundler_log_file
+    print(f"Starting the stackup bundler. Logging to {log_file}.")
 
     def on_exit():
-        print(f"AA bundler exited. Check {log_file_path} for details.\n"
+        print(f"AA bundler exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop aa` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
@@ -143,8 +142,7 @@ def start_bundler(config: Config):
         "start bundler",
         "stackup-bundler start --mode private",
         env=env,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
 
@@ -186,12 +184,11 @@ def start_paymaster(config: Config):
         env=env)
 
     # start paymaster signer service
-    log_file_path = f"{config.logs_dir}/paymaster_signer.log"
-    log_file = open(log_file_path, "w")
-    print(f"Starting paymaster signer service. Logging to {log_file_path}")
+    log_file = config.paymaster_log_file
+    print(f"Starting paymaster signer service. Logging to {log_file}")
 
     def on_exit():
-        print(f"AA paymaster exited. Check {log_file_path} for details.\n"
+        print(f"AA paymaster exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop aa` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
@@ -200,8 +197,7 @@ def start_paymaster(config: Config):
         "pnpm run start",
         cwd="paymaster",
         env=env,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
 
@@ -213,11 +209,11 @@ def clean(config: Config):
     """
     paths = [
         os.path.join(config.logs_dir, "build_aa_contracts.log"),
-        os.path.join(config.logs_dir, "stackup_bundler.log"),
         os.path.join(config.logs_dir, "install_bundler.log"),
         os.path.join(config.logs_dir, "build_paymaster.log"),
         os.path.join(config.logs_dir, config.deploy_aa_log_file_name),
-        os.path.join(config.logs_dir, "paymaster_signer.log")
+        config.stackup_bundler_log_file,
+        config.paymaster_log_file,
     ]
 
     for path in paths:

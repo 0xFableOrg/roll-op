@@ -19,9 +19,8 @@ def start(config: Config):
         config.l2_proposer_rpc_listen_addr,
         config.l2_proposer_rpc_listen_port)
 
-    log_file_path = f"{config.logs_dir}/l2_proposer.log"
-    print(f"Starting L2 proposer. Logging to {log_file_path}")
-    log_file = open(log_file_path, "w")
+    log_file = f"{config.logs_dir}/l2_proposer.log"
+    print(f"Starting L2 proposer. Logging to {log_file}")
 
     command = [
         "op-proposer",
@@ -63,15 +62,14 @@ def start(config: Config):
     config.log_l2_command("\n".join(command))
 
     def on_exit():
-        print(f"L2 proposer exited. Check {log_file_path} for details.\n"
+        print(f"L2 proposer exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop l2-proposer` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
     PROCESS_MGR.start(
         "starting L2 proposer",
         command,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
 

@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 
 import l2
 from config import Config
@@ -21,10 +20,8 @@ def start(config: Config, sequencer: bool = True):
 
     l2.generate_jwt_secret(config)
 
-    log_file_path = f"{config.logs_dir}/l2_node.log"
-    print(f"Starting L2 node. Logging to {log_file_path}")
-    log_file = open(log_file_path, "w")
-    sys.stdout.flush()
+    log_file = f"{config.logs_dir}/l2_node.log"
+    print(f"Starting L2 node. Logging to {log_file}")
 
     command = [
         "op-node",
@@ -76,7 +73,7 @@ def start(config: Config, sequencer: bool = True):
     config.log_l2_command("\n".join(command))
 
     def on_exit():
-        print(f"L2 node exited. Check {log_file_path} for details.\n"
+        print(f"L2 node exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop l2-node` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
@@ -85,8 +82,7 @@ def start(config: Config, sequencer: bool = True):
         command,
         # so that `opnode_*_db` directories get created under the db directory
         cwd=config.databases_dir,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_node_rpc_listen_port)
