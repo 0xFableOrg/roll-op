@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from typing import Callable
 
 import state
-from config import Config
 from .cmd import run_roll_log
 
 
@@ -290,7 +289,7 @@ def append_to_file(file_path: str, text: str):
 
 ####################################################################################################
 
-def remove_paths(config: Config, paths: list[str]):
+def remove_paths(config, paths: list[str]):
     """
     Removes the given paths, if they exist, as well as archived logs if one of the passed path is
     a logfile.
