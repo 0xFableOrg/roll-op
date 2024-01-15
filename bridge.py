@@ -9,6 +9,7 @@ import re
 
 import libroll as lib
 
+
 def main():
     parser = argparse.ArgumentParser(description='Bridge eth from L1 to L2.')
     parser.add_argument('--private-key', type=str, default=None,
@@ -37,13 +38,13 @@ def main():
     try:
         print("Sending eth to L1StandardBridgeProxy contract.")
         cast_command = [
-                  "cast", "send",
-                  "--rpc-url", config["l1_rpc_url"],
-                  "--private-key", private_key,
-                  bridge_proxy,
-                  "--value", parse_amount(args.amount),
-                  "'depositETHTo(address,uint32, bytes)'", account, "0", "0x"
-              ]
+            "cast", "send",
+            "--rpc-url", config["l1_rpc_url"],
+            "--private-key", private_key,
+            bridge_proxy,
+            "--value", parse_amount(args.amount),
+            "'depositETHTo(address,uint32, bytes)'", account, "0", "0x"
+        ]
 
         lib.run("sending eth to L1StandardBridgeProxy contract.", cast_command)
         print("Successfully sent transaction to L1StandardBridgeProxy.")
@@ -51,6 +52,7 @@ def main():
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
+
 
 def parse_amount(amount_str):
     pattern = re.compile(r'^(\d+(\.\d+)?)(\s?(ether|gwei|wei))?$')
@@ -61,6 +63,7 @@ def parse_amount(amount_str):
         return f"{amount}{unit}"
     else:
         raise ValueError("Invalid amount format.")
+
 
 if __name__ == "__main__":
     main()
