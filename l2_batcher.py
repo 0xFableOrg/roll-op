@@ -1,5 +1,3 @@
-import sys
-
 from config import Config
 from processes import PROCESS_MGR
 
@@ -16,10 +14,8 @@ def start(config: Config):
     lib.ensure_port_unoccupied(
         "L2 batcher", config.batcher_rpc_listen_addr, config.batcher_rpc_listen_port)
 
-    log_file_path = f"{config.logs_dir}/l2_batcher.log"
-    print(f"Starting L2 batcher. Logging to {log_file_path}")
-    log_file = open(log_file_path, "w")
-    sys.stdout.flush()
+    log_file = f"{config.logs_dir}/l2_batcher.log"
+    print(f"Starting L2 batcher. Logging to {log_file}")
 
     command = [
         "op-batcher",
@@ -62,15 +58,14 @@ def start(config: Config):
     config.log_l2_command("\n".join(command))
 
     def on_exit():
-        print(f"L2 batcher exited. Check {log_file_path} for details.\n"
+        print(f"L2 batcher exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop l2-batcher` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
     PROCESS_MGR.start(
         "starting L2 batcher",
         command,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
 ####################################################################################################

@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 
 import l2
 from config import Config
@@ -25,10 +24,10 @@ def start(config: Config):
     os.makedirs(config.l2_engine_data_dir, exist_ok=True)
 
     if not os.path.exists(config.l2_engine_chaindata_dir):
-        log_file_path = f"{config.logs_dir}/init_l2_genesis.log"
+        log_file = f"{config.logs_dir}/init_l2_genesis.log"
         print(f"Directory {config.l2_engine_chaindata_dir} missing, "
               "importing genesis in op-geth node.\n"
-              f"Logging to {log_file_path}")
+              f"Logging to {log_file}")
         lib.run(
             "initializing genesis",
             [
@@ -38,14 +37,10 @@ def start(config: Config):
                 f"--datadir={config.l2_engine_data_dir}",
                 config.l2_genesis_path
             ],
-            forward="fd",
-            stdout=open(log_file_path, "w"))
+            file=log_file)
 
-    log_file_path = f"{config.logs_dir}/l2_engine.log"
-    print(f"Starting op-geth node. Logging to {log_file_path}")
-    sys.stdout.flush()
-
-    log_file = open(log_file_path, "w")
+    log_file = f"{config.logs_dir}/l2_engine.log"
+    print(f"Starting op-geth node. Logging to {log_file}")
 
     command = [
         "op-geth",
@@ -103,15 +98,14 @@ def start(config: Config):
     config.log_l2_command("\n".join(command))
 
     def on_exit():
-        print(f"L2 engine exited. Check {log_file_path} for details.\n"
+        print(f"L2 engine exited. Check {log_file} for details.\n"
               "You can re-run with `./rollop l2-engine` in another terminal\n"
               "(!! Make sure to specify the same config file and flags!)")
 
     PROCESS_MGR.start(
         "starting op-geth",
         command,
-        forward="fd",
-        stdout=log_file,
+        file=log_file,
         on_exit=on_exit)
 
     lib.wait_for_rpc_server("127.0.0.1", config.l2_engine_rpc_listen_port)

@@ -3,7 +3,6 @@ This module defines functions related to spinning a block explorer.
 """
 import os
 import shutil
-import subprocess
 
 import deps
 from config import Config
@@ -52,9 +51,8 @@ def launch_blockscout(config: Config):
     deps.check_docker()
     setup_blockscout_repo()
 
-    log_file_name = f"{config.logs_dir}/launch_blockscout.log"
-    log_file = open(log_file_name, "w")
-    print(f"Launching the blockscout block explorer. Logging to {log_file_name}\n"
+    log_file = config.blockscout_log_file
+    print(f"Launching the blockscout block explorer. Logging to {log_file}\n"
           "Explorer available at http://localhost:80 in a little bit.")
 
     http_url = config.l2_engine_rpc_http_url.replace("127.0.0.1", "host.docker.internal")
@@ -109,7 +107,8 @@ def launch_blockscout(config: Config):
         "spin up block explorer",
         "docker compose -f geth.yml up",
         cwd="blockscout/docker-compose",
-        forward="fd", stdout=log_file, stderr=subprocess.STDOUT, env=env)
+        file=log_file,
+        env=env)
 
 
 ####################################################################################################
@@ -163,7 +162,7 @@ def clean(config: Config):
         lib.debug(f"Removing {path}")
         shutil.rmtree(path, ignore_errors=True)
 
-    path = os.path.join(config.logs_dir, "launch_blockscout.log")
+    path = config.blockscout_log_file
     if os.path.exists(path):
         lib.debug(f"Removing {path}")
         os.remove(path)
