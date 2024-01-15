@@ -207,23 +207,16 @@ def clean(config: Config):
     """
     Deletes the account abstraction deployment outputs and build logs.
     """
-    paths = [
+    lib.remove_paths(config, [
         os.path.join(config.logs_dir, "build_aa_contracts.log"),
         os.path.join(config.logs_dir, "install_bundler.log"),
         os.path.join(config.logs_dir, "build_paymaster.log"),
         os.path.join(config.logs_dir, config.deploy_aa_log_file_name),
         config.stackup_bundler_log_file,
         config.paymaster_log_file,
-    ]
-
-    for path in paths:
-        if os.path.exists(path):
-            lib.debug(f"Removing {path}")
-            os.remove(path)
-
-    path = "account-abstraction/deployments/opstack"
-    lib.debug(f"Removing {path}")
-    shutil.rmtree(path, ignore_errors=True)
+        # dirs
+        "account-abstraction/deployments/opstack",
+    ])
 
 
 ####################################################################################################

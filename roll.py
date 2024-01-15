@@ -388,7 +388,7 @@ def main():
 
         elif state.args.command == "l2-sequencer":
             if state.args.clean_first:
-                l2_node.clean()
+                l2_node.clean(config)
 
             l2_node.start(config, sequencer=True)
             wait(config)

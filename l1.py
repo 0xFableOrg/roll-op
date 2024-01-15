@@ -247,26 +247,16 @@ def clean(config: Config):
     """
     Cleans up L1 deployment outputs.
     """
-    paths = [
-        os.path.join(config.logs_dir, "l1_node.log"),
+    lib.remove_paths(config, [
+        config.l1_node_log_file,
         os.path.join(config.logs_dir, "temp_geth.log"),
         config.l1_genesis_path,
         config.l1_allocs_path,
-        config.op_deploy_config_path
-    ]
-
-    for path in paths:
-        if os.path.exists(path):
-            lib.debug(f"Removing {path}")
-            os.remove(path)
-
-    if os.path.exists(config.l1_data_dir):
-        lib.debug(f"Removing {config.l1_data_dir}")
-        shutil.rmtree(config.l1_data_dir, ignore_errors=True)
-
-    if os.path.exists(config.op_deployment_artifacts_dir):
-        lib.debug(f"Removing {config.op_deployment_artifacts_dir}")
-        shutil.rmtree(config.op_deployment_artifacts_dir, ignore_errors=True)
+        config.op_deploy_config_path,
+        # dirs
+        config.l1_data_dir,
+        config.op_deployment_artifacts_dir,
+    ])
 
     if config.l1_contracts_in_genesis:
         print(

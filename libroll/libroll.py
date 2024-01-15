@@ -1,11 +1,14 @@
+import glob
 import http.client
 import os
+import shutil
 import socket
 import time
 from dataclasses import dataclass
 from typing import Callable
 
 import state
+from config import Config
 from .cmd import run_roll_log
 
 
@@ -283,5 +286,27 @@ def append_to_file(file_path: str, text: str):
     """
     with open(file_path, "a") as file:
         file.write(text)
+
+
+####################################################################################################
+
+def remove_paths(config: Config, paths: list[str]):
+    """
+    Removes the given paths, if they exist, as well as archived logs if one of the passed path is
+    a logfile.
+    """
+    for path in paths:
+        if os.path.isfile(path):
+            debug(f"Removing {path}")
+            os.remove(path)
+            if path.startswith(config.logs_dir):
+                basename = os.path.basename(path)
+                debug(f"Removing archived logs for {basename}")
+                archived_logs = glob.glob(os.path.join(config.logrotate_old_dir, basename) + "*")
+                for log in archived_logs:
+                    os.remove(log)
+        elif os.path.isdir(path):
+            debug(f"Removing {path}")
+            shutil.rmtree(path, ignore_errors=True)
 
 ####################################################################################################
