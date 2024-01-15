@@ -121,7 +121,12 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
            "ETH_RPC_URL": l1_rpc_url,
            "IMPL_SALT": f"'{config.deploy_salt}'"}
 
-    slow_arg = "--slow" if config.deploy_slowly and not tmp_l1 else ""
+    if config.deploy_slowly:
+        slow_arg = "--slow"
+        print("Using slow deployment mode. You can speed this up with `deploy_slowly = false` "
+              "if you are sure your RPC is reliable and can handle the load.")
+    else:
+        slow_arg = ""
 
     lib.run_roll_log("deploy the L2 contracts on L1", [
         "forge script",
