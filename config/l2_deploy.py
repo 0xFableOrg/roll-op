@@ -30,10 +30,12 @@ class L2DeployConfig:
         otherwise.
         """
 
-        self.deploy_create2_deployer = False
+        self.deploy_deterministic_deployment_proxy = False
         """
-        Whether to deploy the CREATE2 deployer contract on the L1 before deploying the L2 contracts.
-        (False by default).
+        Whether to deploy the deterministic deployment proxy contract on the L1 before deploying the
+        L2 contracts. (False by default).
+        
+        See https://github.com/Arachnid/deterministic-deployment-proxy for more information.
         """
 
         self.deploy_salt = uuid.uuid4()
