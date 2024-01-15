@@ -82,6 +82,27 @@ class LogsConfig:
         rotations hasn't been reached. 14 by default.
         """
 
+        self.logrotate_overrides = {}  # type: dict[str, list[str]]
+        """
+        Defines per-log-file overrides for the logrotate configuration, i.e. logrotate configuration
+        lines (`man logrotate` for documentation) that are added for the given log file.
+        
+        Here's an example of one way of how this can be specified in TOML:
+        
+        ```
+        # at BOTTOM of the file
+        [logrotate_overrides]
+        "l1_node.log" = [
+            "size 1M",
+            "rotate 10",
+        ]
+        "l2_node.log" = [
+            "size 300k",
+            "nocompress",
+        ]
+        ```
+        """
+
     # ==============================================================================================
 
     @property

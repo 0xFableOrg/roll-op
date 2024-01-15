@@ -77,9 +77,10 @@ def _generate_logrorate_config_prelude(config: Config) -> str:
 # --------------------------------------------------------------------------------------------------
 
 def _generate_logrotate_config_for_file(file: str, config: Config) -> str:
+    basename = os.path.basename(file)
     return "\n".join([
         f'"{file}" {{',
-        # TODO add support for per-file logrotate settings
+        *config.logrotate_overrides.get(basename, []),
         "}"
     ])
 
