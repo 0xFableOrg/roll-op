@@ -2,7 +2,6 @@
 This module defines functions related to spinning a block explorer.
 """
 import os
-import shutil
 
 import deps
 from config import Config
