@@ -29,8 +29,8 @@ class AccountAbstractionConfig:
     # ==============================================================================================
 
     # Also needed to run the bundler and paymster:
-    # :py:attribute:`aa_deployer_key` in :py:class:`config.AccountAbstractionConfig`
-    # :py:attribute:`bundler_key` in :py:class:`config.AccountAbstractionConfig`
-    # :py:attribute:`paymaster_key` in :py:class:`config.AccountAbstractionConfig`
+    # :py:attr:`aa_deployer_key` in :py:class:`config.AccountAbstractionConfig`
+    # :py:attr:`bundler_key` in :py:class:`config.AccountAbstractionConfig`
+    # :py:attr:`paymaster_key` in :py:class:`config.AccountAbstractionConfig`
 
     # ==============================================================================================

@@ -145,8 +145,8 @@ class LogsConfig:
     # ==============================================================================================
 
     # See also:
-    # :py:attribute:`logrotate_config_file` in :py:class:`config.paths.PathsConfig`
-    # :py:attribute:`logrotate_tmp_file` in :py:class:`config.paths.PathsConfig`
-    # :py:attribute:`logrotate_pid_file` in :py:class:`config.paths.PathsConfig`
+    # :py:attr:`logrotate_config_file` in :py:class:`config.paths.PathsConfig`
+    # :py:attr:`logrotate_tmp_file` in :py:class:`config.paths.PathsConfig`
+    # :py:attr:`logrotate_pid_file` in :py:class:`config.paths.PathsConfig`
 
     # ==============================================================================================

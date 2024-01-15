@@ -50,7 +50,7 @@ class AccountsKeysConfig:
 
         self.admin_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
         """
-        Private key corresponding to :py:attribute:`admin_account`, see its documentation for
+        Private key corresponding to :py:attr:`admin_account`, see its documentation for
         more details.
         By default, uses the 0th "test junk" account key.
         Do not prefix the key with 0x.
@@ -74,14 +74,14 @@ class AccountsKeysConfig:
         self.batcher_mnemonic = "test test test test test test test test test test test junk"
         """
         Mnemonic to use to derive the batcher key (Anvil "test junk" account mnemonic by default).
-        Ignored if :py:attribute:`batcher_key` is set.
+        Ignored if :py:attr:`batcher_key` is set.
         """
 
         self.batcher_hd_path = "m/44'/60'/0'/0/2"
         """
         HD derivation path to use to derive the batcher key.
         Uses the 2nd (0-based!) "test junk" mnemonnic key by default.
-        Ignored if :py:attribute:`proposer_key` is set.
+        Ignored if :py:attr:`proposer_key` is set.
         """
 
         # ------------------------------------------------------------------------------------------
@@ -102,14 +102,14 @@ class AccountsKeysConfig:
         self.proposer_mnemonic = "test test test test test test test test test test test junk"
         """
         Mnemonic to use to derive the proposer key (Anvil "test junk" account mnemonic by default).
-        Ignored if :py:attribute:`proposer_key` is set.
+        Ignored if :py:attr:`proposer_key` is set.
         """
 
         self.proposer_hd_path = "m/44'/60'/0'/0/1"
         """
         HD derivation path to use to derive the proposer key.
         Uses the 1th (0-based!) "test junk" mnemonnic key by default.
-        Ignored if :py:attribute:`proposer_key` is set.
+        Ignored if :py:attr:`proposer_key` is set.
         """
 
         # ------------------------------------------------------------------------------------------

@@ -54,20 +54,20 @@ class L2ProposerConfig:
         self.l2_proposer_metrics_listen_port = 7302
         """
         Port to the proposer metrics server should bind to (7302 by default).
-        Ignored if :py:attribute:`proposer_metrics` is False.
+        Ignored if :py:attr:`proposer_metrics` is False.
         """
 
         self.l2_proposer_metrics_listen_addr = "0.0.0.0"
         """
         Address the proposer metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attribute:`proposer_metrics` is False.
+        Ignored if :py:attr:`proposer_metrics` is False.
         """
 
     # ==============================================================================================
 
     # Also needed to configure the L2 proposer:
-    # :py:attribute:`deployments` in :py:class:`config.NetworkConfig`
-    # :py:attribute:`l1_rpc_url` in :py:class:`config.NetworkConfig`
-    # :py:attribute:`l2_node_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`deployments` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l1_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l2_node_rpc_url` in :py:class:`config.NetworkConfig`
 
     # ==============================================================================================

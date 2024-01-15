@@ -47,37 +47,37 @@ class NetworkConfig:
         # The L1 RPCs have a path part, to allow for JSON-RPC provider URLs. We assume you don't
         # need those for the other components, so we eschew the path part.
 
-        # See :py:attribute:`l1_rpc_url` for more details.
+        # See :py:attr:`l1_rpc_url` for more details.
         self.l1_rpc_protocol = "http"
         self.l1_rpc_host = "127.0.0.1"
         self.l1_rpc_path = ""
         self.l1_rpc_port = 8545
 
-        # See :py:attribute:`l1_rpc_for_node_url` for more details.
+        # See :py:attr:`l1_rpc_for_node_url` for more details.
         self.l1_rpc_for_node_protocol = "ws"
         self.l1_rpc_for_node_host = "127.0.0.1"
         self.l1_rpc_for_node_path = ""
         self.l1_rpc_for_node_port = 8546
 
-        # See :py:attribute:`l2_engine_rpc_http_url` for more details.
+        # See :py:attr:`l2_engine_rpc_http_url` for more details.
         self.l2_engine_rpc_http_host = "127.0.0.1"
         self.l2_engine_rpc_http_port = 9545
 
-        # See :py:attribute:`l2_engine_rpc_ws_url` for more details.
+        # See :py:attr:`l2_engine_rpc_ws_url` for more details.
         self.l2_engine_rpc_ws_host = "127.0.0.1"
         self.l2_engine_rpc_ws_port = 9546
 
-        # See :py:attribute:`l2_engine_rpc_url` for more details.
+        # See :py:attr:`l2_engine_rpc_url` for more details.
         self.l2_engine_rpc_protocol = "http"
         self.l2_engine_rpc_host = self.l2_engine_rpc_http_host
         self.l2_engine_rpc_port = self.l2_engine_rpc_http_port
 
-        # See :py:attribute:`l2_engine_authrpc_url` for more details.
+        # See :py:attr:`l2_engine_authrpc_url` for more details.
         self.l2_engine_authrpc_protocol = "http"
         self.l2_engine_authrpc_host = "127.0.0.1"
         self.l2_engine_authrpc_port = 9551
 
-        # See :py:attribute:`l2_node_rpc_url` for more details.
+        # See :py:attr:`l2_node_rpc_url` for more details.
         self.l2_node_rpc_protocol = "http"
         self.l2_node_rpc_host = "127.0.0.1"
         self.l2_node_rpc_port = 7545
@@ -150,7 +150,7 @@ class NetworkConfig:
         ("http://127.0.0.1:8545" by default).
         Host is substituted by 127.0.0.1 if it matches `own_address`.
 
-        The L2 node will use :py:attribute:`l1_rpc_for_node` instead!
+        The L2 node will use :py:attr:`l1_rpc_for_node` instead!
         """
         return self._maybe_local_url(
             self.l1_rpc_protocol,
@@ -174,8 +174,8 @@ class NetworkConfig:
         The reason for this override is to enable the L2 node to use a more performant RPC, or a
         WebSocket connection to get L1 data.
 
-        If the config file doesn't set this but set :py:attribute:`l1_rpc_url` instead, roll-op
-        will automatically copy the value of :py:attribute:`l1_rpc_url` to this property.
+        If the config file doesn't set this but set :py:attr:`l1_rpc_url` instead, roll-op
+        will automatically copy the value of :py:attr:`l1_rpc_url` to this property.
         """
         return self._maybe_local_url(
             self.l1_rpc_for_node_protocol,

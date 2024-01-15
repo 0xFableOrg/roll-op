@@ -52,11 +52,11 @@ class L2DeployConfig:
     # ==============================================================================================
 
     # Also needed to configure and run the deployment:
-    # :py:attribute:`contract_deployer_account` in :py:class:`config.AccountsKeysConfig`
-    # :py:attribute:`contract_deployer_key` in :py:class:`config.AccountsKeysConfig`
-    # :py:attribute:`l1_rpc_url` in :py:class:`config.NetworkConfig`
-    # :py:attribute:`deployment_name` in :py:class:`config.Config`
-    # :py:attribute:`deployment_artifacts_gen_dir` in :py:class:`config.PathConfig`
+    # :py:attr:`contract_deployer_account` in :py:class:`config.AccountsKeysConfig`
+    # :py:attr:`contract_deployer_key` in :py:class:`config.AccountsKeysConfig`
+    # :py:attr:`l1_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`deployment_name` in :py:class:`config.Config`
+    # :py:attr:`deployment_artifacts_gen_dir` in :py:class:`config.PathConfig`
 
     # TODO
     # config.paths.addresses_json_path

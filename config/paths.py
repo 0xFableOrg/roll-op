@@ -32,7 +32,7 @@ class PathsConfig(ABC):
         ...
         
         The paths for the L1 and L2 engine databases can be overriden by setting the
-        :py:attribute:`l1_data_dir` and :py:attribute:`l2_engine_data_dir` attributes.
+        :py:attr:`l1_data_dir` and :py:attr:`l2_engine_data_dir` attributes.
         """
 
         # ------------------------------------------------------------------------------------------
@@ -161,11 +161,11 @@ class PathsConfig(ABC):
     def deployment_dir(self):
         """
         The directory under which to place all deployment-related outputs for this deployment.
-        (See :py:attribute:`deployments_parent_dir` for more details.)
+        (See :py:attr:`deployments_parent_dir` for more details.)
 
         This is a directory with the same name as the deployment name
-        (:py:attribute:`deployment_name`), placed under
-        :py:attribute:`deployments_parent_dir`.
+        (:py:attr:`deployment_name`), placed under
+        :py:attr:`deployments_parent_dir`.
         """
         return os.path.join(self.deployments_parent_dir, self.deployment_name)
 
@@ -181,7 +181,7 @@ class PathsConfig(ABC):
         database for the L2 node, and node database for L1 and the L2 engine).
 
         The paths for the L1 and L2 engine databases can be overriden by setting the
-        :py:attribute:`l1_data_dir` and :py:attribute:`l2_engine_data_dir` attributes. The location
+        :py:attr:`l1_data_dir` and :py:attr:`l2_engine_data_dir` attributes. The location
         of the L2 node's p2p database dir cannot be overriden.
         """
         return os.path.join(self.deployment_dir, "databases")
@@ -231,7 +231,7 @@ class PathsConfig(ABC):
         """
         Location where the deploy config is stored.
 
-        The file will need to be copied at :py:attribute:`op_deploy_config_path` for the rollup
+        The file will need to be copied at :py:attr:`op_deploy_config_path` for the rollup
         contract deployment script to use it.
         """
         return os.path.join(self.artifacts_dir, "deploy-config.json")
@@ -240,7 +240,7 @@ class PathsConfig(ABC):
     def abi_dir(self):
         """
         Directory where the rollup contracts ABIs are stored for stored, after
-        moving them there from :py:attribute:`op_deployment_artifacts_dir`.
+        moving them there from :py:attr:`op_deployment_artifacts_dir`.
         """
         return os.path.join(self.artifacts_dir, "abi")
 
@@ -276,7 +276,7 @@ class PathsConfig(ABC):
 
     def log_l2_command(self, command: str):
         """
-        Append the command to :py:attribute:`log_l2_commands_file`, prefixing it with a separator.
+        Append the command to :py:attr:`log_l2_commands_file`, prefixing it with a separator.
         """
         lib.append_to_file(
             self.log_l2_commands_file,
@@ -286,7 +286,7 @@ class PathsConfig(ABC):
     # ==============================================================================================
 
     # See also:
-    # :py:attribute:`log_files` in :py:class:`config.logs.LogsConfig`
+    # :py:attr:`log_files` in :py:class:`config.logs.LogsConfig`
     # `*_log_file` in :py:class:`config.logs.LogsConfig`
 
     # ==============================================================================================

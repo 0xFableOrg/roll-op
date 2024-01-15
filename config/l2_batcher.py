@@ -74,20 +74,20 @@ class L2BatcherConfig:
         self.batcher_metrics_listen_port = 7301
         """
         Port to the batcher metrics server should bind to (7301 by default).
-        Ignored if :py:attribute:`batcher_metrics` is False.
+        Ignored if :py:attr:`batcher_metrics` is False.
         """
 
         self.batcher_metrics_listen_addr = "0.0.0.0"
         """
         Address the batcher metrics server should bind to ("0.0.0.0" by default).
-        Ignored if :py:attribute:`batcher_metrics` is False.
+        Ignored if :py:attr:`batcher_metrics` is False.
         """
 
     # ==============================================================================================
 
     # Also needed to configure the L2 batcher:
-    # :py:attribute:`l1_rpc_url` in :py:class:`config.NetworkConfig`
-    # :py:attribute:`l2_engine_rpc_url` in :py:class:`config.NetworkConfig`
-    # :py:attribute:`l2_node_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l1_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l2_engine_rpc_url` in :py:class:`config.NetworkConfig`
+    # :py:attr:`l2_node_rpc_url` in :py:class:`config.NetworkConfig`
 
     # ==============================================================================================
