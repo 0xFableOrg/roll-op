@@ -143,6 +143,15 @@ cast send \
   0x3fAB184622Dc19b6109349B94811493BF2a45362
 ```
 
+## Documentation
+
+See the [doc index](/docs/README.md).
+
+- [OP Stack Primer](/docs/opstack.md)
+- [Port Configuration](/docs/port-config.md)
+- [Vocabulary](/docs/vocabulary.md)
+- [Logging Policy](/docs/logging.md)
+
 
 ## Contributing (for developers building simple-op-stack rollup)
 
