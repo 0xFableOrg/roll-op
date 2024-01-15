@@ -108,13 +108,15 @@ def _start_temporary_geth_node(config: Config) -> Popen:
         "--verbosity 4",
         "--gcmode archive",
         "--dev.gaslimit 30000000",
+        # Mine a block every second — without this the L2 contracts deployment can hang because
+        # the basefees climbed too high and geth doesn't mine any blocks so it never goes down.
+        "--dev.period 1",
         "--rpc.allow-unprotected-txs"
     ],
         file=log_file,
         on_exit=early_exit_handler)
 
     lib.wait_for_rpc_server("127.0.0.1", config.temp_l1_rpc_listen_port)
-    time.sleep(5)  # give it a bit more time to be ready
 
     return popen
 
