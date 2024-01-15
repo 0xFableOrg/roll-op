@@ -14,7 +14,7 @@ def start(config: Config):
     lib.ensure_port_unoccupied(
         "L2 batcher", config.batcher_rpc_listen_addr, config.batcher_rpc_listen_port)
 
-    log_file = f"{config.logs_dir}/l2_batcher.log"
+    log_file = config.l2_batcher_log_file
     print(f"Starting L2 batcher. Logging to {log_file}")
 
     command = [

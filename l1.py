@@ -160,7 +160,7 @@ def _start_devnet_l1_node(config: Config):
         ],
             file=log_file)
 
-    log_file = f"{config.logs_dir}/l1_node.log"
+    log_file = config.l1_node_log_file
     print(f"Starting L1 node. Logging to {log_file}")
 
     # NOTE: The devnet L1 node must be an archive node, otherwise pruning happens within minutes of

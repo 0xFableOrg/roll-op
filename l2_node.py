@@ -20,7 +20,7 @@ def start(config: Config, sequencer: bool = True):
 
     l2.generate_jwt_secret(config)
 
-    log_file = f"{config.logs_dir}/l2_node.log"
+    log_file = config.l2_node_log_file
     print(f"Starting L2 node. Logging to {log_file}")
 
     command = [
