@@ -15,7 +15,7 @@ l1_rpc_url = "http://127.0.0.1:8545"
 ## Keys
 
 # We just use the 0th "test junk" (Anvil) mnemonic account for everything.
-# This is ifferent from defaults, which use different accounts,
+# This is different from defaults, which use different accounts,
 # following after the Optimism monorepo devnet defaults.
 
 contract_deployer_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
