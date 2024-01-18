@@ -5,7 +5,6 @@ import json
 import os
 import sys
 import tomli
-import re
 
 import libroll as lib
 
@@ -33,7 +32,7 @@ def main():
         open(os.path.join('deployments', args.name, 'artifacts', 'addresses.json')))['L1StandardBridgeProxy']
 
     if not private_key or not account:
-        sys.exit("Private key, account, and amount must be provided either via arguments or config.")
+        sys.exit("Private key and account must be provided either via arguments or config.")
 
     try:
         print("Sending eth to L1StandardBridgeProxy contract.")
@@ -42,7 +41,7 @@ def main():
             "--rpc-url", config["l1_rpc_url"],
             "--private-key", private_key,
             bridge_proxy,
-            "--value", parse_amount(args.amount),
+            "--value", lib.parse_amount(args.amount),
             "'depositETHTo(address,uint32, bytes)'", account, "0", "0x"
         ]
 
@@ -52,17 +51,6 @@ def main():
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
-
-
-def parse_amount(amount_str):
-    pattern = re.compile(r'^(\d+(\.\d+)?)(\s?(ether|gwei|wei))?$')
-    match = pattern.match(amount_str.lower())
-    if match:
-        amount = match.group(1)
-        unit = match.group(4) or 'ether'
-        return f"{amount}{unit}"
-    else:
-        raise ValueError("Invalid amount format.")
 
 
 if __name__ == "__main__":
