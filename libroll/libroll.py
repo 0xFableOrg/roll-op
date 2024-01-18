@@ -4,6 +4,7 @@ import os
 import shutil
 import socket
 import time
+import re
 from dataclasses import dataclass
 from typing import Callable
 
@@ -307,5 +308,22 @@ def remove_paths(config, paths: list[str]):
         elif os.path.isdir(path):
             debug(f"Removing {path}")
             shutil.rmtree(path, ignore_errors=True)
+
+####################################################################################################
+
+
+def parse_amount(amount_str):
+    """
+    Parses an amount string and returns something a cast command understands.
+    """
+    pattern = re.compile(r'^(\d+(\.\d+)?)(\s?(ether|gwei|wei))?$')
+    match = pattern.match(amount_str.lower())
+    if match:
+        amount = match.group(1)
+        unit = match.group(4) or 'ether'
+        return f"{amount}{unit}"
+    else:
+        raise ValueError("Invalid amount format.")
+
 
 ####################################################################################################
