@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import { sponsorTransaction, UserOperation } from './rpcMethods';
 
 type JsonRpcRequestBody = {
@@ -12,6 +13,9 @@ const app: Express = express();
 const port = 3000;
 
 app.use(bodyParser.json());
+
+// Use cors middleware to enable CORS
+app.use(cors({ origin: '*' }));
 
 app.post('/', async(req: Request, res: Response) => {
     const { id, method, params } = req.body as JsonRpcRequestBody;
