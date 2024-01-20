@@ -415,13 +415,13 @@ def get_foundry_version():
 
 ####################################################################################################
 
-FOUNDRY_VERSION = "2023-11-01"
+FOUNDRY_VERSION = "2023-11-02"
 """
 Required version of forge. We're locking down foundry to a specific version, as new versions can
 introduce serious regressions, and have done so in the past.
 """
 
-FOUNDRY_INSTALL_TAG = "nightly-60ec00296f00754bc21ed68fd05ab6b54b50e024"
+FOUNDRY_INSTALL_TAG = "nightly-09fe3e041369a816365a020f715ad6f94dbce9f2"
 """
 The tag of the foundry release to install if needed.
 """
