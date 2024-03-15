@@ -1,4 +1,4 @@
 line-length = 110
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "l1.py" = ["E402"]
