@@ -5,21 +5,19 @@ import { whitelistAll, whitelistedAddresses } from './config';
 import dotenv from 'dotenv';
 dotenv.config();
 
-export interface UserOperation {
+export interface PackedUserOperation {
     sender: string
     nonce: BigNumberish
     initCode: BytesLike
     callData: BytesLike
-    callGasLimit: BigNumberish
-    verificationGasLimit: BigNumberish
+    accountGasLimits: BytesLike
     preVerificationGas: BigNumberish
-    maxFeePerGas: BigNumberish
-    maxPriorityFeePerGas: BigNumberish
+    gasFees: BytesLike
     paymasterAndData: BytesLike
     signature: BytesLike
 }
 
-export async function sponsorTransaction(userOp: UserOperation): Promise<UserOperation> {
+export async function sponsorTransaction(userOp: PackedUserOperation): Promise<PackedUserOperation> {
     const paymasterAddress = process.env.PAYMASTER_ADDRESS as string;
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL as string);
     const signer = new ethers.Wallet(process.env.PRIVATE_KEY as string);

@@ -1,12 +1,12 @@
 import express, { Express, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { sponsorTransaction, UserOperation } from './rpcMethods';
+import { sponsorTransaction, PackedUserOperation } from './rpcMethods';
 
 type JsonRpcRequestBody = {
     id: number;
     method: string;
-    params: UserOperation;
+    params: PackedUserOperation;
 };
 
 const app: Express = express();

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { UserOperation } from '../src/rpcMethods';
+import { PackedUserOperation } from '../src/rpcMethods';
 import { simpleAccountAbi, simpleAccountFactoryAbi, paymasterAbi, entrypointAbi } from '../src/abis';
 dotenv.config();
 
@@ -42,16 +42,20 @@ async function main() {
     const callData = simpleAccount.interface.encodeFunctionData("execute", [to, value, data]);
 
     // Construct UserOp
-    let userOp: UserOperation = {
+    let userOp: PackedUserOperation = {
         sender: simpleAccountAddress,
         nonce: Number(await paymaster.senderNonce(simpleAccountAddress)),
         initCode: initCode,
         callData: callData,
-        callGasLimit: ethers.toBeHex(3_000_000), // hardcode it for now at a high value,
-        verificationGasLimit: ethers.toBeHex(3_000_000), // hardcode it for now at a high value,
+        accountGasLimits: ethers.concat([
+            ethers.toBeHex(3_000_000), // callGasLimit: hardcode it for now at a high value,
+            ethers.toBeHex(3_000_000) // verificationGasLimit: hardcode it for now at a high value,
+        ]),
         preVerificationGas: ethers.toBeHex(2_000_000), // hardcode it for now at a high value,
-        maxFeePerGas: ethers.toBeHex(2e9),
-        maxPriorityFeePerGas: ethers.toBeHex(1e9),
+        gasFees: ethers.concat([
+            ethers.toBeHex(2e9), // maxFeePerGas
+            ethers.toBeHex(1e9) // maxPriorityFeePerGas
+        ]),
         paymasterAndData: ethers.concat([
             paymasterAddress,
             '0x' + '00'.repeat(64),
