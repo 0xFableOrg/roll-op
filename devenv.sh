@@ -45,13 +45,13 @@ install_dev_dependencies() {
         pip3 install --upgrade pip
     fi
 
-    # Check if ruff 0.0.286 is installed, otherwise install this version
+    # Check if ruff 0.3.2 is installed, otherwise install this version
     ruff_version=$(pip3 freeze | grep ruff | awk -F'==' '{print $2}')
-    if [ "$ruff_version" = "0.0.286" ]; then
+    if [ "$ruff_version" = "0.3.2" ]; then
         echo "ruff version is $ruff_version"
     else
-        echo "ruff version is $ruff_version, but 0.0.286 is required"
-        pip3 install ruff==0.0.286
+        echo "ruff version is $ruff_version, but 0.3.2 is required"
+        pip3 install ruff==0.3.2
     fi
 
     # Check if autopep8 is installed, otherwise install it
