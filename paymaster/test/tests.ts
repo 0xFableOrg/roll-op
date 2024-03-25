@@ -44,17 +44,17 @@ async function main() {
     // Construct UserOp
     let userOp: PackedUserOperation = {
         sender: simpleAccountAddress,
-        nonce: Number(await paymaster.senderNonce(simpleAccountAddress)),
+        nonce: 0,
         initCode: initCode,
         callData: callData,
         accountGasLimits: ethers.concat([
-            ethers.toBeHex(3_000_000), // callGasLimit: hardcode it for now at a high value,
-            ethers.toBeHex(3_000_000) // verificationGasLimit: hardcode it for now at a high value,
+            ethers.zeroPadValue(ethers.toBeHex(3_000_000), 16), // callGasLimit: hardcode it for now at a high value,
+            ethers.zeroPadValue(ethers.toBeHex(3_000_000), 16) // verificationGasLimit: hardcode it for now at a high value,
         ]),
         preVerificationGas: ethers.toBeHex(2_000_000), // hardcode it for now at a high value,
         gasFees: ethers.concat([
-            ethers.toBeHex(2e9), // maxFeePerGas
-            ethers.toBeHex(1e9) // maxPriorityFeePerGas
+            ethers.zeroPadValue(ethers.toBeHex(2_000_000_000), 16), // maxFeePerGas
+            ethers.zeroPadValue(ethers.toBeHex(1_000_000_000), 16) // maxPriorityFeePerGas
         ]),
         paymasterAndData: ethers.concat([
             paymasterAddress,

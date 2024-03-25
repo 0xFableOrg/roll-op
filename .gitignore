@@ -5,6 +5,7 @@
 /op-geth
 /account-abstraction
 /blockscout
+/stackup-bundler
 
 # Dev Tooling
 __pycache__

@@ -54,10 +54,19 @@ def setup(config: Config):
         cwd="account-abstraction",
         log_file=log_file)
 
+    # === clone stackup-bundler repo ===
+
+    github_url = "https://github.com/stackup-wallet/stackup-bundler.git"
+
+    if os.path.isfile("stackup-bundler"):
+        raise Exception("Error: 'stackup-bundler' exists as a file and not a directory.")
+    elif not os.path.exists("stackup-bundler"):
+        print("Cloning the stackup-bundler repository. This may take a while...")
+        lib.clone_repo(github_url, "clone the stackup-bundler repository")
+
     # === install stackup bundler ===
 
-    github_url = "github.com/stackup-wallet/stackup-bundler"
-    version = "v0.6.21"
+    version = "v0.6.44"
 
     log_file = f"{config.logs_dir}/install_bundler.log"
     print(f"Installing stackup bundler. Logging to {log_file}")
@@ -66,8 +75,9 @@ def setup(config: Config):
 
     lib.run_roll_log(
         "install stackup bundler",
-        f"go install {github_url}@{version}",
+        f"git checkout {version} && go build -o ./tmp/stackup-bundler main.go",
         env=env,
+        cwd="stackup-bundler",
         log_file=log_file)
 
     # === build paymaster dependencies ===
