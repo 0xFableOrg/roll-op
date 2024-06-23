@@ -46,10 +46,7 @@ def deploy_contracts_on_l1(config: Config, tmp_l1=False):
 
     # Copy the deploy config to where the deploy script can find it.
     shutil.copy(config.deploy_config_path, config.op_deploy_config_path)
-    try:
-        _deploy_contracts_on_l1(config, tmp_l1)
-    finally:
-        os.remove(config.op_deploy_config_path)
+    _deploy_contracts_on_l1(config, tmp_l1)
 
 
 def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
@@ -117,7 +114,8 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
           f"Using deploy salt: '{config.deploy_salt}'")
 
     env = {**os.environ,
-           "DEPLOYMENT_CONTEXT": config.deployment_name,
+           "DEPLOYMENT_OUTFILE": config.op_rollup_l1_contracts_addresses_path,
+           "DEPLOY_CONFIG_PATH": config.op_deploy_config_path,
            "ETH_RPC_URL": l1_rpc_url,
            "IMPL_SALT": f"'{config.deploy_salt}'"}
 
@@ -132,6 +130,7 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
         "deploy the L2 contracts on L1", [
             "forge script",
             deploy_script,
+            "--sig", "'runWithStateDump()'",
             "--sender", deployer_account,
             private_key_arg,
             f"--gas-estimate-multiplier {config.l1_deployment_gas_multiplier} "
@@ -144,24 +143,26 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
         env=env,
         log_file=log_file)
 
-    # copy now because the sync() invocation will delete the file
+    shutil.move(src=os.path.join(config.op_contracts_dir,
+                f'state-dump-{config.l1_chain_id}.json'), dst=config.l1_allocs_path)
+
     shutil.copy(config.op_rollup_l1_contracts_addresses_path,
                 config.addresses_path)
 
-    log_file = f"{config.logs_dir}/create_l1_artifacts.log"
-    print(f"Creating L1 deployment artifacts. Logging to {log_file}")
-    lib.run_roll_log(
-        "create L1 deployment artifacts", [
-            "forge script",
-            deploy_script,
-            "--sig 'sync()'",
-            f"--rpc-url {l1_rpc_url}",
-        ],
-        cwd=config.op_contracts_dir,
-        env=env,
-        log_file=log_file)
+    # log_file = f"{config.logs_dir}/create_l1_artifacts.log"
+    # print(f"Creating L1 deployment artifacts. Logging to {log_file}")
+    # lib.run_roll_log(
+    #     "create L1 deployment artifacts", [
+    #         "forge script",
+    #         deploy_script,
+    #         "--sig 'sync()'",
+    #         f"--rpc-url {l1_rpc_url}",
+    #     ],
+    #     cwd=config.op_contracts_dir,
+    #     env=env,
+    #     log_file=log_file)
 
-    shutil.move(config.op_deployment_artifacts_dir, config.abi_dir)
+    # shutil.move(config.op_deployment_artifacts_dir, config.abi_dir)
 
 
 ####################################################################################################
@@ -173,18 +174,57 @@ def _generate_l2_genesis(config: Config):
     if os.path.exists(config.l2_genesis_path):
         print("L2 genesis and rollup configs already generated.")
     else:
-        print("Generating L2 genesis and rollup configs.")
+        print("Generating L2 genesis allocs.")
         try:
-            lib.run(
-                "generate L2 genesis and rollup configs", [
-                    "go run cmd/main.go genesis l2",
-                    f"--l1-rpc={config.l1_rpc_url}",
-                    f"--deploy-config={config.deploy_config_path}",
-                    f"--deployment-dir={config.abi_dir}",
-                    f"--outfile.l2={config.l2_genesis_path}",
-                    f"--outfile.rollup={config.rollup_config_path}"
-                ],
-                cwd=config.op_node_dir)
+            log_file = f"{config.logs_dir}/generate_l2_genesis_allocs.log"
+            print('Generating L2 genesis allocs, with L1 addresses: '+config.addresses_path)
+            script = 'scripts/L2Genesis.s.sol:L2Genesis'
+            env = {**os.environ,
+                   'CONTRACT_ADDRESSES_PATH': config.addresses_path,
+                   'DEPLOY_CONFIG_PATH': config.op_deploy_config_path, }
+            lib.run_roll_log("generate l2 genesis allocs", [
+                'forge', 'script', script, "--sig", "'runWithAllUpgrades()'"
+            ], env=env, cwd=config.op_contracts_dir,
+                log_file=log_file)
+
+            # For the previous forks, and the latest fork (default, thus empty prefix),
+            # move the forge-dumps into place as .devnet allocs.
+            for suffix in ["-delta", "-ecotone", ""]:
+                input_path = os.path.join(config.op_contracts_dir,
+                                          f"state-dump-{config.l2_chain_id}{suffix}.json")
+                output_path = os.path.join(config.artifacts_dir, f'allocs-l2{suffix}.json')
+                shutil.move(src=input_path, dst=output_path)
+                print("Generated L2 allocs: "+output_path)
+        except Exception as err:
+            raise lib.extend_exception(
+                err, prefix="Failed to generate L2 genesis and rollup configs: ") from None
+
+        print("Generating L2 genesis and rollup configs")
+        try:
+            log_file = f"{config.logs_dir}/generate_l2_genesis.log"
+            l2_allocs_path = os.path.join(config.artifacts_dir, 'allocs-l2.json')
+            lib.run_roll_log("generate l2 genesis and rollup configs", [
+                'go', 'run', 'cmd/main.go', 'genesis', 'l2',
+                '--l1-rpc', 'http://localhost:8545',
+                '--deploy-config', config.deploy_config_path,
+                '--l2-allocs', l2_allocs_path,
+                '--l1-deployments', config.addresses_path,
+                '--outfile.l2', config.l2_genesis_path,
+                '--outfile.rollup', config.rollup_config_path
+            ], cwd=config.op_node_dir, log_file=log_file)
+
+            # lib.run(
+            #     "generate L2 genesis and rollup configs", [
+            #         "go run cmd/main.go genesis l2",
+            #         f"--l1-rpc={config.l1_rpc_url}",
+            #         f"--deploy-config={config.deploy_config_path}",
+            #         f"--deployment-dir={config.abi_dir}",
+            #         f"--outfile.l2={config.l2_genesis_path}",
+            #         f"--outfile.rollup={config.rollup_config_path}"
+            #     ],
+            #     cwd=config.op_node_dir,
+            #     env=env,
+            #     log_file=log_file)
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ") from None

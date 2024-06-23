@@ -7,6 +7,7 @@ import shutil
 import deps
 import libroll as lib
 
+from subprocess import CalledProcessError
 from config import Config
 
 
@@ -28,10 +29,8 @@ def setup(config: Config):
 def setup_optimism_repo(config: Config):
     github_url = "https://github.com/ethereum-optimism/optimism.git"
 
-    git_tag = "op-node/v1.3.1"
-    git_fix1_tag = "2e57472890f9fea39cde72537935393b068d3e0f"
-    git_fix2_tag = "5252c82f607af81f6cb741a370425eaf26280892"
-    git_custom_tag = "roll-op/v1.3.1"
+    git_tag = "v1.7.7"
+    git_custom_tag = "roll-op/v1.7.7"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
@@ -51,15 +50,19 @@ def setup_optimism_repo(config: Config):
         lib.run("[optimism] checkout stable version",
                 f"git checkout --detach {git_tag}",
                 cwd="optimism")
-        lib.run("[optimism] install devnet fix",
-                f"git cherry-pick {git_fix1_tag}",
-                cwd="optimism")
-        lib.run("[optimism] install submodules fix",
-                f"git cherry-pick {git_fix2_tag}",
-                cwd="optimism")
-        lib.run("[optimism] tag custom version",
-                f"git tag {git_custom_tag}",
-                cwd="optimism")
+        # lib.run("[optimism] install devnet fix",
+        #         f"git cherry-pick {git_fix1_tag}",
+        #         cwd="optimism")
+        # lib.run("[optimism] install submodules fix",
+        #         f"git cherry-pick {git_fix2_tag}",
+        #         cwd="optimism")
+        try:
+            lib.run("[optimism] tag custom version",
+                    f"git tag {git_custom_tag}",
+                    cwd="optimism")
+        except CalledProcessError as e:
+            if "already exists" not in str(e):
+                raise e
 
     log_file = f"{config.logs_dir}/build_optimism.log"
     print(
@@ -98,7 +101,7 @@ def setup_op_geth_repo(config: Config):
     Clone the op-geth repository and build it.
     """
     github_url = "https://github.com/ethereum-optimism/op-geth.git"
-    git_tag = "v1.101304.1"
+    git_tag = "v1.101315.2"
 
     if os.path.isfile("op-geth"):
         raise Exception("Error: 'op-geth' exists as a file and not a directory.")
