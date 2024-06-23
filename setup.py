@@ -50,12 +50,6 @@ def setup_optimism_repo(config: Config):
         lib.run("[optimism] checkout stable version",
                 f"git checkout --detach {git_tag}",
                 cwd="optimism")
-        # lib.run("[optimism] install devnet fix",
-        #         f"git cherry-pick {git_fix1_tag}",
-        #         cwd="optimism")
-        # lib.run("[optimism] install submodules fix",
-        #         f"git cherry-pick {git_fix2_tag}",
-        #         cwd="optimism")
         try:
             lib.run("[optimism] tag custom version",
                     f"git tag {git_custom_tag}",

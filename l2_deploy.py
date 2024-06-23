@@ -149,21 +149,6 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
     shutil.copy(config.op_rollup_l1_contracts_addresses_path,
                 config.addresses_path)
 
-    # log_file = f"{config.logs_dir}/create_l1_artifacts.log"
-    # print(f"Creating L1 deployment artifacts. Logging to {log_file}")
-    # lib.run_roll_log(
-    #     "create L1 deployment artifacts", [
-    #         "forge script",
-    #         deploy_script,
-    #         "--sig 'sync()'",
-    #         f"--rpc-url {l1_rpc_url}",
-    #     ],
-    #     cwd=config.op_contracts_dir,
-    #     env=env,
-    #     log_file=log_file)
-
-    # shutil.move(config.op_deployment_artifacts_dir, config.abi_dir)
-
 
 ####################################################################################################
 
@@ -212,19 +197,6 @@ def _generate_l2_genesis(config: Config):
                 '--outfile.l2', config.l2_genesis_path,
                 '--outfile.rollup', config.rollup_config_path
             ], cwd=config.op_node_dir, log_file=log_file)
-
-            # lib.run(
-            #     "generate L2 genesis and rollup configs", [
-            #         "go run cmd/main.go genesis l2",
-            #         f"--l1-rpc={config.l1_rpc_url}",
-            #         f"--deploy-config={config.deploy_config_path}",
-            #         f"--deployment-dir={config.abi_dir}",
-            #         f"--outfile.l2={config.l2_genesis_path}",
-            #         f"--outfile.rollup={config.rollup_config_path}"
-            #     ],
-            #     cwd=config.op_node_dir,
-            #     env=env,
-            #     log_file=log_file)
         except Exception as err:
             raise lib.extend_exception(
                 err, prefix="Failed to generate L2 genesis and rollup configs: ") from None
