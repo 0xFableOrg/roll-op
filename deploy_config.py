@@ -87,7 +87,7 @@ def generate_deploy_config(config: Config, pre_l1_genesis=False):
 
     deploy_config["proxyAdminOwner"] = config.admin_account
     deploy_config["finalSystemOwner"] = config.admin_account
-    deploy_config["portalGuardian"] = config.admin_account
+    deploy_config["superchainConfigGuardian"] = config.admin_account
 
     deploy_config["baseFeeVaultRecipient"] = config.admin_account
     deploy_config["l1FeeVaultRecipient"] = config.admin_account
