@@ -136,7 +136,7 @@ def _check_basic_prerequisites():
         raise Exception(
             "logrotate is not installed. Please install it from your package manager.\n"
             "e.g. `brew install logrotate` or `sudo apt install logrotate`")
-    
+
     if shutil.which("just") is None:
         raise Exception(
             "just is not installed. Please install it from your package manager.\n"
