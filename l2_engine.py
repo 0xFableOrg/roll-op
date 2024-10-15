@@ -34,6 +34,7 @@ def start(config: Config):
                 f"--verbosity={config.l2_engine_verbosity}",
                 "init",
                 f"--datadir={config.l2_engine_data_dir}",
+                "--state.scheme=hash",
                 config.l2_genesis_path
             ],
             file=log_file)
@@ -91,7 +92,8 @@ def start(config: Config):
         f"--rollup.disabletxpoolgossip={config.l2_engine_disable_tx_gossip}",
 
         # Other geth options
-        f"--txlookuplimit={config.l2_engine_history_transactions}"
+        f"--history.transactions={config.l2_engine_history_transactions}",
+        "--state.scheme=hash"  # TODO: investigate why state.scheme=path is not working
     ]
 
     config.log_l2_command("\n".join(command))

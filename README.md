@@ -18,8 +18,8 @@ abstraction infrastructure (a bundler and a paymaster).
 
 The current version of simple-op-stack-rollup deploys software pinned to the following releases:
 
-- Optimism Monorepo: [`op-node/v1.3.1 `](https://github.com/ethereum-optimism/optimism/releases/tag/op-node%2Fv1.3.1) (+ [a few patches](setup.py))
-- op-geth: [`v1.101304.1`](https://github.com/ethereum-optimism/op-geth/releases/tag/v1.101304.1)
+- Optimism Monorepo: [`v1.9.3`](https://github.com/ethereum-optimism/optimism/releases/tag/v1.9.3)
+- op-geth: [`v1.101408.0`](https://github.com/ethereum-optimism/op-geth/releases/tag/v1.101408.0)
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ The current version of simple-op-stack-rollup deploys software pinned to the fol
 
 You also need the following installed, `rollop` will warn you if these are missing:
 
-- Some common command line utilities: `make`, `curl`, `tar`, `awk` and `grep`.
+- Some common command line utilities: `make`, `curl`, `tar`, `awk`, `just` and `grep`.
 - [`logrotate`](https://github.com/logrotate/logrotate)
   - `sudo apt install logrotate` on Debian-based systems
   - `brew install logrotate` on macOS with Homebrew

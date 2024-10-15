@@ -65,6 +65,15 @@ install_dev_dependencies() {
     else
         echo "autopep8 version $autopep8_version"
     fi
+
+    # Check if rust-just==1.36.0 is installed, otherwise install it
+    just_version=$(just --version | awk '{print $2}')
+    if [ "$just_version" = "1.36.0" ]; then
+        echo "just version is $just_version"
+    else
+        echo "just version is $just_version, but 1.36.0 is required"
+        pip3 install rust-just==1.36.0
+    fi
 }
 
 if check_python_version; then

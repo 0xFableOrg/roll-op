@@ -137,6 +137,11 @@ def _check_basic_prerequisites():
             "logrotate is not installed. Please install it from your package manager.\n"
             "e.g. `brew install logrotate` or `sudo apt install logrotate`")
 
+    if shutil.which("just") is None:
+        raise Exception(
+            "just is not installed. Please install it from your package manager.\n"
+            "e.g. `brew install just` or see https://github.com/casey/just for more installation options")
+
 
 ####################################################################################################
 
@@ -408,20 +413,24 @@ def get_foundry_version():
     It's possible to have multiple releases on the same day, but these are commit-tagged, so we
     can't compare them.
     """
-    version_blob = lib.run("get forge version", "forge --version")
+    try:
+        version_blob = lib.run("get forge version", "forge --version")
+    except Exception as e:
+        print(e)
+        version_blob = ""
     match = re.search(r"^forge \d+\.\d+\.\d+ \([0-9a-fA-F]+ (\d{4}-\d\d-\d\d)", version_blob)
     return None if match is None else match.group(1)
 
 
 ####################################################################################################
 
-FOUNDRY_VERSION = "2023-11-02"
+FOUNDRY_VERSION = "2024-06-02"
 """
 Required version of forge. We're locking down foundry to a specific version, as new versions can
 introduce serious regressions, and have done so in the past.
 """
 
-FOUNDRY_INSTALL_TAG = "nightly-09fe3e041369a816365a020f715ad6f94dbce9f2"
+FOUNDRY_INSTALL_TAG = "nightly-5ac78a9cd4b94dc53d1fe5e0f42372b28b5a7559"
 """
 The tag of the foundry release to install if needed.
 """

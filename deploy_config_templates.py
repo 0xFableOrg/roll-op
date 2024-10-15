@@ -139,7 +139,6 @@ DEVNET_CONFIG = {
 
     "proxyAdminOwner": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
     "finalSystemOwner": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
-    "portalGuardian": "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720",
 
     "baseFeeVaultRecipient": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
     "l1FeeVaultRecipient": "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
@@ -165,9 +164,9 @@ DEVNET_CONFIG = {
     "baseFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "l1FeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
     "sequencerFeeVaultMinimumWithdrawalAmount": "0x8ac7230489e80000",
-    "baseFeeVaultWithdrawalNetwork": "remote",
-    "l1FeeVaultWithdrawalNetwork": "remote",
-    "sequencerFeeVaultWithdrawalNetwork": "remote",
+    "baseFeeVaultWithdrawalNetwork": 0,
+    "l1FeeVaultWithdrawalNetwork": 0,
+    "sequencerFeeVaultWithdrawalNetwork": 0,
 
     "fundDevAccounts": True,
 
@@ -179,13 +178,20 @@ DEVNET_CONFIG = {
     "eip1559Elasticity": 6,
 
     "l2GenesisRegolithTimeOffset": "0x0",
-    "l2GenesisSpanBatchTimeOffset": "0x0",
     "l2GenesisCanyonTimeOffset": "0x40",
 
     "faultGameAbsolutePrestate":
         "0x03c7ae758795765c6664a5d39bf63841c71ff191e9189522bad8ebff5d4eca98",
-    "faultGameMaxDepth": 30,
-    "faultGameMaxDuration": 1200,
+    "faultGameMaxDepth": 50,
+    "faultGameClockExtension": 0,
+    "faultGameMaxClockDuration": 1200,
+    "faultGameGenesisBlock": 0,
+    "faultGameGenesisOutputRoot": "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
+    "faultGameSplitDepth": 14,
+    "faultGameWithdrawalDelay": 604800,
+
+    "preimageOracleMinProposalSize": 10000,
+    "preimageOracleChallengePeriod": 120,
 
     "systemConfigStartBlock": 0,
     "requiredProtocolVersion":

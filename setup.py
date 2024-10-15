@@ -28,10 +28,7 @@ def setup(config: Config):
 def setup_optimism_repo(config: Config):
     github_url = "https://github.com/ethereum-optimism/optimism.git"
 
-    git_tag = "op-node/v1.3.1"
-    git_fix1_tag = "2e57472890f9fea39cde72537935393b068d3e0f"
-    git_fix2_tag = "5252c82f607af81f6cb741a370425eaf26280892"
-    git_custom_tag = "roll-op/v1.3.1"
+    git_tag = "v1.9.3"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
@@ -39,27 +36,9 @@ def setup_optimism_repo(config: Config):
         print("Cloning the optimism repository. This may take a while...")
         lib.clone_repo(github_url, "clone the optimism repository")
 
-    head_tag = lib.run(
-        "get head tag",
-        "git tag --contains HEAD",
-        cwd="optimism").strip()
-
-    if head_tag != git_custom_tag:
-        lib.run("[optimism] fetch",
-                "git fetch",
-                cwd="optimism")
-        lib.run("[optimism] checkout stable version",
-                f"git checkout --detach {git_tag}",
-                cwd="optimism")
-        lib.run("[optimism] install devnet fix",
-                f"git cherry-pick {git_fix1_tag}",
-                cwd="optimism")
-        lib.run("[optimism] install submodules fix",
-                f"git cherry-pick {git_fix2_tag}",
-                cwd="optimism")
-        lib.run("[optimism] tag custom version",
-                f"git tag {git_custom_tag}",
-                cwd="optimism")
+    lib.run("[optimism] checkout stable version",
+            f"git checkout --detach {git_tag}",
+            cwd="optimism")
 
     log_file = f"{config.logs_dir}/build_optimism.log"
     print(
@@ -98,7 +77,7 @@ def setup_op_geth_repo(config: Config):
     Clone the op-geth repository and build it.
     """
     github_url = "https://github.com/ethereum-optimism/op-geth.git"
-    git_tag = "v1.101304.1"
+    git_tag = "v1.101408.0"
 
     if os.path.isfile("op-geth"):
         raise Exception("Error: 'op-geth' exists as a file and not a directory.")
