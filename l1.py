@@ -104,7 +104,8 @@ def _start_temporary_geth_node(config: Config) -> Popen:
             # Mine a block every second — without this the L2 contracts deployment can hang because
             # the basefees climbed too high and geth doesn't mine any blocks so it never goes down.
             "--dev.period 1",
-            "--rpc.allow-unprotected-txs"
+            "--rpc.allow-unprotected-txs",
+            "--state.scheme=path"
         ],
         file=log_file,
         on_exit=early_exit_handler)

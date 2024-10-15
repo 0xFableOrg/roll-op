@@ -136,6 +136,11 @@ def _check_basic_prerequisites():
         raise Exception(
             "logrotate is not installed. Please install it from your package manager.\n"
             "e.g. `brew install logrotate` or `sudo apt install logrotate`")
+    
+    if shutil.which("just") is None:
+        raise Exception(
+            "just is not installed. Please install it from your package manager.\n"
+            "e.g. `brew install just` or see https://github.com/casey/just for more installation options")
 
 
 ####################################################################################################
@@ -394,7 +399,7 @@ def check_or_install_pnpm():
         pass
 
     if lib.ask_yes_no("PNPM is required. Install?"):
-        lib.run("install PNPM", cmd_with_node("npm update -g pnpm"))
+        lib.run("install PNPM", cmd_with_node("npm install -g pnpm"))
         print("Successfully installed PNPM.")
     else:
         raise Exception("PNPM is required.")
@@ -419,13 +424,13 @@ def get_foundry_version():
 
 ####################################################################################################
 
-FOUNDRY_VERSION = "2024-06-21"
+FOUNDRY_VERSION = "2024-06-02"
 """
 Required version of forge. We're locking down foundry to a specific version, as new versions can
 introduce serious regressions, and have done so in the past.
 """
 
-FOUNDRY_INSTALL_TAG = "nightly-d7eac74cfd786447cec9650048e2d2fac63fba0c"
+FOUNDRY_INSTALL_TAG = "nightly-5ac78a9cd4b94dc53d1fe5e0f42372b28b5a7559"
 """
 The tag of the foundry release to install if needed.
 """

@@ -7,7 +7,6 @@ import shutil
 import deps
 import libroll as lib
 
-from subprocess import CalledProcessError
 from config import Config
 
 
@@ -29,8 +28,7 @@ def setup(config: Config):
 def setup_optimism_repo(config: Config):
     github_url = "https://github.com/ethereum-optimism/optimism.git"
 
-    git_tag = "v1.7.7"
-    git_custom_tag = "roll-op/v1.7.7"
+    git_tag = "v1.9.3"
 
     if os.path.isfile("optimism"):
         raise Exception("Error: 'optimism' exists as a file and not a directory.")
@@ -38,25 +36,9 @@ def setup_optimism_repo(config: Config):
         print("Cloning the optimism repository. This may take a while...")
         lib.clone_repo(github_url, "clone the optimism repository")
 
-    head_tag = lib.run(
-        "get head tag",
-        "git tag --contains HEAD",
-        cwd="optimism").strip()
-
-    if head_tag != git_custom_tag:
-        lib.run("[optimism] fetch",
-                "git fetch",
-                cwd="optimism")
-        lib.run("[optimism] checkout stable version",
-                f"git checkout --detach {git_tag}",
-                cwd="optimism")
-        try:
-            lib.run("[optimism] tag custom version",
-                    f"git tag {git_custom_tag}",
-                    cwd="optimism")
-        except CalledProcessError as e:
-            if "already exists" not in str(e):
-                raise e
+    lib.run("[optimism] checkout stable version",
+            f"git checkout --detach {git_tag}",
+            cwd="optimism")
 
     log_file = f"{config.logs_dir}/build_optimism.log"
     print(
@@ -95,7 +77,7 @@ def setup_op_geth_repo(config: Config):
     Clone the op-geth repository and build it.
     """
     github_url = "https://github.com/ethereum-optimism/op-geth.git"
-    git_tag = "v1.101315.2"
+    git_tag = "v1.101408.0"
 
     if os.path.isfile("op-geth"):
         raise Exception("Error: 'op-geth' exists as a file and not a directory.")

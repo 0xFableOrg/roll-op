@@ -107,7 +107,7 @@ def _deploy_contracts_on_l1(config: Config, tmp_l1: bool):
             create2_deployer_deploy_tx
         ])
 
-    deploy_script = "scripts/Deploy.s.sol:Deploy"
+    deploy_script = "scripts/deploy/Deploy.s.sol:Deploy"
 
     log_file = f"{config.logs_dir}/deploy_l1_contracts.log"
     print(f"Deploying contracts to L1 with {deployer_account}. Logging to {log_file}\n"
@@ -172,9 +172,8 @@ def _generate_l2_genesis(config: Config):
             ], env=env, cwd=config.op_contracts_dir,
                 log_file=log_file)
 
-            # For the previous forks, and the latest fork (default, thus empty prefix),
-            # move the forge-dumps into place as .devnet allocs.
-            for suffix in ["-delta", "-ecotone", ""]:
+            # For each fork move the forge-dumps into place as .devnet allocs.
+            for suffix in ["-delta", "-ecotone", "-fjord", "-granite"]:
                 input_path = os.path.join(config.op_contracts_dir,
                                           f"state-dump-{config.l2_chain_id}{suffix}.json")
                 output_path = os.path.join(config.artifacts_dir, f'allocs-l2{suffix}.json')
